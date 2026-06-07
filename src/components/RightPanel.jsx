@@ -1,12 +1,25 @@
 import ScatterChart from './ScatterChart.jsx';
+import BorderGlow from './BorderGlow.jsx';
 import { fmt } from '../lib/data.js';
 
 export default function RightPanel({ lookup, country, year, dark }) {
   const visible = !!country;
   const cur = country && lookup[country] ? lookup[country][year] : null;
+  const bgColor = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
 
   return (
-    <div className={`float-panel right${visible ? ' visible' : ''}`}>
+    <BorderGlow
+      className={`float-panel right${visible ? ' visible' : ''}`}
+      backgroundColor={bgColor}
+      borderRadius={22}
+      glowRadius={5}
+      glowIntensity={0.06}
+      glowColor="270 60 75"
+      edgeSensitivity={60}
+      coneSpread={10}
+      fillOpacity={0.01}
+      colors={['#c08cff', '#8a4fd6', '#38bdf8']}
+    >
       <div className="fp-head">
         <div>
           <div className="fp-label">Health correlation</div>
@@ -40,6 +53,6 @@ export default function RightPanel({ lookup, country, year, dark }) {
         diagnosis and reporting capacity, which track wealth. Satellite radiance measures
         upward-emitted light, not bedroom exposure.
       </div>
-    </div>
+    </BorderGlow>
   );
 }

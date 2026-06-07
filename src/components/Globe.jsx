@@ -84,12 +84,14 @@ export default function Globe({
 
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 200);
-    camera.position.set(0, 0, 6);
+    camera.position.set(0, 0, 8.7);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(w, h);
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.55;
 
     scene.add(makeStarfield());
 
@@ -99,10 +101,10 @@ export default function Globe({
     const loader = new THREE.TextureLoader();
     loader.setCrossOrigin('anonymous');
 
-    const earthMat = new THREE.MeshPhongMaterial({
+    const earthMat = new THREE.MeshStandardMaterial({
       color: 0x1a2740,
-      shininess: 18,
-      specular: new THREE.Color(0x333333),
+      roughness: 0.65,
+      metalness: 0.04,
     });
     const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 128, 128), earthMat);
     worldGroup.add(earth);
@@ -143,8 +145,21 @@ export default function Globe({
     loader.load(
       TEXTURES.spec,
       (t) => {
-        earthMat.specularMap = t;
-        earthMat.specular = new THREE.Color(0x666666);
+        // Invert water mask (white=ocean) → roughness map (black=smooth ocean, white=rough land)
+        const cv = document.createElement('canvas');
+        cv.width = t.image.width;
+        cv.height = t.image.height;
+        const cx = cv.getContext('2d');
+        cx.drawImage(t.image, 0, 0);
+        const id = cx.getImageData(0, 0, cv.width, cv.height);
+        const px = id.data;
+        for (let i = 0; i < px.length; i += 4) {
+          px[i] = 255 - px[i];
+          px[i + 1] = 255 - px[i + 1];
+          px[i + 2] = 255 - px[i + 2];
+        }
+        cx.putImageData(id, 0, 0);
+        earthMat.roughnessMap = new THREE.CanvasTexture(cv);
         earthMat.needsUpdate = true;
       },
       undefined,
@@ -154,7 +169,7 @@ export default function Globe({
       TEXTURES.bump,
       (t) => {
         earthMat.bumpMap = t;
-        earthMat.bumpScale = 0.022;
+        earthMat.bumpScale = 0.06;
         earthMat.needsUpdate = true;
         tick();
       },
@@ -162,25 +177,6 @@ export default function Globe({
       tick
     );
 
-    // Cloud layer.
-    const cloudMat = new THREE.MeshPhongMaterial({
-      transparent: true,
-      opacity: 0.42,
-      depthWrite: false,
-    });
-    const clouds = new THREE.Mesh(new THREE.SphereGeometry(R * 1.012, 96, 96), cloudMat);
-    worldGroup.add(clouds);
-    loader.load(
-      TEXTURES.clouds,
-      (t) => {
-        t.colorSpace = THREE.SRGBColorSpace;
-        cloudMat.map = t;
-        cloudMat.alphaMap = t;
-        cloudMat.needsUpdate = true;
-      },
-      undefined,
-      () => {}
-    );
 
     // Data overlay sphere.
     const overlay = document.createElement('canvas');
@@ -202,31 +198,24 @@ export default function Globe({
     });
     const overlayTex = new THREE.CanvasTexture(overlay);
     overlayTex.colorSpace = THREE.SRGBColorSpace;
+    overlayTex.minFilter = THREE.LinearFilter;
+    overlayTex.magFilter = THREE.LinearFilter;
+    overlayTex.generateMipmaps = false;
     overlayTexRef.current = overlayTex;
     const overlayMesh = new THREE.Mesh(
-      new THREE.SphereGeometry(R * 1.004, 128, 128),
-      new THREE.MeshBasicMaterial({ map: overlayTex, transparent: true, depthWrite: false })
+      new THREE.SphereGeometry(R * 1.001, 128, 128),
+      new THREE.MeshStandardMaterial({
+        map: overlayTex,
+        transparent: true,
+        depthWrite: false,
+        roughness: 1.0,
+        metalness: 0.0,
+      })
     );
     worldGroup.add(overlayMesh);
 
-    // Atmosphere glow.
-    const atmMat = new THREE.ShaderMaterial({
-      vertexShader: `varying vec3 vN;void main(){vN=normalize(normalMatrix*normal);gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0);}`,
-      fragmentShader: `varying vec3 vN;void main(){float i=pow(0.66-dot(vN,vec3(0,0,1.0)),2.6);gl_FragColor=vec4(0.35,0.6,1.0,1.0)*i;}`,
-      blending: THREE.AdditiveBlending,
-      side: THREE.BackSide,
-      transparent: true,
-    });
-    scene.add(new THREE.Mesh(new THREE.SphereGeometry(R * 1.06, 96, 96), atmMat));
 
-    // Lighting.
-    scene.add(new THREE.AmbientLight(0xffffff, 0.35));
-    const sun = new THREE.DirectionalLight(0xfff4e6, 1.5);
-    sun.position.set(-3, 1.5, 4);
-    scene.add(sun);
-    const fill = new THREE.DirectionalLight(0x88aaff, 0.3);
-    fill.position.set(3, -1, -2);
-    scene.add(fill);
+    scene.add(new THREE.AmbientLight(0xffffff, 1.6));
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
@@ -328,7 +317,6 @@ export default function Globe({
     const animate = () => {
       raf = requestAnimationFrame(animate);
       if (autoRotate) worldGroup.rotation.y += 0.0007;
-      clouds.rotation.y += 0.0004;
       renderer.render(scene, camera);
     };
     animate();

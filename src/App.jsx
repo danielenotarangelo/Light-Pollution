@@ -10,7 +10,7 @@ import { useData } from './hooks/useData.js';
 export default function App() {
   const { data, geo, loading, error } = useData();
   const [year, setYear] = useState(2013);
-  const [variable, setVariable] = useState('r');
+  const [variable, setVariable] = useState(null);
   const [healthMetric] = useState('d'); // depressive rate drives the Health view
   const [selected, setSelected] = useState(null);
   const [playing, setPlaying] = useState(false);
@@ -48,7 +48,7 @@ export default function App() {
         onToggleTheme={() => setDark((d) => !d)}
       />
 
-      {data && <Legend domains={data.domains} variable={variable} healthMetric={healthMetric} />}
+      {data && variable && <Legend domains={data.domains} variable={variable} healthMetric={healthMetric} />}
 
       {data && geo && (
         <Globe

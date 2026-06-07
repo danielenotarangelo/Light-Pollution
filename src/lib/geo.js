@@ -38,18 +38,28 @@ export function makeGeoPath(ctx) {
 // Transparent everywhere except data countries, so the satellite Earth
 // shows through.
 export function paintOverlay({ ctx, geoPath, geo, data, year, variable, healthMetric, selected }) {
-  const colorScale = makeColorScale(data.domains, variable, healthMetric);
   ctx.clearRect(0, 0, TEX_W, TEX_H);
+  if (!variable) {
+    geo.features.forEach((f) => {
+      ctx.beginPath();
+      geoPath(f);
+      ctx.lineWidth = f.properties.name === selected ? 4 : 0.8;
+      ctx.strokeStyle = f.properties.name === selected ? '#ffffff' : 'rgba(255,255,255,0.18)';
+      ctx.stroke();
+    });
+    return;
+  }
+  const colorScale = makeColorScale(data.domains, variable, healthMetric);
   geo.features.forEach((f) => {
     const name = f.properties.name;
     const v = getVal(data.lookup, name, year, variable, healthMetric);
     ctx.beginPath();
     geoPath(f);
     if (v == null) {
-      ctx.fillStyle = 'rgba(120,130,150,0.15)';
+      ctx.fillStyle = 'rgba(120,130,150,0.08)';
     } else {
       const c = d3.color(colorScale(v));
-      c.opacity = 0.82;
+      c.opacity = 0.52;
       ctx.fillStyle = c + '';
     }
     ctx.fill();

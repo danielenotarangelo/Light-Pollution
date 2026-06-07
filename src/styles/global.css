@@ -211,17 +211,11 @@ header {
   color: var(--text-faint);
 }
 
-/* Floating panels */
+/* Floating panels — positioning/transition only; visuals handled by BorderGlow */
 .float-panel {
   position: fixed;
   z-index: 28;
   width: 330px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 22px;
-  padding: 22px;
-  backdrop-filter: blur(20px);
-  box-shadow: var(--shadow);
   opacity: 0;
   transform: translateY(14px) scale(0.98);
   pointer-events: none;
@@ -240,6 +234,16 @@ header {
 .float-panel.right {
   right: 32px;
   top: 92px;
+}
+
+/* BorderGlow integration */
+.border-glow-card.float-panel {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.border-glow-card.float-panel .border-glow-inner {
+  padding: 22px;
+  border-radius: inherit;
 }
 
 .fp-head {

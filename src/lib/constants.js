@@ -24,15 +24,12 @@ export const YEAR_CAPTIONS = {
   2023: 'The most recent complete year on record.',
 };
 
-// Earth textures. Swap these for local 4k/8k files in /public/textures
-// for higher fidelity (see README).
-const TEX_BASE = 'https://cdn.jsdelivr.net/gh/Izaacapp/threejs-earth@main/textures/';
 export const TEXTURES = {
-  day: TEX_BASE + '00_earthmap1k.jpg',
-  bump: TEX_BASE + '01_earthbump1k.jpg',
-  spec: TEX_BASE + '02_earthspec1k.jpg',
-  clouds: TEX_BASE + '05_earthcloudmaptrans.jpg',
-  fallback: 'https://cdn.jsdelivr.net/npm/three-globe/example/img/earth-blue-marble.jpg',
+  day: '/textures/earth-day-4k.jpg',
+  bump: '/textures/earth-topology.png',
+  spec: '/textures/earth-water.png',
+  clouds: '/textures/earth-clouds.jpg',
+  fallback: 'https://unpkg.com/three-globe/example/img/earth-blue-marble.jpg',
 };
 
 export const GLOBE_RADIUS = 2;
