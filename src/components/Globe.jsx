@@ -12,28 +12,6 @@ import {
 import { getVal, fmt, activeVarKey } from '../lib/data.js';
 import { VAR_META } from '../lib/constants.js';
 
-function makeStarfield() {
-  const n = 2200;
-  const pos = new Float32Array(n * 3);
-  for (let i = 0; i < n; i++) {
-    const r = 40 + Math.random() * 40;
-    const th = Math.random() * Math.PI * 2;
-    const ph = Math.acos(2 * Math.random() - 1);
-    pos[i * 3] = r * Math.sin(ph) * Math.cos(th);
-    pos[i * 3 + 1] = r * Math.sin(ph) * Math.sin(th);
-    pos[i * 3 + 2] = r * Math.cos(ph);
-  }
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  const m = new THREE.PointsMaterial({
-    color: 0xffffff,
-    size: 0.18,
-    sizeAttenuation: true,
-    transparent: true,
-    opacity: 0.85,
-  });
-  return new THREE.Points(g, m);
-}
 
 export default function Globe({
   data,
@@ -92,8 +70,6 @@ export default function Globe({
     renderer.outputColorSpace = THREE.SRGBColorSpace;
     renderer.toneMapping = THREE.ACESFilmicToneMapping;
     renderer.toneMappingExposure = 1.55;
-
-    scene.add(makeStarfield());
 
     const worldGroup = new THREE.Group();
     scene.add(worldGroup);

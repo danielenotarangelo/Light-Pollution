@@ -45,7 +45,7 @@ body,
 }
 body {
   font-family: var(--font);
-  background: var(--bg);
+  background: radial-gradient(ellipse at 50% 36%, var(--bg-grad-1), var(--bg-grad-2));
   color: var(--text);
   overflow: hidden;
 }
@@ -58,8 +58,18 @@ body {
 .globe-mount {
   position: fixed;
   inset: 0;
-  background: radial-gradient(ellipse at 50% 36%, var(--bg-grad-1), var(--bg-grad-2));
+  background: transparent;
   transition: background 0.5s;
+}
+body.dark .globe-mount {
+  background: transparent;
+}
+
+.dot-field-wrapper {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
 }
 .globe-canvas {
   display: block;
@@ -495,14 +505,15 @@ header {
   gap: 16px;
 }
 .play-btn {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   border-radius: 50%;
   border: 1px solid var(--panel-border);
-  background: transparent;
-  color: var(--accent);
+  background: var(--panel);
+  backdrop-filter: blur(14px);
+  box-shadow: var(--shadow);
+  color: var(--text);
   cursor: pointer;
-  font-size: 13px;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -510,42 +521,27 @@ header {
   transition: all 0.2s;
 }
 .play-btn:hover {
-  background: var(--hairline);
+  transform: translateY(-1px);
+  box-shadow: 0 6px 20px color-mix(in srgb, var(--text) 15%, transparent);
 }
-.slider-track {
-  position: relative;
+.play-btn:active {
+  transform: scale(0.93);
+}
+.es-track-area {
   flex: 1;
-  height: 30px;
   display: flex;
-  align-items: center;
-}
-.slider-line {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--hairline);
-}
-.slider-progress {
-  position: absolute;
-  left: 0;
-  height: 3px;
-  border-radius: 2px;
-  background: var(--accent);
-  transition: width 0.2s;
+  flex-direction: column;
+  gap: 0;
 }
 .ticks {
-  position: absolute;
-  left: 0;
-  right: 0;
   display: flex;
   justify-content: space-between;
+  padding: 0 23px;
 }
 .tick {
   position: relative;
   width: 2px;
-  height: 9px;
+  height: 7px;
   border-radius: 1px;
   background: var(--hairline);
   cursor: pointer;
@@ -553,7 +549,7 @@ header {
 .tick::after {
   content: attr(data-year);
   position: absolute;
-  top: 14px;
+  top: 11px;
   left: 50%;
   transform: translateX(-50%);
   font-size: 11px;
@@ -564,39 +560,7 @@ header {
   color: var(--text);
 }
 .tick.passed {
-  background: var(--accent);
-}
-input[type='range'] {
-  position: absolute;
-  left: 0;
-  right: 0;
-  width: 100%;
-  margin: 0;
-  background: transparent;
-  -webkit-appearance: none;
-  appearance: none;
-  cursor: pointer;
-  z-index: 5;
-  height: 30px;
-}
-input[type='range']::-webkit-slider-thumb {
-  -webkit-appearance: none;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid var(--accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  cursor: grab;
-}
-input[type='range']::-moz-range-thumb {
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  background: #fff;
-  border: 3px solid var(--accent);
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
-  cursor: grab;
+  background: var(--text-dim);
 }
 
 

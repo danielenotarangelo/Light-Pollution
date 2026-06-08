@@ -5,6 +5,7 @@ import Globe from './components/Globe.jsx';
 import LeftPanel from './components/LeftPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
 import Timeline from './components/Timeline.jsx';
+import DotField from './components/DotField.jsx';
 import { useData } from './hooks/useData.js';
 
 export default function App() {
@@ -43,6 +44,19 @@ export default function App() {
 
   return (
     <div className="app">
+      <div className="dot-field-wrapper">
+        <DotField
+          dotRadius={1.5}
+          dotSpacing={20}
+          bulgeStrength={60}
+          glowRadius={0}
+          sparkle={false}
+          waveAmplitude={0}
+          gradientFrom={dark ? 'rgba(232, 236, 248, 0.75)' : 'rgba(92, 101, 128, 0.62)'}
+          gradientTo={dark ? 'rgba(149, 160, 190, 0.55)' : 'rgba(147, 155, 178, 0.45)'}
+        />
+      </div>
+
       {(loading || !texLoaded) && (
         <div className={`loading${loading ? '' : ' hidden'}`}>
           <div className="spin" />
