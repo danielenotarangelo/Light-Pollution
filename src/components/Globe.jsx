@@ -220,6 +220,13 @@ export default function Globe({
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
     let autoRotate = true;
+    let idleTimer = null;
+    const IDLE_MS = 3000;
+
+    const startIdleTimer = () => {
+      clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => { autoRotate = true; }, IDLE_MS);
+    };
 
     // Interaction.
     let isDragging = false;
@@ -242,6 +249,7 @@ export default function Globe({
     const onDown = (e) => {
       isDragging = true;
       autoRotate = false;
+      clearTimeout(idleTimer);
       prevX = e.clientX;
       prevY = e.clientY;
       downX = e.clientX;
@@ -250,6 +258,7 @@ export default function Globe({
     };
     const onUp = (e) => {
       isDragging = false;
+      startIdleTimer();
       const dist = Math.hypot(e.clientX - downX, e.clientY - downY);
       const dt = Date.now() - downT;
       if (dist < 5 && dt < 300) {
@@ -297,6 +306,8 @@ export default function Globe({
     const onWheel = (e) => {
       e.preventDefault();
       camera.position.z = Math.max(2.9, Math.min(9, camera.position.z + e.deltaY * 0.002));
+      autoRotate = false;
+      startIdleTimer();
     };
 
     canvas.addEventListener('mousedown', onDown);
@@ -330,6 +341,7 @@ export default function Globe({
     return () => {
       cancelAnimationFrame(raf);
       clearTimeout(safety);
+      clearTimeout(idleTimer);
       canvas.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
       window.removeEventListener('mousemove', onMove);

@@ -10,12 +10,14 @@ export default function DualAxisChart({ series, year, dark }) {
     if (!series || !series.length) return;
 
     const W = el.clientWidth || 286;
-    const H = 190;
+    const H = 240;
     const m = { top: 12, right: 42, bottom: 22, left: 42 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
     const ac = dark ? '#5b647d' : '#939bb2';
     const gc = dark ? '#2a3048' : '#e2e6ee';
+
+    d3.select(el).style('position', 'relative');
 
     const svg = d3.select(el).append('svg').attr('width', W).attr('height', H);
     const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
@@ -61,28 +63,73 @@ export default function DualAxisChart({ series, year, dark }) {
     const cy = series.find((d) => d.year === year);
     if (cy) {
       g.append('line')
-        .attr('x1', x(cy.year))
-        .attr('x2', x(cy.year))
-        .attr('y1', 0)
-        .attr('y2', ih)
+        .attr('x1', x(cy.year)).attr('x2', x(cy.year))
+        .attr('y1', 0).attr('y2', ih)
         .attr('stroke', ac)
         .attr('stroke-dasharray', '2,2')
         .attr('opacity', 0.4);
       g.append('circle')
-        .attr('cx', x(cy.year))
-        .attr('cy', yR(cy.r))
-        .attr('r', 4)
-        .attr('fill', 'var(--radiance)')
-        .attr('stroke', 'var(--panel)')
-        .attr('stroke-width', 2);
+        .attr('cx', x(cy.year)).attr('cy', yR(cy.r))
+        .attr('r', 4).attr('fill', 'var(--radiance)')
+        .attr('stroke', 'var(--panel)').attr('stroke-width', 2);
       g.append('circle')
-        .attr('cx', x(cy.year))
-        .attr('cy', yG(cy.g))
-        .attr('r', 4)
-        .attr('fill', 'var(--gdp)')
-        .attr('stroke', 'var(--panel)')
-        .attr('stroke-width', 2);
+        .attr('cx', x(cy.year)).attr('cy', yG(cy.g))
+        .attr('r', 4).attr('fill', 'var(--gdp)')
+        .attr('stroke', 'var(--panel)').attr('stroke-width', 2);
     }
+
+    // Crosshair group (hidden until hover)
+    const crosshair = g.append('g').style('display', 'none').style('pointer-events', 'none');
+    const vline = crosshair.append('line')
+      .attr('y1', 0).attr('y2', ih)
+      .attr('stroke', ac).attr('stroke-width', 1).attr('stroke-dasharray', '3,2');
+    const dotR = crosshair.append('circle')
+      .attr('r', 4).attr('fill', 'var(--radiance)')
+      .attr('stroke', 'var(--panel)').attr('stroke-width', 2);
+    const dotG = crosshair.append('circle')
+      .attr('r', 4).attr('fill', 'var(--gdp)')
+      .attr('stroke', 'var(--panel)').attr('stroke-width', 2);
+
+    // Tooltip div
+    const tip = d3.select(el).append('div').attr('class', 'chart-hover-tip').style('display', 'none');
+
+    const bisect = d3.bisector((d) => d.year).center;
+    const fmtR = d3.format('.2f');
+    const fmtG = (v) => v >= 1000 ? d3.format(',.0f')(v) : String(v);
+
+    // Invisible overlay to capture mouse events
+    g.append('rect')
+      .attr('width', iw).attr('height', ih)
+      .attr('fill', 'none').attr('pointer-events', 'all')
+      .on('mousemove', function (event) {
+        const [mx] = d3.pointer(event);
+        const idx = bisect(series, x.invert(mx));
+        const d = series[Math.max(0, Math.min(idx, series.length - 1))];
+        if (!d) return;
+
+        const px = x(d.year);
+        crosshair.style('display', null);
+        vline.attr('x1', px).attr('x2', px);
+        dotR.attr('cx', px).attr('cy', yR(d.r));
+        dotG.attr('cx', px).attr('cy', yG(d.g));
+
+        const tipX = px + m.left;
+        const flipRight = tipX > W * 0.6;
+        tip
+          .style('display', 'block')
+          .style('left', flipRight ? null : tipX + 10 + 'px')
+          .style('right', flipRight ? W - tipX + 10 + 'px' : null)
+          .style('top', m.top + 'px')
+          .html(
+            `<div class="tip-year">${d.year}</div>` +
+            `<div class="tip-row"><span class="tip-dot" style="background:var(--radiance)"></span>${fmtR(d.r)} nW/cm²/sr</div>` +
+            `<div class="tip-row"><span class="tip-dot" style="background:var(--gdp)"></span>$${fmtG(d.g)}</div>`
+          );
+      })
+      .on('mouseleave', function () {
+        crosshair.style('display', 'none');
+        tip.style('display', 'none');
+      });
   }, [series, year, dark]);
 
   return <div ref={ref} className="chart" />;

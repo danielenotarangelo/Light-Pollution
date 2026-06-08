@@ -2,8 +2,8 @@ import ScatterChart from './ScatterChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import { fmt } from '../lib/data.js';
 
-export default function RightPanel({ lookup, country, year, dark }) {
-  const visible = !!country;
+export default function RightPanel({ lookup, country, year, dark, open, onClose }) {
+  const visible = !!country && open;
   const cur = country && lookup[country] ? lookup[country][year] : null;
   const bgColor = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
 
@@ -23,9 +23,20 @@ export default function RightPanel({ lookup, country, year, dark }) {
       <div className="fp-head">
         <div>
           <div className="fp-label">Health correlation</div>
-          <h2>Light &amp; the mind</h2>
+          <div className="fp-title-row">
+            <h2>Light &amp; the mind</h2>
+            <span className="info-btn" aria-label="Interpretation note">
+              i
+              <div className="info-tooltip">
+                Correlation is not causation. Prevalence reflects diagnosis and reporting
+                capacity, which track wealth. Satellite radiance measures upward-emitted
+                light, not bedroom exposure.
+              </div>
+            </span>
+          </div>
           <div className="meta">Radiance vs prevalence · {year}</div>
         </div>
+        <button className="close-x" onClick={onClose}>✕</button>
       </div>
       <div className="stat-grid">
         <div className="stat">
@@ -48,11 +59,6 @@ export default function RightPanel({ lookup, country, year, dark }) {
         All countries · radiance × depression
       </div>
       {visible && <ScatterChart lookup={lookup} year={year} selected={country} dark={dark} />}
-      <div className="disclaimer">
-        <strong>On interpretation.</strong> Correlation is not causation. Prevalence reflects
-        diagnosis and reporting capacity, which track wealth. Satellite radiance measures
-        upward-emitted light, not bedroom exposure.
-      </div>
     </BorderGlow>
   );
 }

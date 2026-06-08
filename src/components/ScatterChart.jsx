@@ -9,7 +9,7 @@ export default function ScatterChart({ lookup, year, selected, dark }) {
     el.innerHTML = '';
 
     const W = el.clientWidth || 286;
-    const H = 210;
+    const H = 260;
     const m = { top: 12, right: 12, bottom: 38, left: 42 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;

@@ -16,6 +16,8 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [dark, setDark] = useState(false);
   const [texLoaded, setTexLoaded] = useState(false);
+  const [rightOpen, setRightOpen] = useState(true);
+  const [leftOpen, setLeftOpen] = useState(true);
 
   useEffect(() => {
     document.body.classList.toggle('dark', dark);
@@ -23,6 +25,12 @@ export default function App() {
 
   const handleYearChange = useCallback((next) => {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
+  }, []);
+
+  const handleSelect = useCallback((name) => {
+    setSelected(name);
+    setRightOpen(true);
+    setLeftOpen(true);
   }, []);
 
   if (error) {
@@ -50,6 +58,13 @@ export default function App() {
 
       {data && variable && <Legend domains={data.domains} variable={variable} healthMetric={healthMetric} />}
 
+      {selected && (
+        <div className="country-badge">
+          <div className="country-badge-label">Selected territory</div>
+          {selected}
+        </div>
+      )}
+
       {data && geo && (
         <Globe
           data={data}
@@ -58,7 +73,7 @@ export default function App() {
           variable={variable}
           healthMetric={healthMetric}
           selected={selected}
-          onSelect={setSelected}
+          onSelect={handleSelect}
           onTexturesLoaded={() => setTexLoaded(true)}
         />
       )}
@@ -70,9 +85,10 @@ export default function App() {
             country={selected}
             year={year}
             dark={dark}
-            onClose={() => setSelected(null)}
+            open={leftOpen}
+            onClose={() => setLeftOpen(false)}
           />
-          <RightPanel lookup={data.lookup} country={selected} year={year} dark={dark} />
+          <RightPanel lookup={data.lookup} country={selected} year={year} dark={dark} open={rightOpen} onClose={() => setRightOpen(false)} />
         </>
       )}
 

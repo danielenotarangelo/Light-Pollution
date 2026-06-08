@@ -3,8 +3,8 @@ import BorderGlow from './BorderGlow.jsx';
 import { fmt, getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
 
-export default function LeftPanel({ lookup, country, year, dark, onClose }) {
-  const visible = !!country;
+export default function LeftPanel({ lookup, country, year, dark, open, onClose }) {
+  const visible = !!country && open;
   const series = country ? getSeries(lookup, YEARS, country) : [];
   const cur = country && lookup[country] ? lookup[country][year] : null;
   const bgColor = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
@@ -24,15 +24,11 @@ export default function LeftPanel({ lookup, country, year, dark, onClose }) {
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">Selected territory</div>
-          <h2>{country || '—'}</h2>
-          <div className="meta">
-            {series.length} years · {year}
-          </div>
+          <div className="fp-label">Radiance &amp; GDP per capita</div>
+          <h2>Light &amp; Wealth</h2>
+          <div className="meta">{year}</div>
         </div>
-        <button className="close-x" onClick={onClose}>
-          ✕
-        </button>
+        <button className="close-x" onClick={onClose}>✕</button>
       </div>
       <div className="stat-grid">
         <div className="stat">
