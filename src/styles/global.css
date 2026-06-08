@@ -190,7 +190,7 @@ header {
 .country-badge {
   position: fixed;
   left: calc(50% - 360px);
-  top: 116px;
+  top: 92px;
   z-index: 25;
   background: var(--panel);
   border: 1px solid var(--panel-border);
@@ -268,11 +268,11 @@ header {
 }
 .float-panel.left {
   left: 80px;
-  top: 50%;
+  top: var(--panel-center-y, 50%);
 }
 .float-panel.right {
   right: 80px;
-  top: 50%;
+  top: var(--panel-center-y, 50%);
 }
 
 /* BorderGlow integration */
@@ -475,7 +475,7 @@ header {
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 22px;
-  padding: 18px 26px;
+  padding: 20px 38px;
   backdrop-filter: blur(16px);
   box-shadow: var(--shadow);
 }
@@ -536,7 +536,7 @@ header {
 .ticks {
   display: flex;
   justify-content: space-between;
-  padding: 0 23px;
+  padding: 0;
 }
 .tick {
   position: relative;

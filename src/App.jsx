@@ -6,6 +6,7 @@ import LeftPanel from './components/LeftPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
 import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
+import Landing from './components/Landing.jsx';
 import { useData } from './hooks/useData.js';
 
 export default function App() {
@@ -19,10 +20,33 @@ export default function App() {
   const [texLoaded, setTexLoaded] = useState(false);
   const [rightOpen, setRightOpen] = useState(true);
   const [leftOpen, setLeftOpen] = useState(true);
+  const [showLanding, setShowLanding] = useState(true);
 
   useEffect(() => {
     document.body.classList.toggle('dark', dark);
   }, [dark]);
+
+  // Keep panels vertically centred between the legend bottom and the timeline top.
+  useEffect(() => {
+    const update = () => {
+      const timelineEl = document.querySelector('.timeline');
+      const legendEl   = document.querySelector('.legend');
+      const headerEl   = document.querySelector('header');
+      if (!timelineEl) return;
+
+      const timelineTop = timelineEl.getBoundingClientRect().top;
+      const topBound    = legendEl
+        ? legendEl.getBoundingClientRect().bottom
+        : (headerEl ? headerEl.getBoundingClientRect().bottom : 0);
+
+      const centerY = (topBound + timelineTop) / 2;
+      document.documentElement.style.setProperty('--panel-center-y', `${centerY}px`);
+    };
+
+    requestAnimationFrame(update);
+    window.addEventListener('resize', update);
+    return () => window.removeEventListener('resize', update);
+  }, [variable, data]);
 
   const handleYearChange = useCallback((next) => {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
@@ -44,6 +68,7 @@ export default function App() {
 
   return (
     <div className="app">
+      {showLanding && <Landing onEnter={() => setShowLanding(false)} />}
       <div className="dot-field-wrapper">
         <DotField
           dotRadius={1.5}

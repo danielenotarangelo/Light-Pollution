@@ -1,0 +1,144 @@
+.landing {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(ellipse at 50% 36%, var(--bg-grad-1), var(--bg-grad-2));
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.7s ease, transform 0.75s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.landing.leaving {
+  opacity: 0;
+  transform: translateY(-36px);
+  pointer-events: none;
+}
+
+/* ── Slide stage ── */
+.landing-stage {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  overflow: hidden;
+  position: relative;
+}
+
+.landing-slide {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 22px;
+  max-width: 680px;
+  padding: 0 48px;
+  width: 100%;
+}
+
+/* ── Slide content ── */
+.landing-icon {
+  color: var(--text-dim);
+  margin-bottom: 4px;
+  opacity: 0.85;
+}
+
+.landing-eyebrow {
+  font-size: 13.5px;
+  font-weight: 700;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  margin: 0;
+}
+
+.landing-title {
+  font-size: clamp(42px, 5.5vw, 68px);
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.05;
+  color: var(--text);
+  margin: 0;
+}
+
+.landing-title.big {
+  font-size: clamp(72px, 12vw, 140px);
+  letter-spacing: -0.03em;
+  line-height: 0.95;
+}
+
+.landing-desc {
+  font-size: clamp(17px, 1.8vw, 21px);
+  font-weight: 500;
+  color: var(--text-dim);
+  line-height: 1.65;
+  max-width: 520px;
+  margin: 0;
+}
+
+/* ── Bottom arrow ── */
+.landing-arrow-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-faint);
+  padding: 12px;
+  margin-bottom: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color 0.25s;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.landing-arrow-btn:hover {
+  color: var(--text);
+}
+
+.landing-arrow {
+  display: block;
+  animation: landing-bounce 2.4s ease-in-out infinite;
+}
+
+@keyframes landing-bounce {
+  0%, 100% { transform: translateY(0); }
+  50%       { transform: translateY(8px); }
+}
+
+/* ── Side navigation dots ── */
+.landing-dots {
+  position: absolute;
+  left: 36px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  align-items: center;
+}
+
+.landing-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  background: var(--text-faint);
+  transition: background 0.25s, transform 0.25s;
+  flex-shrink: 0;
+}
+
+.landing-dot.active {
+  background: var(--text);
+  transform: scale(1.55);
+}
+
+.landing-dot:hover:not(.active) {
+  background: var(--text-dim);
+}
