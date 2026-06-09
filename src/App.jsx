@@ -3,7 +3,6 @@ import Header from './components/Header.jsx';
 import Legend from './components/Legend.jsx';
 import Globe from './components/Globe.jsx';
 import LeftPanel from './components/LeftPanel.jsx';
-import RightPanel from './components/RightPanel.jsx';
 import LGIPanel from './components/LGIPanel.jsx';
 import LGRPanel from './components/LGRPanel.jsx';
 import QuadrantPanel from './components/QuadrantPanel.jsx';
@@ -69,6 +68,13 @@ export default function App() {
   const handleYearChange = useCallback((next) => {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
   }, []);
+
+  // Re-open stacks whenever the variable changes so panels
+  // from a previous variable don't stay hidden after the toggle switches.
+  useEffect(() => {
+    setLeftOpen(true);
+    setRightOpen(true);
+  }, [variable]);
 
   const handleSelect = useCallback((name) => {
     setSelected(name);
@@ -153,56 +159,57 @@ export default function App() {
         />
       )}
 
-      {data && (
-        isMobile ? (
-          selected && (
+      {data && (() => {
+        const showAll = variable == null;
+        const isLight  = variable === 'r';
+        const isWealth = variable === 'g';
+        const isHealth = variable === 'health';
+
+        const sharedLeft  = { lookup: data.lookup, country: selected, year, dark, inStack: true };
+        const sharedRight = { ...sharedLeft, healthMetric };
+        const sharedMob   = { ...sharedRight, compact: true, bgColor: mobileBg };
+
+        const leftCards = [
+          ...(showAll || isLight || isWealth ? [<LeftPanel  key="left" {...sharedLeft}  onClose={() => setLeftOpen(false)}  />] : []),
+          ...(showAll || isLight             ? [<LGIPanel   key="lgi"  {...sharedLeft}  onClose={() => setLeftOpen(false)}  />] : []),
+        ];
+        const rightCards = [
+          ...(showAll || isLight             ? [<LGRPanel       key="lgr"       {...sharedRight} onClose={() => setRightOpen(false)} />] : []),
+          ...(showAll || isHealth            ? [<QuadrantPanel  key="quadrant"   {...sharedRight} onClose={() => setRightOpen(false)} />,
+                                               <TrajectoryPanel key="trajectory" {...sharedRight} onClose={() => setRightOpen(false)} />] : []),
+        ];
+        const mobileCards = [
+          ...(showAll || isLight || isWealth ? [<LeftPanel       key="left"       {...sharedMob} />] : []),
+          ...(showAll || isLight             ? [<LGIPanel        key="lgi"        {...sharedMob} />,
+                                               <LGRPanel        key="lgr"        {...sharedMob} />] : []),
+          ...(showAll || isHealth            ? [<QuadrantPanel   key="quadrant"   {...sharedMob} />,
+                                               <TrajectoryPanel key="trajectory" {...sharedMob} />] : []),
+        ];
+
+        return isMobile ? (
+          selected && mobileCards.length > 0 && (
             <>
               <div className="mobile-backdrop" onClick={() => setSelected(null)} />
               <div className="mobile-stack-wrapper">
-              <Stack
-                sendToBackOnClick
-                sensitivity={180}
-                cards={[
-                  <LeftPanel key="left" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
-                  <LGIPanel key="lgi" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
-                  <RightPanel key="right" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
-                  <LGRPanel key="lgr" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
-                  <QuadrantPanel key="quadrant" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack compact bgColor={mobileBg} />,
-                  <TrajectoryPanel key="trajectory" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack compact bgColor={mobileBg} />,
-                ]}
-              />
+                <Stack key={`mob-${selected}-${variable}`} sendToBackOnClick sensitivity={180} cards={mobileCards} />
               </div>
             </>
           )
         ) : (
           <>
-            <div className={`desktop-stack-left${selected && leftOpen ? ' visible' : ''}`}>
-              <Stack
-                key={`left-${selected}`}
-                sendToBackOnClick
-                sensitivity={180}
-                cards={[
-                  <LeftPanel key="left" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setLeftOpen(false)} />,
-                  <LGIPanel key="lgi" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setLeftOpen(false)} />,
-                ]}
-              />
-            </div>
-            <div className={`desktop-stack-right${selected && rightOpen ? ' visible' : ''}`}>
-              <Stack
-                key={`right-${selected}`}
-                sendToBackOnClick
-                sensitivity={180}
-                cards={[
-                  <RightPanel key="right" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setRightOpen(false)} />,
-                  <LGRPanel key="lgr" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setRightOpen(false)} />,
-                  <QuadrantPanel key="quadrant" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack onClose={() => setRightOpen(false)} />,
-                  <TrajectoryPanel key="trajectory" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack onClose={() => setRightOpen(false)} />,
-                ]}
-              />
-            </div>
+            {leftCards.length > 0 && (
+              <div className={`desktop-stack-left${selected && leftOpen ? ' visible' : ''}`}>
+                <Stack key={`left-${selected}-${variable}`} sendToBackOnClick sensitivity={180} cards={leftCards} />
+              </div>
+            )}
+            {rightCards.length > 0 && (
+              <div className={`desktop-stack-right${selected && rightOpen ? ' visible' : ''}`}>
+                <Stack key={`right-${selected}-${variable}`} sendToBackOnClick sensitivity={180} cards={rightCards} />
+              </div>
+            )}
           </>
-        )
-      )}
+        );
+      })()}
 
       {!selected && <div className="hint">Drag to rotate · scroll to zoom · click a country</div>}
 
