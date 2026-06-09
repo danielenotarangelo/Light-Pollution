@@ -6,6 +6,8 @@ import LeftPanel from './components/LeftPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
 import LGIPanel from './components/LGIPanel.jsx';
 import LGRPanel from './components/LGRPanel.jsx';
+import LGIHealthPanel from './components/LGIHealthPanel.jsx';
+import GDPHealthPanel from './components/GDPHealthPanel.jsx';
 import Stack from './components/Stack.jsx';
 import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
@@ -163,8 +165,10 @@ export default function App() {
                 cards={[
                   <LeftPanel key="left" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
                   <LGIPanel key="lgi" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
+                  <LGIHealthPanel key="lgi-health" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack compact bgColor={mobileBg} />,
                   <RightPanel key="right" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
                   <LGRPanel key="lgr" lookup={data.lookup} country={selected} year={year} dark={dark} inStack compact bgColor={mobileBg} />,
+                  <GDPHealthPanel key="gdp-health" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack compact bgColor={mobileBg} />,
                 ]}
               />
               </div>
@@ -180,6 +184,7 @@ export default function App() {
                 cards={[
                   <LeftPanel key="left" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setLeftOpen(false)} />,
                   <LGIPanel key="lgi" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setLeftOpen(false)} />,
+                  <LGIHealthPanel key="lgi-health" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack onClose={() => setLeftOpen(false)} />,
                 ]}
               />
             </div>
@@ -191,6 +196,7 @@ export default function App() {
                 cards={[
                   <RightPanel key="right" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setRightOpen(false)} />,
                   <LGRPanel key="lgr" lookup={data.lookup} country={selected} year={year} dark={dark} inStack onClose={() => setRightOpen(false)} />,
+                  <GDPHealthPanel key="gdp-health" lookup={data.lookup} country={selected} year={year} healthMetric={healthMetric} dark={dark} inStack onClose={() => setRightOpen(false)} />,
                 ]}
               />
             </div>
