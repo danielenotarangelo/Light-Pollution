@@ -3,16 +3,16 @@ import BorderGlow from './BorderGlow.jsx';
 import { fmt, getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
 
-export default function LeftPanel({ lookup, country, year, dark, open, onClose }) {
-  const visible = !!country && open;
+export default function LeftPanel({ lookup, country, year, dark, open, onClose, inStack = false, bgColor, compact = false }) {
+  const visible = inStack ? !!country : (!!country && open);
   const series = country ? getSeries(lookup, YEARS, country) : [];
   const cur = country && lookup[country] ? lookup[country][year] : null;
-  const bgColor = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
+  const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
   return (
     <BorderGlow
-      className={`float-panel left${visible ? ' visible' : ''}`}
-      backgroundColor={bgColor}
+      className={inStack ? 'panel-stack-card' : `float-panel left${visible ? ' visible' : ''}`}
+      backgroundColor={bg}
       borderRadius={22}
       glowRadius={5}
       glowIntensity={0.06}
@@ -26,9 +26,10 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose }
         <div>
           <div className="fp-label">Radiance &amp; GDP per capita</div>
           <h2>Light &amp; Wealth</h2>
+          {country && <div className="fp-country">{country}</div>}
           <div className="meta">{year}</div>
         </div>
-        <button className="close-x" onClick={onClose}>✕</button>
+        {onClose && <button className="close-x" onClick={onClose}>✕</button>}
       </div>
       <div className="stat-grid">
         <div className="stat">
@@ -51,7 +52,7 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose }
         Light vs <span className="dot" style={{ background: 'var(--gdp)' }} />
         Wealth over time
       </div>
-      {visible && <DualAxisChart series={series} year={year} dark={dark} />}
+      {visible && <DualAxisChart series={series} year={year} dark={dark} height={compact ? 150 : 240} />}
     </BorderGlow>
   );
 }

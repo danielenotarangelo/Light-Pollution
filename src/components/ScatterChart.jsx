@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function ScatterChart({ lookup, year, selected, dark }) {
+export default function ScatterChart({ lookup, year, selected, dark, height = 260 }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -9,7 +9,7 @@ export default function ScatterChart({ lookup, year, selected, dark }) {
     el.innerHTML = '';
 
     const W = el.clientWidth || 286;
-    const H = 260;
+    const H = height;
     const m = { top: 12, right: 12, bottom: 38, left: 42 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
@@ -76,7 +76,7 @@ export default function ScatterChart({ lookup, year, selected, dark }) {
         .style('font-weight', '600')
         .text(sel.country);
     }
-  }, [lookup, year, selected, dark]);
+  }, [lookup, year, selected, dark, height]);
 
   return <div ref={ref} className="chart" />;
 }

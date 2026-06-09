@@ -13,6 +13,8 @@
   --radiance: #e8841a;
   --gdp: #1fa97a;
   --health: #8a4fd6;
+  --lgi: #2563eb;
+  --lgr: #db2777;
   --shadow: 0 18px 50px rgba(20, 30, 60, 0.18);
   --hairline: rgba(20, 30, 60, 0.08);
 }
@@ -29,6 +31,8 @@ body.dark {
   --radiance: #ffb454;
   --gdp: #5ad1a0;
   --health: #c08cff;
+  --lgi: #60a5fa;
+  --lgr: #f472b6;
   --shadow: 0 18px 50px rgba(0, 0, 0, 0.55);
   --hairline: rgba(140, 165, 230, 0.12);
 }
@@ -76,6 +80,7 @@ body.dark .globe-mount {
   width: 100%;
   height: 100%;
   cursor: grab;
+  touch-action: none;
 }
 .globe-canvas:active {
   cursor: grabbing;
@@ -274,6 +279,28 @@ header {
   right: 80px;
   top: var(--panel-center-y, 50%);
 }
+
+/* Desktop stack wrappers */
+.desktop-stack-left,
+.desktop-stack-right {
+  position: fixed;
+  z-index: 28;
+  width: 420px;
+  height: min(540px, var(--panel-max-height, calc(100vh - 300px)));
+  top: var(--panel-center-y, 50%);
+  transform: translateY(-50%);
+  overflow: visible;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+.desktop-stack-left.visible,
+.desktop-stack-right.visible {
+  opacity: 1;
+  pointer-events: auto;
+}
+.desktop-stack-left { left: 80px; }
+.desktop-stack-right { right: 80px; }
 
 /* BorderGlow integration */
 .border-glow-card.float-panel {
@@ -645,4 +672,182 @@ header {
 ::-webkit-scrollbar-thumb {
   background: var(--panel-border);
   border-radius: 4px;
+}
+
+/* Mobile stack wrapper (hidden on desktop) */
+.mobile-stack-wrapper {
+  display: none;
+}
+
+/* Transparent tap-to-dismiss backdrop (mobile only, rendered only when selected) */
+.mobile-backdrop {
+  display: none;
+}
+
+/* Panel inside Stack — fills the card and stretches the grid row */
+.panel-stack-card {
+  width: 100%;
+  height: 100%;
+  grid-template-rows: 1fr;
+}
+.border-glow-card.panel-stack-card {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+}
+.panel-stack-card > .border-glow-inner {
+  padding: 22px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Large laptop (≤1280px) */
+@media (max-width: 1280px) {
+  .float-panel { width: 380px; }
+  .float-panel.left  { left: 36px; }
+  .float-panel.right { right: 36px; }
+  .desktop-stack-left,
+  .desktop-stack-right { width: 380px; }
+  .desktop-stack-left  { left: 36px; }
+  .desktop-stack-right { right: 36px; }
+}
+
+/* Small laptop (≤1100px) */
+@media (max-width: 1100px) {
+  header { padding: 22px 26px; }
+  .float-panel { width: 330px; }
+  .float-panel.left  { left: 16px; }
+  .float-panel.right { right: 16px; }
+  .desktop-stack-left,
+  .desktop-stack-right { width: 330px; }
+  .desktop-stack-left  { left: 16px; }
+  .desktop-stack-right { right: 16px; }
+  .panel-stack-card > .border-glow-inner { padding: 16px; }
+  .timeline { bottom: 24px; }
+}
+
+/* Tablet (≤900px) */
+@media (max-width: 900px) {
+  header { padding: 18px 22px; }
+  .brand h1 { font-size: 20px; }
+  .toggle { font-size: 13px; padding: 7px 13px; }
+
+  .legend { top: 80px; }
+  .country-badge { left: auto; right: 12px; top: 80px; }
+
+  .float-panel { width: 270px; }
+  .float-panel.left  { left: 10px; }
+  .float-panel.right { right: 10px; }
+  .border-glow-card.float-panel .border-glow-inner { padding: 16px; }
+  .desktop-stack-left,
+  .desktop-stack-right { width: 270px; }
+  .desktop-stack-left  { left: 10px; }
+  .desktop-stack-right { right: 10px; }
+  .fp-head h2 { font-size: 19px; }
+  .stat .value { font-size: 18px; }
+
+  .year-display { font-size: 30px; }
+  .year-caption { font-size: 12px; }
+  .timeline { bottom: 20px; }
+  .hint { bottom: 128px; }
+}
+
+/* Mobile (≤640px) */
+@media (max-width: 640px) {
+  /* Stacked header */
+  header {
+    padding: 14px 18px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+  }
+  .brand h1 { font-size: 18px; }
+  .brand p { font-size: 11px; letter-spacing: 0.02em; }
+  .head-right { width: 100%; justify-content: space-between; }
+  .toggle { font-size: 12px; padding: 6px 11px; }
+  .theme-btn { width: 36px; height: 36px; }
+
+  /* Legend & badge repositioned below taller header */
+  .legend { left: 16px; top: 118px; width: 160px; padding: 10px 14px; }
+  .legend-title { font-size: 11px; margin-bottom: 7px; }
+  .legend-scale { font-size: 10px; }
+  .country-badge { left: auto; right: 16px; top: 118px; font-size: 14px; padding: 8px 14px; }
+  .country-badge-label { font-size: 9px; }
+
+  /* No close button on mobile */
+  .close-x { display: none; }
+
+  /* Tighter padding inside mobile stack cards */
+  .panel-stack-card > .border-glow-inner { padding: 14px; }
+
+  /* Backdrop: sits above globe, below timeline/legend/stack */
+  .mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    background: transparent;
+  }
+
+  /* Stack wrapper: centered on both axes */
+  .mobile-stack-wrapper {
+    display: block;
+    position: fixed;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    width: min(380px, calc(100vw - 32px));
+    height: min(360px, calc(100svh - 230px));
+    z-index: 28;
+    overflow: visible;
+  }
+
+  /* Panel content sizing inside the stack */
+  .fp-head { margin-bottom: 10px; }
+  .fp-label { font-size: 10px; }
+  .fp-head h2 { font-size: 16px; }
+  .fp-head .meta { font-size: 11px; }
+  .stat-grid { gap: 7px; margin-bottom: 12px; }
+  .stat { padding: 8px 10px; }
+  .stat .label { font-size: 9px; margin-bottom: 3px; }
+  .stat .value { font-size: 16px; }
+  .stat .unit { font-size: 10px; }
+  .chart-title { font-size: 11px; margin-bottom: 7px; }
+
+  /* Timeline: same max-width and centering as the stack */
+  .timeline {
+    width: min(380px, calc(100vw - 32px));
+    padding: 14px 20px 28px;
+    bottom: 14px;
+    border-radius: 18px;
+  }
+  .tl-head { margin-bottom: 9px; }
+  .year-display { font-size: 24px; }
+  .year-caption { font-size: 11px; max-width: 58%; }
+  .play-btn { width: 36px; height: 36px; }
+  .tick::after { font-size: 9px; }
+
+  .hint { bottom: 118px; font-size: 11px; }
+}
+
+/* Very small phones (≤400px) — drop brand to reclaim vertical space */
+@media (max-width: 400px) {
+  .brand { display: none; }
+  header { gap: 0; }
+  .legend { top: 72px; }
+}
+
+/* fp-country: territory name shown inside each panel on very small screens */
+.fp-country {
+  display: none;
+}
+@media (max-width: 400px) {
+  .fp-country {
+    display: block;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    margin-top: 1px;
+  }
 }

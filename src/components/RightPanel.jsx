@@ -2,15 +2,15 @@ import ScatterChart from './ScatterChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import { fmt } from '../lib/data.js';
 
-export default function RightPanel({ lookup, country, year, dark, open, onClose }) {
-  const visible = !!country && open;
+export default function RightPanel({ lookup, country, year, dark, open, onClose, inStack = false, bgColor, compact = false }) {
+  const visible = inStack ? !!country : (!!country && open);
   const cur = country && lookup[country] ? lookup[country][year] : null;
-  const bgColor = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
+  const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
   return (
     <BorderGlow
-      className={`float-panel right${visible ? ' visible' : ''}`}
-      backgroundColor={bgColor}
+      className={inStack ? 'panel-stack-card' : `float-panel right${visible ? ' visible' : ''}`}
+      backgroundColor={bg}
       borderRadius={22}
       glowRadius={5}
       glowIntensity={0.06}
@@ -34,9 +34,10 @@ export default function RightPanel({ lookup, country, year, dark, open, onClose 
               </div>
             </span>
           </div>
+          {country && <div className="fp-country">{country}</div>}
           <div className="meta">Radiance vs prevalence · {year}</div>
         </div>
-        <button className="close-x" onClick={onClose}>✕</button>
+        {onClose && <button className="close-x" onClick={onClose}>✕</button>}
       </div>
       <div className="stat-grid">
         <div className="stat">
@@ -58,7 +59,7 @@ export default function RightPanel({ lookup, country, year, dark, open, onClose 
         <span className="dot" style={{ background: 'var(--health)' }} />
         All countries · radiance × depression
       </div>
-      {visible && <ScatterChart lookup={lookup} year={year} selected={country} dark={dark} />}
+      {visible && <ScatterChart lookup={lookup} year={year} selected={country} dark={dark} height={compact ? 150 : 260} />}
     </BorderGlow>
   );
 }

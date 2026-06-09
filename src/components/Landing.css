@@ -142,3 +142,23 @@
 .landing-dot:hover:not(.active) {
   background: var(--text-dim);
 }
+
+/* ── Responsive ─────────────────────────────────────────────────── */
+
+/* Tablet (≤900px): nudge slide away from dots */
+@media (max-width: 900px) {
+  .landing-slide { padding: 0 40px 0 64px; }
+  .landing-dots { left: 20px; }
+}
+
+/* Mobile (≤640px) */
+@media (max-width: 640px) {
+  .landing-title     { font-size: clamp(32px, 9vw, 52px); }
+  .landing-title.big { font-size: clamp(48px, 14vw, 76px); }
+  .landing-desc      { font-size: clamp(14px, 3.8vw, 18px); }
+  .landing-eyebrow   { font-size: 11px; letter-spacing: 0.08em; }
+  .landing-slide     { padding: 0 22px 0 44px; gap: 14px; max-width: 100%; }
+  .landing-icon svg  { width: 44px; height: 44px; }
+  .landing-dots      { left: 14px; gap: 9px; }
+  .landing-arrow-btn { margin-bottom: 22px; }
+}

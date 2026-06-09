@@ -60,9 +60,22 @@ export default function Globe({
     const w = mount.clientWidth;
     const h = mount.clientHeight;
 
+    // On portrait screens the horizontal FOV is narrower than vertical, so
+    // the globe (radius R) can bleed past the sides. Compute a camera Z that
+    // ensures the globe fits horizontally with a small margin.
+    const TAN20 = Math.tan(20 * Math.PI / 180);
+    const computeBaseZ = (aspect) => {
+      const hHalfFov = Math.atan(TAN20 * Math.min(aspect, 1));
+      return Math.max(8.7, R / Math.sin(hHalfFov * 0.88));
+    };
+
+    let baseZ = computeBaseZ(w / h);
+    let zMin = baseZ * 0.333;
+    let zMax = baseZ * 1.15;
+
     const scene = new THREE.Scene();
     const camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 200);
-    camera.position.set(0, 0, 8.7);
+    camera.position.set(0, 0, baseZ);
 
     const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true });
     renderer.setSize(w, h);
@@ -211,6 +224,7 @@ export default function Globe({
     let downX = 0;
     let downY = 0;
     let downT = 0;
+    let lastPinchDist = 0;
 
     const pickLatLon = (e) => {
       const rect = canvas.getBoundingClientRect();
@@ -281,19 +295,79 @@ export default function Globe({
     };
     const onWheel = (e) => {
       e.preventDefault();
-      camera.position.z = Math.max(2.9, Math.min(9, camera.position.z + e.deltaY * 0.002));
+      camera.position.z = Math.max(zMin, Math.min(zMax, camera.position.z + e.deltaY * 0.002));
       autoRotate = false;
       startIdleTimer();
+    };
+
+    // Touch handlers — drag and pinch-to-zoom.
+    const onTouchStart = (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1) {
+        const t = e.touches[0];
+        isDragging = true;
+        autoRotate = false;
+        clearTimeout(idleTimer);
+        prevX = t.clientX; prevY = t.clientY;
+        downX = t.clientX; downY = t.clientY;
+        downT = Date.now();
+      } else if (e.touches.length === 2) {
+        isDragging = false;
+        const dx = e.touches[1].clientX - e.touches[0].clientX;
+        const dy = e.touches[1].clientY - e.touches[0].clientY;
+        lastPinchDist = Math.hypot(dx, dy);
+      }
+    };
+    const onTouchMove = (e) => {
+      e.preventDefault();
+      if (e.touches.length === 1 && isDragging) {
+        const t = e.touches[0];
+        worldGroup.rotation.y += (t.clientX - prevX) * 0.005;
+        worldGroup.rotation.x += (t.clientY - prevY) * 0.005;
+        worldGroup.rotation.x = Math.max(-1.2, Math.min(1.2, worldGroup.rotation.x));
+        prevX = t.clientX; prevY = t.clientY;
+      } else if (e.touches.length === 2) {
+        const dx = e.touches[1].clientX - e.touches[0].clientX;
+        const dy = e.touches[1].clientY - e.touches[0].clientY;
+        const dist = Math.hypot(dx, dy);
+        if (lastPinchDist > 0) {
+          camera.position.z = Math.max(zMin, Math.min(zMax, camera.position.z + (lastPinchDist - dist) * 0.008));
+          autoRotate = false;
+        }
+        lastPinchDist = dist;
+      }
+    };
+    const onTouchEnd = (e) => {
+      const t = e.changedTouches[0];
+      isDragging = false;
+      lastPinchDist = 0;
+      startIdleTimer();
+      const dist = Math.hypot(t.clientX - downX, t.clientY - downY);
+      if (dist < 8 && Date.now() - downT < 400) {
+        const ll = pickLatLon({ clientX: t.clientX, clientY: t.clientY });
+        if (ll) {
+          const name = countryAtLatLon(propsRef.current.geo, ll[0], ll[1]);
+          if (name && propsRef.current.data.lookup[name]) onSelect(name);
+        }
+      }
     };
 
     canvas.addEventListener('mousedown', onDown);
     window.addEventListener('mouseup', onUp);
     window.addEventListener('mousemove', onMove);
     canvas.addEventListener('wheel', onWheel, { passive: false });
+    canvas.addEventListener('touchstart', onTouchStart, { passive: false });
+    canvas.addEventListener('touchmove', onTouchMove, { passive: false });
+    canvas.addEventListener('touchend', onTouchEnd);
 
     const onResize = () => {
       const w = mount.clientWidth;
       const h = mount.clientHeight;
+      const newBaseZ = computeBaseZ(w / h);
+      if (camera.position.z === baseZ) camera.position.z = newBaseZ;
+      baseZ = newBaseZ;
+      zMin = newBaseZ * 0.333;
+      zMax = newBaseZ * 1.15;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -322,6 +396,9 @@ export default function Globe({
       window.removeEventListener('mouseup', onUp);
       window.removeEventListener('mousemove', onMove);
       canvas.removeEventListener('wheel', onWheel);
+      canvas.removeEventListener('touchstart', onTouchStart);
+      canvas.removeEventListener('touchmove', onTouchMove);
+      canvas.removeEventListener('touchend', onTouchEnd);
       window.removeEventListener('resize', onResize);
       renderer.dispose();
     };
