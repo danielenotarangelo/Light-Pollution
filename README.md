@@ -2,7 +2,7 @@
 
 An interactive data visualization exploring the relationship between **artificial light at night**, **economic development**, and **mental health** across the world from 2013 to 2023.
 
-Built for the Data Visualization Lab exam at the University of Bologna. The centerpiece is a realistic 3D globe — click any country to open a set of panels that show how its light pollution, wealth, and health metrics evolved over the decade. A timeline slider lets you scrub through the years; three toggles re-encode the globe by light, wealth, or health.
+Built for the Data Visualization Lab exam at the University of Trento. The centerpiece is a realistic 3D globe — click any country to open a set of panels that show how its light pollution, wealth, and health metrics evolved over the decade. A timeline slider lets you scrub through the years; three toggles re-encode the globe by light, wealth, or health.
 
 ---
 
