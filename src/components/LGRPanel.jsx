@@ -1,5 +1,7 @@
+import { useState } from 'react';
 import LGRChart from './LGRChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
+import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
 
@@ -12,6 +14,7 @@ const fmtChange = (cur, first) => {
 };
 
 export default function LGRPanel({ lookup, country, year, dark, open, onClose, inStack = false, bgColor, compact = false }) {
+  const [zoomed, setZoomed] = useState(false);
   const visible = inStack ? !!country : (!!country && open);
   const series = country ? getSeries(lookup, YEARS, country) : [];
   const cur = country && lookup[country] ? lookup[country][year] : null;
@@ -49,7 +52,12 @@ export default function LGRPanel({ lookup, country, year, dark, open, onClose, i
           {country && <div className="fp-country">{country}</div>}
           <div className="meta">×10⁻⁴ · {year}</div>
         </div>
-        {onClose && <button className="close-x" onClick={onClose}>✕</button>}
+        <div className="fp-head-actions">
+          {country && <button className="zoom-btn" onClick={e => { e.stopPropagation(); setZoomed(true); }} title="Expand chart">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </button>}
+          {onClose && <button className="close-x" onClick={onClose}>✕</button>}
+        </div>
       </div>
       <div className="stat-grid">
         <div className="stat">
@@ -72,6 +80,11 @@ export default function LGRPanel({ lookup, country, year, dark, open, onClose, i
         Radiance-to-GDP ratio trend
       </div>
       {visible && <LGRChart series={series} year={year} dark={dark} height={compact ? 150 : 200} />}
+      {zoomed && (
+        <ChartModal title="Light / GDP Ratio" subtitle="Radiance per unit of wealth" country={country} meta={`×10⁻⁴ · ${year}`} onClose={() => setZoomed(false)}>
+          <LGRChart series={series} year={year} dark={dark} height={380} />
+        </ChartModal>
+      )}
     </BorderGlow>
   );
 }

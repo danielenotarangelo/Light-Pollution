@@ -137,7 +137,7 @@ export default function App() {
         onToggleTheme={() => setDark((d) => !d)}
       />
 
-      {data && variable && !(isSmallPhone && selected) && <Legend domains={data.domains} variable={variable} healthMetric={healthMetric} />}
+      {data && <Legend domains={data.domains} variable={variable || 'r'} healthMetric={healthMetric} hidden={!variable || !!(isSmallPhone && selected)} />}
 
       {selected && !isSmallPhone && (
         <div className="country-badge">
@@ -160,30 +160,25 @@ export default function App() {
       )}
 
       {data && (() => {
-        const showAll = variable == null;
-        const isLight  = variable === 'r';
-        const isWealth = variable === 'g';
-        const isHealth = variable === 'health';
-
         const sharedLeft  = { lookup: data.lookup, country: selected, year, dark, inStack: true };
         const sharedRight = { ...sharedLeft, healthMetric };
         const sharedMob   = { ...sharedRight, compact: true, bgColor: mobileBg };
 
         const leftCards = [
-          ...(showAll || isLight || isWealth ? [<LeftPanel  key="left" {...sharedLeft}  onClose={() => setLeftOpen(false)}  />] : []),
-          ...(showAll || isLight             ? [<LGIPanel   key="lgi"  {...sharedLeft}  onClose={() => setLeftOpen(false)}  />] : []),
+          <LeftPanel  key="left" {...sharedLeft}  onClose={() => setLeftOpen(false)}  />,
+          <LGIPanel   key="lgi"  {...sharedLeft}  onClose={() => setLeftOpen(false)}  />,
         ];
         const rightCards = [
-          ...(showAll || isLight             ? [<LGRPanel       key="lgr"       {...sharedRight} onClose={() => setRightOpen(false)} />] : []),
-          ...(showAll || isHealth            ? [<QuadrantPanel  key="quadrant"   {...sharedRight} onClose={() => setRightOpen(false)} />,
-                                               <TrajectoryPanel key="trajectory" {...sharedRight} onClose={() => setRightOpen(false)} />] : []),
+          <LGRPanel        key="lgr"        {...sharedRight} onClose={() => setRightOpen(false)} />,
+          <QuadrantPanel   key="quadrant"   {...sharedRight} onClose={() => setRightOpen(false)} />,
+          <TrajectoryPanel key="trajectory" {...sharedRight} onClose={() => setRightOpen(false)} />,
         ];
         const mobileCards = [
-          ...(showAll || isLight || isWealth ? [<LeftPanel       key="left"       {...sharedMob} />] : []),
-          ...(showAll || isLight             ? [<LGIPanel        key="lgi"        {...sharedMob} />,
-                                               <LGRPanel        key="lgr"        {...sharedMob} />] : []),
-          ...(showAll || isHealth            ? [<QuadrantPanel   key="quadrant"   {...sharedMob} />,
-                                               <TrajectoryPanel key="trajectory" {...sharedMob} />] : []),
+          <LeftPanel       key="left"       {...sharedMob} />,
+          <LGIPanel        key="lgi"        {...sharedMob} />,
+          <LGRPanel        key="lgr"        {...sharedMob} />,
+          <QuadrantPanel   key="quadrant"   {...sharedMob} />,
+          <TrajectoryPanel key="trajectory" {...sharedMob} />,
         ];
 
         return isMobile ? (
@@ -197,16 +192,12 @@ export default function App() {
           )
         ) : (
           <>
-            {leftCards.length > 0 && (
-              <div className={`desktop-stack-left${selected && leftOpen ? ' visible' : ''}`}>
-                <Stack key={`left-${selected}-${variable}`} sendToBackOnClick sensitivity={180} cards={leftCards} />
-              </div>
-            )}
-            {rightCards.length > 0 && (
-              <div className={`desktop-stack-right${selected && rightOpen ? ' visible' : ''}`}>
-                <Stack key={`right-${selected}-${variable}`} sendToBackOnClick sensitivity={180} cards={rightCards} />
-              </div>
-            )}
+            <div className={`desktop-stack-left${selected && leftOpen ? ' visible' : ''}`}>
+              <Stack key={`left-${selected}`} sendToBackOnClick sensitivity={180} cards={leftCards} />
+            </div>
+            <div className={`desktop-stack-right${selected && rightOpen ? ' visible' : ''}`}>
+              <Stack key={`right-${selected}`} sendToBackOnClick sensitivity={180} cards={rightCards} />
+            </div>
           </>
         );
       })()}

@@ -18,7 +18,7 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
     if (data.length < 2) return;
 
     const W = el.clientWidth || 286;
-    const H = height;
+    const H = el.clientHeight || height;
     const m = { top: 16, right: 14, bottom: 36, left: 44 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;

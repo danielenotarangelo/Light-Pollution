@@ -221,6 +221,10 @@ header {
 }
 
 /* Legend (top-left, under title) */
+.legend-hidden {
+  visibility: hidden;
+  pointer-events: none;
+}
 .legend {
   position: fixed;
   left: 32px;
@@ -405,6 +409,120 @@ header {
 .close-x:hover {
   background: var(--hairline);
   color: var(--text);
+}
+
+.fp-head-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+  align-items: center;
+}
+
+.zoom-btn {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  border: 1px solid var(--panel-border);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: all 0.2s;
+}
+.zoom-btn:hover {
+  background: var(--hairline);
+  color: var(--text);
+}
+
+.panel-metric-toggle {
+  display: inline-flex;
+  gap: 3px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
+  padding: 3px;
+  margin-top: 8px;
+}
+.panel-metric-btn {
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font);
+  letter-spacing: 0.01em;
+  padding: 4px 11px;
+  border: none;
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: color 0.2s ease,
+    background 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s ease;
+}
+.panel-metric-btn:hover {
+  color: var(--text);
+}
+.panel-metric-btn.active {
+  background: var(--health);
+  color: #fff;
+  box-shadow: 0 3px 10px color-mix(in srgb, var(--health) 40%, transparent);
+}
+
+/* ── Chart zoom modal ── */
+.chart-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: modal-fade 0.15s ease;
+}
+.chart-modal {
+  background: #f8f9fc;
+  border-radius: 20px;
+  padding: 28px 28px 20px;
+  width: min(92vw, 820px);
+  max-height: 88vh;
+  overflow-y: auto;
+  box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
+  animation: modal-rise 0.18s ease;
+}
+body.dark .chart-modal {
+  background: #0d101c;
+}
+.chart-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.chart-modal-head h2 {
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+.chart-modal-meta {
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-top: 3px;
+}
+.chart-modal-body .chart {
+  width: 100%;
+}
+@keyframes modal-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+@keyframes modal-rise {
+  from { opacity: 0; transform: scale(0.96) translateY(10px); }
+  to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
 
 .stat-grid {
@@ -696,11 +814,17 @@ header {
 }
 .panel-stack-card > .border-glow-inner {
   padding: 22px;
-  overflow-y: auto;
+  box-sizing: border-box;
+  height: 100%;
+  overflow: hidden;
   min-height: 0;
 }
 .panel-stack-card > .border-glow-inner:has(.info-btn:hover) {
   overflow: visible;
+}
+.panel-stack-card .chart {
+  flex: 1;
+  min-height: 60px;
 }
 
 /* ── Responsive ─────────────────────────────────────────────────── */

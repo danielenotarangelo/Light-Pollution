@@ -1,7 +1,7 @@
 import { VAR_META } from '../lib/constants.js';
 import { activeVarKey, fmt } from '../lib/data.js';
 
-export default function Legend({ domains, variable, healthMetric }) {
+export default function Legend({ domains, variable, healthMetric, hidden = false }) {
   const k = activeVarKey(variable, healthMetric);
   const meta = VAR_META[k];
   const dom = domains[k];
@@ -11,7 +11,7 @@ export default function Legend({ domains, variable, healthMetric }) {
   const gradient = `linear-gradient(90deg, ${stops.join(',')})`;
 
   return (
-    <div className="legend">
+    <div className={`legend${hidden ? ' legend-hidden' : ''}`}>
       <div className="legend-title">{meta.label}</div>
       <div className="legend-bar" style={{ background: gradient }} />
       <div className="legend-scale">
