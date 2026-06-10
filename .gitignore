@@ -12,9 +12,6 @@ __pycache__/
 *.pyc
 *.pyo
 
-# Data (too large for git)
-data/
-
 # Environment variables / credentials
 .env
 .env.*
