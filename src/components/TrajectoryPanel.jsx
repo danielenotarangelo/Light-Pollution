@@ -41,10 +41,10 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">Temporal path in radiance × health space</div>
+          <div className="fp-label">How light pollution & mental health evolved together</div>
           <h2>Trajectory</h2>
           {country && <div className="fp-country">{country}</div>}
-          <div className="meta">{yearRange} · ring = {year}</div>
+          <div className="meta">{yearRange} · circle marks {year}</div>
           <div className="panel-metric-toggle">
             <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
             <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
@@ -75,7 +75,7 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
       </div>
       <div className="chart-title">
         <span className="dot" style={{ background: 'var(--accent)' }} />
-        Purple→yellow = 2013→2023 · arrow = direction
+        Earlier years (purple) → recent years (yellow) · arrow shows direction
       </div>
       {visible && (
         <TrajectoryChart
@@ -87,7 +87,7 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
         />
       )}
       {zoomed && (
-        <ChartModal title="Trajectory" subtitle="Temporal path in radiance × health space" country={country} meta={`${yearRange} · ring = ${year}`} onClose={() => setZoomed(false)}>
+        <ChartModal title="Trajectory" subtitle="How light pollution & mental health evolved together" country={country} meta={`${yearRange} · circle marks ${year}`} onClose={() => setZoomed(false)}>
           <TrajectoryChart series={series} year={year} healthMetric={metric} dark={dark} height={400} />
         </ChartModal>
       )}

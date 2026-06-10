@@ -57,8 +57,8 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose, 
       </div>
       <div className="chart-title">
         <span className="dot" style={{ background: 'var(--radiance)' }} />
-        Light vs <span className="dot" style={{ background: 'var(--gdp)' }} />
-        Wealth over time
+        Light <span className="dot" style={{ background: 'var(--gdp)' }} />
+        Wealth
       </div>
       {visible && <DualAxisChart series={series} year={year} dark={dark} height={compact ? 150 : 240} />}
       {zoomed && (
