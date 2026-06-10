@@ -1,127 +1,105 @@
 # Nights of Light
 
-An interactive 3D globe exploring the relationship between **artificial light at
-night**, **economic development**, and **human health** across the world from
-2013 to 2023.
+An interactive data visualization exploring the relationship between **artificial light at night**, **economic development**, and **mental health** across the world from 2013 to 2023.
 
-Built for the Data Visualization Lab exam. The globe is the primary navigation
-element: click any country to open floating panels showing its light-vs-wealth
-trajectory and its position in the global light-vs-health distribution. A
-timeline scrubs through the years, and three toggles re-encode the globe by
-light, wealth, or health.
+Built for the Data Visualization Lab exam at the University of Bologna. The centerpiece is a realistic 3D globe — click any country to open a set of panels that show how its light pollution, wealth, and health metrics evolved over the decade. A timeline slider lets you scrub through the years; three toggles re-encode the globe by light, wealth, or health.
+
+---
+
+## Running it locally
+
+You need [Node.js](https://nodejs.org/) (v18 or later).
+
+```bash
+# 1. Clone the repo and enter the directory
+git clone <repo-url>
+cd Light-Pollution
+
+# 2. Install dependencies
+npm install
+
+# 3. Start the development server
+npm run dev
+```
+
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
+
+> The Earth textures are loaded from a CDN (jsDelivr), so the first load requires an internet connection. If a texture fails to load, the globe automatically falls back to a Blue Marble image.
+
+To build a production bundle:
+
+```bash
+npm run build
+npm run preview   # serves the built files locally
+```
+
+---
+
+## What you're looking at
+
+When you click a country, two stacks of panels appear:
+
+**Left stack**
+- **Light & Wealth** — a dual-axis chart of mean radiance and GDP per capita over time
+- **Luminosity Growth** — how the country's light output changed relative to its 2013 baseline
+
+**Right stack**
+- **Light-to-GDP Ratio** — radiance relative to economic output (a rough efficiency indicator)
+- **Global Position** — a quadrant chart placing the country against all others for the selected year
+- **Trajectory** — how light pollution and mental health shifted together year by year
+
+---
 
 ## Tech stack
 
 - **React 18 + Vite** — UI and build tooling
-- **Three.js** — realistic 3D Earth (satellite texture, specular oceans, clouds, starfield)
-- **D3** — choropleth projection, color scales, and the two panel charts
-- **Python** (pipeline, separate) — data acquisition, merging, and asset generation
+- **Three.js** — 3D Earth with satellite texture, specular oceans, atmospheric clouds, and a starfield
+- **D3** — choropleth coloring, color scales, and all panel charts
+- **Python** (separate pipeline) — data acquisition, cleaning, merging, and asset generation
 
-## Getting started
+---
 
-```bash
-# from the project root
-npm install
-npm run dev
-```
+## Data sources
 
-Then open http://localhost:5173. To build for production:
-
-```bash
-npm run build
-npm run preview
-```
-
-> The Earth textures load from a CDN (jsDelivr), so the first load needs an
-> internet connection. If a texture fails, the globe falls back to a Blue Marble
-> image and the loading overlay dismisses automatically.
-
-## Project structure
-
-```
-light-pollution-viz/
-├── public/
-│   ├── data/
-│   │   ├── data_bundle.json      # { lookup, domains, years } — used by the app
-│   │   ├── countries.geojson     # simplified country polygons for the globe
-│   │   ├── master_dataset.json   # full nested dataset (reference)
-│   │   └── master_dataset.csv    # flat dataset (reference / debugging)
-│   └── textures/                 # (optional) drop local 4k/8k Earth textures here
-├── src/
-│   ├── components/
-│   │   ├── Globe.jsx             # Three.js scene, interaction, choropleth overlay
-│   │   ├── Header.jsx            # title, variable toggles, theme switch
-│   │   ├── Legend.jsx            # color spectrum for the active variable
-│   │   ├── Timeline.jsx          # year slider, ticks, play/pause
-│   │   ├── LeftPanel.jsx         # country radiance/GDP stats + dual-axis chart
-│   │   ├── RightPanel.jsx        # health stats + scatter + interpretation note
-│   │   ├── DualAxisChart.jsx     # D3 radiance-vs-GDP time series
-│   │   └── ScatterChart.jsx      # D3 radiance-vs-depression scatter
-│   ├── hooks/
-│   │   └── useData.js            # loads data bundle + geojson
-│   ├── lib/
-│   │   ├── constants.js          # variable metadata, captions, texture URLs
-│   │   ├── data.js               # value lookup, color scales, formatting
-│   │   └── geo.js                # lat/lon conversion, hit-testing, overlay painting
-│   ├── styles/
-│   │   └── global.css            # light/dark themes and all layout
-│   ├── App.jsx                   # state orchestration
-│   └── main.jsx                  # React entry point
-├── pipeline/                     # Python data pipeline (run separately)
-│   ├── merge_pipeline.py         # cleans + merges the three raw sources
-│   ├── build_frontend_data.py    # produces data_bundle.json + countries.geojson
-│   └── requirements.txt
-├── index.html
-├── vite.config.js
-└── package.json
-```
-
-## Data
-
-The visualization integrates three public datasets, all indexed by country and
-year (2013–2023):
+The visualization merges three public datasets, all indexed by country and year (2013–2023):
 
 | Source | Variable | Notes |
-| --- | --- | --- |
-| **NASA / NOAA VIIRS** (via Google Earth Engine, VNL V2.1 + V2.2) | Mean nighttime radiance (nW/cm²/sr) | Aggregated to country level by zonal mean |
+|--------|----------|-------|
+| **NASA / NOAA VIIRS** via Google Earth Engine (VNL V2.1 + V2.2) | Mean nighttime radiance (nW/cm²/sr) | Aggregated to country level by zonal mean |
 | **World Bank** | GDP per capita (current USD) | Indicator `NY.GDP.PCAP.CD` |
-| **IHME Global Burden of Disease** | Depressive & anxiety disorder prevalence (rate /100k) | Used as proxies for circadian-disruption-related health |
+| **IHME Global Burden of Disease** | Depressive & anxiety disorder prevalence (rate per 100k) | See caveat below |
 
-After merging on a harmonized country/year index, **189 countries** have data;
-**161** of them have clickable polygons on the globe (the rest are microstates
-and small islands below the 110m geometry resolution).
+After merging on a harmonized country/year index, **189 countries** have at least partial data; **161** of them have clickable polygons on the globe (the remainder are microstates and small islands below the geometry resolution threshold).
 
-Two derived variables are also computed: a **luminosity growth index** (% change
-vs. the 2013 baseline) and a **luminosity-to-GDP ratio**.
+Two derived variables are also computed: a **luminosity growth index** (% change vs. the 2013 baseline) and a **luminosity-to-GDP ratio**.
+
+### A note on the health data
+
+The IHME figures for depressive and anxiety disorder prevalence should be treated as rough indicators, not ground truth. A few reasons to be cautious:
+
+- **Reporting capacity varies enormously.** Countries with stronger healthcare systems and better psychiatric infrastructure tend to record — and therefore "have" — more diagnosed cases. Higher prevalence can reflect better detection, not worse health.
+- **Stigma and access distort the numbers.** In many regions, mental health conditions go undiagnosed or unreported due to cultural stigma, lack of specialists, or limited data infrastructure.
+- **The link to light pollution is indirect.** Satellite radiance measures upward-emitted light from above the clouds, not personal exposure. The biological pathway (light → circadian disruption → mental health) is plausible and studied, but the aggregate country-level correlation shown here cannot establish causation.
+
+The goal of including health data is to prompt questions and make visible a phenomenon that is otherwise invisible — not to assert that brighter skies cause higher rates of depression or anxiety.
 
 ### Regenerating the data
 
-The committed `public/data` assets are ready to use. To rebuild from scratch:
+The committed `public/data/` assets are ready to use as-is. To rebuild them from raw sources:
 
 ```bash
 cd pipeline
 python -m venv venv
-source venv/bin/activate.fish   # fish shell; use venv/bin/activate for bash/zsh
+source venv/bin/activate.fish   # fish shell — use venv/bin/activate for bash/zsh
 pip install -r requirements.txt
 
-# 1. place the three raw CSVs in ../data/raw/ (see the acquisition notes)
-# 2. merge and clean
-python merge_pipeline.py
-# 3. build the frontend assets
-python build_frontend_data.py
+# Place the three raw CSVs in ../data/raw/ (see acquisition notes in the pipeline scripts)
+python merge_pipeline.py          # clean and merge
+python build_frontend_data.py     # produce data_bundle.json + countries.geojson
 ```
 
-## A note on interpretation
+---
 
-The health correlation is **indirect**: prevalence estimates reflect diagnosis
-and reporting capacity, which track national wealth, and satellite radiance
-measures upward-emitted light rather than personal exposure. The interface
-states this caveat in the health panel. The goal is to make an invisible
-phenomenon visible and prompt questions — not to assert causation.
+## Higher-resolution Earth textures (optional)
 
-## Higher-resolution Earth (optional)
-
-The globe ships with 1k textures for fast loading. For sharper detail, download
-higher-resolution equirectangular maps (e.g. from PlanetPixelEmporium or NASA
-Visible Earth), place them in `public/textures/`, and point the `TEXTURES`
-object in `src/lib/constants.js` at the local paths.
+The globe ships with 1k textures for fast loading. For sharper detail, download higher-resolution equirectangular maps (e.g. from NASA Visible Earth or PlanetPixelEmporium), place them in `public/textures/`, and update the `TEXTURES` object in `src/lib/constants.js` to point at the local paths.
