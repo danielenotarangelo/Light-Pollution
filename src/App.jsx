@@ -82,6 +82,12 @@ export default function App() {
     setLeftOpen(true);
   }, []);
 
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') setSelected(null); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, []);
+
   if (error) {
     return (
       <div className="fatal">
