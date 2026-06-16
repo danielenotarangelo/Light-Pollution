@@ -1,7 +1,7 @@
 export default function Header({ variable, onVariableChange, dark, onToggleTheme }) {
   const toggles = [
-    { key: 'r', label: 'Light' },
-    { key: 'g', label: 'Wealth' },
+    { key: 'r',      label: 'Light'  },
+    { key: 'g',      label: 'Wealth' },
     { key: 'health', label: 'Health' },
   ];
 

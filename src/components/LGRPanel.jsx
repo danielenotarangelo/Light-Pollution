@@ -13,9 +13,9 @@ const fmtChange = (cur, first) => {
   return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
 };
 
-export default function LGRPanel({ lookup, country, year, dark, open, onClose, inStack = false, bgColor, compact = false }) {
+export default function LGRPanel({ lookup, country, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
-  const visible = inStack ? !!country : (!!country && open);
+  const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
   const series = country ? getSeries(lookup, YEARS, country) : [];
   const cur = country && lookup[country] ? lookup[country][year] : null;
   const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
@@ -24,7 +24,7 @@ export default function LGRPanel({ lookup, country, year, dark, open, onClose, i
 
   return (
     <BorderGlow
-      className={inStack ? 'panel-stack-card' : `float-panel right${visible ? ' visible' : ''}`}
+      className={inTab ? 'panel-tab-card' : (inStack ? 'panel-stack-card' : `float-panel right${visible ? ' visible' : ''}`)}
       backgroundColor={bg}
       borderRadius={22}
       glowRadius={5}

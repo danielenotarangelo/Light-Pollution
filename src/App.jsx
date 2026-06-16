@@ -7,6 +7,7 @@ import LGIPanel from './components/LGIPanel.jsx';
 import LGRPanel from './components/LGRPanel.jsx';
 import QuadrantPanel from './components/QuadrantPanel.jsx';
 import TrajectoryPanel from './components/TrajectoryPanel.jsx';
+import RightPanel from './components/RightPanel.jsx';
 import Stack from './components/Stack.jsx';
 import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
@@ -23,9 +24,8 @@ export default function App() {
   const [playing, setPlaying] = useState(false);
   const [dark, setDark] = useState(false);
   const [texLoaded, setTexLoaded] = useState(false);
-  const [rightOpen, setRightOpen] = useState(true);
-  const [leftOpen, setLeftOpen] = useState(true);
   const [showLanding, setShowLanding] = useState(true);
+  const [mode, setMode] = useState('paese');
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const [isSmallPhone, setIsSmallPhone] = useState(() => window.innerWidth <= 400);
 
@@ -54,10 +54,14 @@ export default function App() {
         ? legendEl.getBoundingClientRect().bottom
         : (headerEl ? headerEl.getBoundingClientRect().bottom : 0);
 
-      const centerY = (topBound + timelineTop) / 2;
-    const maxPanelH = Math.max(200, timelineTop - topBound - 40);
-    document.documentElement.style.setProperty('--panel-center-y', `${centerY}px`);
-    document.documentElement.style.setProperty('--panel-max-height', `${maxPanelH}px`);
+      const centerY    = (topBound + timelineTop) / 2;
+      const maxPanelH  = Math.max(200, timelineTop - topBound - 40);
+      const legendBot  = legendEl ? legendEl.getBoundingClientRect().bottom : topBound;
+
+      document.documentElement.style.setProperty('--panel-center-y',  `${centerY}px`);
+      document.documentElement.style.setProperty('--panel-max-height', `${maxPanelH}px`);
+      document.documentElement.style.setProperty('--legend-bottom',    `${legendBot}px`);
+      document.documentElement.style.setProperty('--timeline-top',     `${timelineTop}px`);
     };
 
     requestAnimationFrame(update);
@@ -69,17 +73,8 @@ export default function App() {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
   }, []);
 
-  // Re-open stacks whenever the variable changes so panels
-  // from a previous variable don't stay hidden after the toggle switches.
-  useEffect(() => {
-    setLeftOpen(true);
-    setRightOpen(true);
-  }, [variable]);
-
   const handleSelect = useCallback((name) => {
     setSelected(name);
-    setRightOpen(true);
-    setLeftOpen(true);
   }, []);
 
   useEffect(() => {
@@ -145,7 +140,19 @@ export default function App() {
 
       {data && <Legend domains={data.domains} variable={variable || 'r'} healthMetric={healthMetric} hidden={!variable || !!(isSmallPhone && selected)} />}
 
-      {selected && !isSmallPhone && (
+      {/* Centered country badge — desktop only, between the two panels */}
+      {selected && !isMobile && (
+        <div className="country-badge-center">
+          <div className="country-badge-center-info">
+            <span className="country-badge-center-label">Selected territory</span>
+            <span className="country-badge-center-name">{selected}</span>
+          </div>
+          <button className="close-x" onClick={() => setSelected(null)}>✕</button>
+        </div>
+      )}
+
+      {/* Mobile: keep the original top-right badge */}
+      {selected && !isSmallPhone && isMobile && (
         <div className="country-badge">
           <div className="country-badge-label">Selected territory</div>
           {selected}
@@ -165,20 +172,14 @@ export default function App() {
         />
       )}
 
-      {data && (() => {
-        const sharedLeft  = { lookup: data.lookup, country: selected, year, dark, inStack: true };
-        const sharedRight = { ...sharedLeft, healthMetric };
-        const sharedMob   = { ...sharedRight, compact: true, bgColor: mobileBg };
+      {data && !isMobile && (
+        <div className={`left-light-panel${selected ? ' visible' : ''}`}>
+          <LGIPanel lookup={data.lookup} country={selected} year={year} dark={dark} inTab={true} />
+        </div>
+      )}
 
-        const leftCards = [
-          <LeftPanel  key="left" {...sharedLeft}  onClose={() => setLeftOpen(false)}  />,
-          <LGIPanel   key="lgi"  {...sharedLeft}  onClose={() => setLeftOpen(false)}  />,
-        ];
-        const rightCards = [
-          <LGRPanel        key="lgr"        {...sharedRight} onClose={() => setRightOpen(false)} />,
-          <QuadrantPanel   key="quadrant"   {...sharedRight} onClose={() => setRightOpen(false)} />,
-          <TrajectoryPanel key="trajectory" {...sharedRight} onClose={() => setRightOpen(false)} />,
-        ];
+      {data && (() => {
+        const sharedMob = { lookup: data.lookup, country: selected, year, dark, healthMetric, inStack: true, compact: true, bgColor: mobileBg };
         const mobileCards = [
           <LeftPanel       key="left"       {...sharedMob} />,
           <LGIPanel        key="lgi"        {...sharedMob} />,
@@ -197,14 +198,16 @@ export default function App() {
             </>
           )
         ) : (
-          <>
-            <div className={`desktop-stack-left${selected && leftOpen ? ' visible' : ''}`}>
-              <Stack key={`left-${selected}`} sendToBackOnClick sensitivity={180} cards={leftCards} />
-            </div>
-            <div className={`desktop-stack-right${selected && rightOpen ? ' visible' : ''}`}>
-              <Stack key={`right-${selected}`} sendToBackOnClick sensitivity={180} cards={rightCards} />
-            </div>
-          </>
+          <RightPanel
+            lookup={data.lookup}
+            country={selected}
+            year={year}
+            dark={dark}
+            healthMetric={healthMetric}
+            mode={mode}
+            onModeChange={setMode}
+            onClose={() => setSelected(null)}
+          />
         );
       })()}
 
