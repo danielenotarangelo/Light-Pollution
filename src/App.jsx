@@ -25,7 +25,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [texLoaded, setTexLoaded] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
-  const [mode, setMode] = useState('paese');
+  const [mode, setMode] = useState('country');
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const [isSmallPhone, setIsSmallPhone] = useState(() => window.innerWidth <= 400);
 
@@ -174,7 +174,7 @@ export default function App() {
 
       {data && !isMobile && (
         <div className={`left-light-panel${selected ? ' visible' : ''}`}>
-          <LGIPanel lookup={data.lookup} country={selected} year={year} dark={dark} inTab={true} />
+          <LGIPanel lookup={data.lookup} country={selected} year={year} dark={dark} inStack={true} />
         </div>
       )}
 
