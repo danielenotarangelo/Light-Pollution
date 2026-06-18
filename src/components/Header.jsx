@@ -18,7 +18,7 @@ export default function Header({ variable, onVariableChange, dark, onToggleTheme
               key={t.key}
               className={`toggle${variable === t.key ? ' active' : ''}`}
               data-var={t.key}
-              onClick={() => onVariableChange(t.key)}
+              onClick={() => onVariableChange(variable === t.key ? null : t.key)}
             >
               {t.label}
             </button>

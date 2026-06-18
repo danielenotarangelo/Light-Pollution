@@ -13,6 +13,34 @@ import { getVal, fmt, activeVarKey } from '../lib/data.js';
 import { VAR_META } from '../lib/constants.js';
 
 
+function getCountryCentroid(geo, name) {
+  const feat = geo.features.find(f => f.properties.name === name);
+  if (!feat) return null;
+  const geom = feat.geometry;
+  let coords = [];
+  if (geom.type === 'Polygon') {
+    coords = geom.coordinates[0];
+  } else if (geom.type === 'MultiPolygon') {
+    let best = geom.coordinates[0][0];
+    for (const poly of geom.coordinates) {
+      if (poly[0].length > best.length) best = poly[0];
+    }
+    coords = best;
+  }
+  if (!coords.length) return null;
+  const lons = coords.map(c => c[0]);
+  const lats = coords.map(c => c[1]);
+  const minLat = Math.min(...lats), maxLat = Math.max(...lats);
+  const minLon = Math.min(...lons), maxLon = Math.max(...lons);
+  if (maxLon - minLon > 180) {
+    const shifted = lons.map(l => l < 0 ? l + 360 : l);
+    let cl = (Math.min(...shifted) + Math.max(...shifted)) / 2;
+    if (cl > 180) cl -= 360;
+    return [cl, (minLat + maxLat) / 2];
+  }
+  return [(minLon + maxLon) / 2, (minLat + maxLat) / 2];
+}
+
 export default function Globe({
   data,
   geo,
@@ -22,6 +50,8 @@ export default function Globe({
   selected,
   onSelect,
   onTexturesLoaded,
+  zoomMult = 1,
+  flyTo = null,
 }) {
   const mountRef = useRef(null);
   const canvasRef = useRef(null);
@@ -32,6 +62,9 @@ export default function Globe({
   const overlayCtxRef = useRef(null);
   const geoPathRef = useRef(null);
   const overlayTexRef = useRef(null);
+  // Shared refs so the flyTo effect can control auto-rotation.
+  const autoRotateRef = useRef(true);
+  const startIdleTimerRef = useRef(null);
   // Keep latest props accessible inside event handlers / RAF loop.
   const propsRef = useRef({ data, geo, year, variable, healthMetric, selected });
   propsRef.current = { data, geo, year, variable, healthMetric, selected };
@@ -208,14 +241,14 @@ export default function Globe({
 
     const raycaster = new THREE.Raycaster();
     const mouse = new THREE.Vector2();
-    let autoRotate = true;
     let idleTimer = null;
     const IDLE_MS = 3000;
 
     const startIdleTimer = () => {
       clearTimeout(idleTimer);
-      idleTimer = setTimeout(() => { autoRotate = true; }, IDLE_MS);
+      idleTimer = setTimeout(() => { autoRotateRef.current = true; }, IDLE_MS);
     };
+    startIdleTimerRef.current = startIdleTimer;
 
     // Interaction.
     let isDragging = false;
@@ -238,7 +271,7 @@ export default function Globe({
 
     const onDown = (e) => {
       isDragging = true;
-      autoRotate = false;
+      autoRotateRef.current = false;
       clearTimeout(idleTimer);
       prevX = e.clientX;
       prevY = e.clientY;
@@ -296,7 +329,7 @@ export default function Globe({
     const onWheel = (e) => {
       e.preventDefault();
       camera.position.z = Math.max(zMin, Math.min(zMax, camera.position.z + e.deltaY * 0.002));
-      autoRotate = false;
+      autoRotateRef.current = false;
       startIdleTimer();
     };
 
@@ -306,7 +339,7 @@ export default function Globe({
       if (e.touches.length === 1) {
         const t = e.touches[0];
         isDragging = true;
-        autoRotate = false;
+        autoRotateRef.current = false;
         clearTimeout(idleTimer);
         prevX = t.clientX; prevY = t.clientY;
         downX = t.clientX; downY = t.clientY;
@@ -332,7 +365,7 @@ export default function Globe({
         const dist = Math.hypot(dx, dy);
         if (lastPinchDist > 0) {
           camera.position.z = Math.max(zMin, Math.min(zMax, camera.position.z + (lastPinchDist - dist) * 0.008));
-          autoRotate = false;
+          autoRotateRef.current = false;
         }
         lastPinchDist = dist;
       }
@@ -377,13 +410,13 @@ export default function Globe({
     let raf;
     const animate = () => {
       raf = requestAnimationFrame(animate);
-      if (autoRotate) worldGroup.rotation.y += 0.0007;
+      if (autoRotateRef.current) worldGroup.rotation.y += 0.0007;
       renderer.render(scene, camera);
     };
     animate();
 
     // Expose for repaint from prop-change effects.
-    sceneRef.current = { renderer, scene, camera, worldGroup };
+    sceneRef.current = { renderer, scene, camera, worldGroup, baseZ };
 
     // Safety: signal loaded after 5s no matter what.
     const safety = setTimeout(() => onTexturesLoaded && onTexturesLoaded(), 5000);
@@ -405,10 +438,63 @@ export default function Globe({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, geo]);
 
+  // Smooth camera zoom when switching between overview and country mode.
+  useEffect(() => {
+    const state = sceneRef.current;
+    if (!state) return;
+    const target = state.baseZ * zoomMult;
+    const start  = state.camera.position.z;
+    const dur    = 650;
+    const t0     = performance.now();
+    const ease   = (t) => t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+    let raf;
+    const step = (now) => {
+      const p = Math.min((now - t0) / dur, 1);
+      state.camera.position.z = start + (target - start) * ease(p);
+      if (p < 1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [zoomMult]);
+
   // Repaint the choropleth whenever year / variable / selection changes.
   useEffect(() => {
     repaintOverlay();
   }, [year, variable, healthMetric, selected, repaintOverlay]);
+
+  // Fly-to animation: rotate globe to center the selected country.
+  useEffect(() => {
+    if (!flyTo || !geo || !sceneRef.current) return;
+    const centroid = getCountryCentroid(geo, flyTo);
+    if (!centroid) return;
+    const [lon, lat] = centroid;
+    const targetRy = -Math.PI / 2 - lon * Math.PI / 180;
+    const targetRx = Math.max(-1.2, Math.min(1.2, lat * Math.PI / 180));
+    const { worldGroup } = sceneRef.current;
+    autoRotateRef.current = false;
+    const startRy = worldGroup.rotation.y;
+    const startRx = worldGroup.rotation.x;
+    let deltaY = targetRy - startRy;
+    while (deltaY > Math.PI) deltaY -= 2 * Math.PI;
+    while (deltaY < -Math.PI) deltaY += 2 * Math.PI;
+    const dur = 1400;
+    const t0 = performance.now();
+    const ease = t => t < 0.5 ? 4*t*t*t : 1 - (-2*t+2)**3/2;
+    let raf;
+    const step = now => {
+      const p = Math.min((now - t0) / dur, 1);
+      const e = ease(p);
+      worldGroup.rotation.y = startRy + deltaY * e;
+      worldGroup.rotation.x = startRx + (targetRx - startRx) * e;
+      if (p < 1) {
+        raf = requestAnimationFrame(step);
+      } else if (startIdleTimerRef.current) {
+        startIdleTimerRef.current();
+      }
+    };
+    raf = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(raf);
+  }, [flyTo, geo]);
 
   return (
     <div ref={mountRef} className="globe-mount">

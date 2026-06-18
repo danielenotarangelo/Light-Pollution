@@ -8,11 +8,14 @@ import LGRPanel from './components/LGRPanel.jsx';
 import QuadrantPanel from './components/QuadrantPanel.jsx';
 import TrajectoryPanel from './components/TrajectoryPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
+import GlobalRankingPanel from './components/GlobalRankingPanel.jsx';
+import OverviewBar from './components/OverviewBar.jsx';
 import Stack from './components/Stack.jsx';
 import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
 import Galaxy from './components/Galaxy.jsx';
 import Landing from './components/Landing.jsx';
+import { AnimatePresence } from 'motion/react';
 import { useData } from './hooks/useData.js';
 
 export default function App() {
@@ -25,7 +28,8 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [texLoaded, setTexLoaded] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
-  const [mode, setMode] = useState('country');
+  const [showRanking, setShowRanking] = useState(false);
+  const [flyTo, setFlyTo] = useState(null);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const [isSmallPhone, setIsSmallPhone] = useState(() => window.innerWidth <= 400);
 
@@ -69,12 +73,25 @@ export default function App() {
     return () => window.removeEventListener('resize', update);
   }, [variable, data]);
 
+  // Shift globe right only when ranking panel is open without a selection
+  useEffect(() => {
+    if (isMobile) return;
+    const rankingOpen = !selected && showRanking;
+    document.documentElement.style.setProperty('--globe-shift', rankingOpen ? '150px' : '0px');
+    document.documentElement.style.setProperty('--scene-left', rankingOpen ? '420px' : '0px');
+  }, [selected, showRanking, isMobile]);
+
   const handleYearChange = useCallback((next) => {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
   }, []);
 
   const handleSelect = useCallback((name) => {
     setSelected(name);
+  }, []);
+
+  const handleSearchSelect = useCallback((name) => {
+    setSelected(name);
+    setFlyTo(name);
   }, []);
 
   useEffect(() => {
@@ -169,6 +186,32 @@ export default function App() {
           selected={selected}
           onSelect={handleSelect}
           onTexturesLoaded={() => setTexLoaded(true)}
+          zoomMult={selected ? 1 : (showRanking ? 0.88 : 0.95)}
+          flyTo={flyTo}
+        />
+      )}
+
+      {/* Search + mode tabs — shown when no country is selected */}
+      <AnimatePresence>
+        {data && !selected && !isMobile && (
+          <OverviewBar
+            key="overview-bar"
+            countries={Object.keys(data.lookup)}
+            onSelect={handleSearchSelect}
+            showRanking={showRanking}
+            onToggleRanking={() => setShowRanking(r => !r)}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Ranking panel — visible when Rankings tab is active and no country selected */}
+      {data && !isMobile && (
+        <GlobalRankingPanel
+          lookup={data.lookup}
+          year={year}
+          dark={dark}
+          visible={!selected && showRanking}
+          onSelect={handleSearchSelect}
         />
       )}
 
@@ -204,14 +247,10 @@ export default function App() {
             year={year}
             dark={dark}
             healthMetric={healthMetric}
-            mode={mode}
-            onModeChange={setMode}
-            onClose={() => setSelected(null)}
           />
         );
       })()}
 
-      {!selected && <div className="hint">Drag to rotate · scroll to zoom · click a country</div>}
 
       <Timeline
         year={year}
