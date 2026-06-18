@@ -92,6 +92,18 @@ export default function Landing({ onEnter }) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [leaving, setLeaving] = useState(false);
+  const [skipVisible, setSkipVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSkipVisible(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
+
+  const skip = useCallback(() => {
+    if (leaving) return;
+    setLeaving(true);
+    setTimeout(onEnter, 750);
+  }, [leaving, onEnter]);
 
   const total = SLIDES.length;
   const isLast = current === total - 1;
@@ -125,6 +137,17 @@ export default function Landing({ onEnter }) {
 
   return (
     <div className={`landing${leaving ? ' leaving' : ''}`}>
+
+      <button
+        className={`landing-skip${skipVisible ? ' visible' : ''}`}
+        onClick={skip}
+        aria-label="Skip intro"
+      >
+        Skip
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
 
       <div className="landing-stage">
         <AnimatePresence mode="wait" custom={direction}>

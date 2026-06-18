@@ -110,6 +110,40 @@
   50%       { transform: translateY(8px); }
 }
 
+/* ── Skip button ── */
+.landing-skip {
+  position: absolute;
+  top: 28px;
+  right: 36px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 8px 16px;
+  border-radius: 999px;
+  border: 1px solid var(--text-faint);
+  background: transparent;
+  color: var(--text-faint);
+  font-size: 13px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  cursor: pointer;
+  opacity: 0;
+  transform: translateY(-6px);
+  transition: opacity 0.45s ease, transform 0.45s ease, color 0.2s, border-color 0.2s, background 0.2s;
+  pointer-events: none;
+}
+.landing-skip.visible {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+.landing-skip:hover {
+  color: var(--text);
+  border-color: var(--text-dim);
+  background: rgba(128,128,128,0.08);
+}
+
 /* ── Side navigation dots ── */
 .landing-dots {
   position: absolute;
