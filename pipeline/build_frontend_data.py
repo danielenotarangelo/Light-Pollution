@@ -70,19 +70,34 @@ def download_ne():
     print('  saved', NE_PATH)
 
 
+def _safe(val):
+    import math
+    if val is None:
+        return None
+    try:
+        return None if math.isnan(float(val)) else val
+    except (TypeError, ValueError):
+        return None
+
+
 def build_bundle(df):
     lookup = {}
     for country, group in df.groupby('country'):
         lookup[country] = {}
         for _, row in group.iterrows():
-            lookup[country][int(row['year'])] = {
-                'r': round(float(row['mean_radiance']), 6),
-                'g': round(float(row['gdp_per_capita']), 2),
-                'd': round(float(row['depressive_rate']), 2),
-                'a': round(float(row['anxiety_rate']), 2),
+            entry = {
+                'r':   round(float(row['mean_radiance']), 6),
+                'g':   round(float(row['gdp_per_capita']), 2),
+                'd':   round(float(row['depressive_rate']), 2),
+                'a':   round(float(row['anxiety_rate']), 2),
                 'lgi': round(float(row['luminosity_growth_index']), 2),
                 'lgr': round(float(row['luminosity_gdp_ratio']), 6),
             }
+            if 'energy_kwh_pc' in row and _safe(row['energy_kwh_pc']) is not None:
+                entry['e'] = round(float(row['energy_kwh_pc']), 1)
+            if 'urban_pct' in row and _safe(row['urban_pct']) is not None:
+                entry['u'] = round(float(row['urban_pct']), 2)
+            lookup[country][int(row['year'])] = entry
 
     domains = {}
     for var, col in [('r', 'mean_radiance'), ('g', 'gdp_per_capita'),
@@ -91,6 +106,14 @@ def build_bundle(df):
             'min': float(df[col].quantile(0.02)),
             'max': float(df[col].quantile(0.98)),
         }
+    for var, col in [('e', 'energy_kwh_pc'), ('u', 'urban_pct')]:
+        if col in df.columns:
+            clean = df[col].dropna()
+            if len(clean) > 0:
+                domains[var] = {
+                    'min': float(clean.quantile(0.02)),
+                    'max': float(clean.quantile(0.98)),
+                }
 
     years = sorted(int(y) for y in df['year'].unique())
     return {'lookup': lookup, 'domains': domains, 'years': years}
