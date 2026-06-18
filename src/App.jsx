@@ -10,6 +10,7 @@ import TrajectoryPanel from './components/TrajectoryPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
 import GlobalRankingPanel from './components/GlobalRankingPanel.jsx';
 import OverviewBar from './components/OverviewBar.jsx';
+import CompareBar from './components/CompareBar.jsx';
 import Stack from './components/Stack.jsx';
 import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
@@ -30,6 +31,8 @@ export default function App() {
   const [showLanding, setShowLanding] = useState(true);
   const [showRanking, setShowRanking] = useState(false);
   const [flyTo, setFlyTo] = useState(null);
+  const [compareCountry, setCompareCountry] = useState(null);
+  const [compareMode,    setCompareMode]    = useState(false);
   const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 640);
   const [isSmallPhone, setIsSmallPhone] = useState(() => window.innerWidth <= 400);
 
@@ -86,19 +89,37 @@ export default function App() {
   }, []);
 
   const handleSelect = useCallback((name) => {
-    setSelected(name);
-  }, []);
+    if (compareMode) {
+      if (name !== selected) setCompareCountry(name);
+      setCompareMode(false);
+    } else {
+      setSelected(name);
+      setCompareCountry(null);
+      setCompareMode(false);
+    }
+  }, [compareMode, selected]);
 
   const handleSearchSelect = useCallback((name) => {
     setSelected(name);
     setFlyTo(name);
   }, []);
 
+  // Reset compare state whenever the primary country changes
   useEffect(() => {
-    const onKey = (e) => { if (e.key === 'Escape') setSelected(null); };
+    setCompareCountry(null);
+    setCompareMode(false);
+  }, [selected]);
+
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.key === 'Escape') {
+        if (compareMode) { setCompareMode(false); }
+        else setSelected(null);
+      }
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, []);
+  }, [compareMode]);
 
   if (error) {
     return (
@@ -157,15 +178,19 @@ export default function App() {
 
       {data && <Legend domains={data.domains} variable={variable || 'r'} healthMetric={healthMetric} hidden={!variable || !!(isSmallPhone && selected)} />}
 
-      {/* Centered country badge — desktop only, between the two panels */}
+      {/* Centered country badge + compare UI — desktop only */}
       {selected && !isMobile && (
-        <div className="country-badge-center">
-          <div className="country-badge-center-info">
-            <span className="country-badge-center-label">Selected territory</span>
-            <span className="country-badge-center-name">{selected}</span>
-          </div>
-          <button className="close-x" onClick={() => setSelected(null)}>✕</button>
-        </div>
+        <CompareBar
+          selected={selected}
+          compareCountry={compareCountry}
+          compareMode={compareMode}
+          countries={data ? Object.keys(data.lookup) : []}
+          onClose={() => setSelected(null)}
+          onEnterCompare={() => setCompareMode(true)}
+          onCancelCompare={() => setCompareMode(false)}
+          onSelectCompare={(name) => { setCompareCountry(name); setCompareMode(false); }}
+          onClearCompare={() => setCompareCountry(null)}
+        />
       )}
 
       {/* Mobile: keep the original top-right badge */}

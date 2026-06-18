@@ -10,7 +10,6 @@ const TABS = [
   { id: 'wealth',  label: 'Wealth'  },
   { id: 'health',  label: 'Health'  },
   { id: 'environ', label: 'Environ' },
-  { id: 'compare', label: 'Compare' },
 ];
 
 export default function RightPanel({ lookup, country, year, dark, healthMetric = 'd' }) {
@@ -57,7 +56,7 @@ export default function RightPanel({ lookup, country, year, dark, healthMetric =
 
       {/* Content */}
       <div className="rp-mode-content">
-        {tab !== 'compare' && country && (
+        {country && (
           <div className="rp-stack-wrapper">
             <Stack
               key={`${tab}-${country}`}
@@ -68,19 +67,6 @@ export default function RightPanel({ lookup, country, year, dark, healthMetric =
                 tab === 'health'  ? healthCards  :
                                     environCards
               }
-            />
-          </div>
-        )}
-
-        {tab === 'compare' && (
-          <div className="rp-compare-wrapper">
-            <QuadrantPanel
-              lookup={lookup}
-              country={country}
-              year={year}
-              dark={dark}
-              healthMetric={healthMetric}
-              inStack={true}
             />
           </div>
         )}
