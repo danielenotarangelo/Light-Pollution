@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function LGRChart({ series, year, dark, height = 200 }) {
+export default function LGRChart({ series, year, dark, height }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 
@@ -16,7 +16,7 @@ export default function LGRChart({ series, year, dark, height = 200 }) {
     if (!data.length) return;
 
     const W = el.clientWidth || 286;
-    const H = el.clientHeight || height;
+    const H = el.clientHeight || height || 200;
     const m = { top: 12, right: 16, bottom: 22, left: 46 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
@@ -92,5 +92,5 @@ export default function LGRChart({ series, year, dark, height = 200 }) {
       .attr('stroke-width', 2);
   }, [year, dark, series, height]);
 
-  return <div ref={ref} className="chart" />;
+  return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

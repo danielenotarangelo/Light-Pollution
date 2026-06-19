@@ -79,7 +79,7 @@ export default function LGRPanel({ lookup, country, year, dark, open, onClose, i
         <span className="dot" style={{ background: 'var(--lgr)' }} />
         Radiance-to-GDP ratio trend
       </div>
-      {visible && <LGRChart series={series} year={year} dark={dark} height={compact ? 150 : 200} />}
+      {visible && <LGRChart series={series} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
       {zoomed && (
         <ChartModal title="Light / GDP Ratio" subtitle="Radiance per unit of wealth" country={country} meta={`×10⁻⁴ · ${year}`} onClose={() => setZoomed(false)}>
           <LGRChart series={series} year={year} dark={dark} height={380} />

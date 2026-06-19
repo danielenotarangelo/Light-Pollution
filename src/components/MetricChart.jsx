@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function MetricChart({ series, metricKey, year, color = '#10b981', dark, height = 160, fmt }) {
+export default function MetricChart({ series, metricKey, year, color = '#10b981', dark, height, fmt }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 
@@ -13,7 +13,7 @@ export default function MetricChart({ series, metricKey, year, color = '#10b981'
     if (!data.length) return;
 
     const W  = el.clientWidth || 286;
-    const H  = el.clientHeight || height;
+    const H  = el.clientHeight || height || 160;
     const m  = { top: 12, right: 12, bottom: 22, left: 46 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
@@ -111,5 +111,5 @@ export default function MetricChart({ series, metricKey, year, color = '#10b981'
               .attr('r',       d => d.year === year ? 4.5 : 3);
   }, [year, series, metricKey, dark]);
 
-  return <div ref={ref} className="chart" style={{ height }} />;
+  return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

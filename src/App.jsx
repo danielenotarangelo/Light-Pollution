@@ -76,13 +76,6 @@ export default function App() {
     return () => window.removeEventListener('resize', update);
   }, [variable, data]);
 
-  // Shift globe right only when ranking panel is open without a selection
-  useEffect(() => {
-    if (isMobile) return;
-    const rankingOpen = !selected && showRanking;
-    document.documentElement.style.setProperty('--globe-shift', rankingOpen ? '150px' : '0px');
-    document.documentElement.style.setProperty('--scene-left', rankingOpen ? '420px' : '0px');
-  }, [selected, showRanking, isMobile]);
 
   const handleYearChange = useCallback((next) => {
     setYear((prev) => (typeof next === 'function' ? next(prev) : next));
@@ -211,7 +204,7 @@ export default function App() {
           selected={selected}
           onSelect={handleSelect}
           onTexturesLoaded={() => setTexLoaded(true)}
-          zoomMult={selected ? 1 : (showRanking ? 0.88 : 0.95)}
+          zoomMult={selected ? 1 : (showRanking ? 1.12 : 0.95)}
           flyTo={flyTo}
         />
       )}

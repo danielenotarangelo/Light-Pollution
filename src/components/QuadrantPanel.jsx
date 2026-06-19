@@ -88,7 +88,7 @@ export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd
           selected={country}
           healthMetric={metric}
           dark={dark}
-          height={compact ? 150 : 260}
+          height={inStack ? null : (compact ? 150 : 260)}
         />
       )}
       {zoomed && (

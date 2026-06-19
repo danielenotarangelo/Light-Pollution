@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function QuadrantChart({ lookup, year, selected, healthMetric, dark, height = 260 }) {
+export default function QuadrantChart({ lookup, year, selected, healthMetric, dark, height }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -9,7 +9,7 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
     el.innerHTML = '';
 
     const W = el.clientWidth || 286;
-    const H = el.clientHeight || height;
+    const H = el.clientHeight || height || 260;
     const m = { top: 16, right: 12, bottom: 36, left: 44 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
@@ -145,5 +145,5 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
 
   }, [lookup, year, selected, healthMetric, dark, height]);
 
-  return <div ref={ref} className="chart" />;
+  return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

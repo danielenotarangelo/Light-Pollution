@@ -72,7 +72,7 @@ export default function LGIPanel({ lookup, country, year, dark, open, onClose, i
         <span className="dot" style={{ background: 'var(--lgi)' }} />
         Annual radiance growth rate
       </div>
-      {visible && <LGIChart series={series} year={year} dark={dark} height={compact ? 150 : 200} />}
+      {visible && <LGIChart series={series} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
       {zoomed && (
         <ChartModal title="Luminosity Growth" subtitle="Year-over-year radiance change" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
           <LGIChart series={series} year={year} dark={dark} height={380} />

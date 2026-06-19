@@ -7,13 +7,30 @@ import EnergyPanel from './EnergyPanel.jsx';
 import Stack from './Stack.jsx';
 
 const TABS = [
-  { id: 'wealth',  label: 'Wealth'  },
-  { id: 'health',  label: 'Health'  },
-  { id: 'environ', label: 'Environ' },
+  { id: 'wealth',      label: 'Wealth' },
+  { id: 'health',      label: 'Health' },
+  { id: 'environment', label: 'Environment' },
 ];
+
+function ChevronLeft() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="11,4 6,9 11,14" />
+    </svg>
+  );
+}
+
+function ChevronRight() {
+  return (
+    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="7,4 12,9 7,14" />
+    </svg>
+  );
+}
 
 export default function RightPanel({ lookup, country, year, dark, healthMetric = 'd' }) {
   const [tab, setTab] = useState('wealth');
+  const [dir, setDir] = useState('left');
 
   useEffect(() => { setTab('wealth'); }, [country]);
 
@@ -26,50 +43,49 @@ export default function RightPanel({ lookup, country, year, dark, healthMetric =
     <LeftPanel  key="left" {...shared} />,
     <LGRPanel   key="lgr"  {...shared} />,
   ];
-
   const healthCards = [
     <TrajectoryPanel key="trajectory" {...sharedH} />,
     <QuadrantPanel   key="quadrant"   {...sharedH} />,
   ];
-
-  const environCards = [
+  const environmentCards = [
     <EnergyPanel key="energy" {...shared} />,
   ];
+
+  const tabIdx  = TABS.findIndex(t => t.id === tab);
+  const prevTab = () => { setDir('right'); setTab(TABS[(tabIdx - 1 + TABS.length) % TABS.length].id); };
+  const nextTab = () => { setDir('left');  setTab(TABS[(tabIdx + 1) % TABS.length].id); };
+
+  const activeCards =
+    tab === 'wealth'      ? wealthCards :
+    tab === 'health'      ? healthCards :
+                            environmentCards;
 
   return (
     <div className={`right-panel${visible ? ' visible' : ''}`}>
 
-      {/* Tab bar */}
-      {country && (
-        <div className="rp-card-tabs">
-          {TABS.map(t => (
-            <button
-              key={t.id}
-              className={`rp-card-tab${tab === t.id ? ' active' : ''}`}
-              onClick={() => setTab(t.id)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Content */}
-      <div className="rp-mode-content">
+      {/* Chart area — fills full panel height */}
+      <div key={tab} className={`rp-mode-content rp-mode-content--${dir}`}>
         {country && (
           <div className="rp-stack-wrapper">
             <Stack
               key={`${tab}-${country}`}
               sendToBackOnClick
               sensitivity={180}
-              cards={
-                tab === 'wealth'  ? wealthCards  :
-                tab === 'health'  ? healthCards  :
-                                    environCards
-              }
+              cards={activeCards}
             />
           </div>
         )}
+      </div>
+
+      {/* Tab navigator — fixed below the panel */}
+      <div className="rp-tab-nav">
+        <button className="rp-nav-arrow" onClick={prevTab} aria-label="Previous tab">
+          <ChevronLeft />
+        </button>
+        <span className="rp-nav-label">{TABS[tabIdx >= 0 ? tabIdx : 0].label}</span>
+        <button className="rp-nav-arrow" onClick={nextTab} aria-label="Next tab">
+          <ChevronRight />
+        </button>
       </div>
     </div>
   );

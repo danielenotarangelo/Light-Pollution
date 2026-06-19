@@ -72,7 +72,7 @@ export default function EnergyPanel({ lookup, country, year, dark, inStack = fal
           year={year}
           color="#10b981"
           dark={dark}
-          height={130}
+          height={inStack ? null : 130}
           fmt={v => d3.format(',.0f')(v)}
         />
       )}
@@ -94,7 +94,7 @@ export default function EnergyPanel({ lookup, country, year, dark, inStack = fal
           year={year}
           color="#06b6d4"
           dark={dark}
-          height={130}
+          height={inStack ? null : 130}
           fmt={v => d3.format('.1f')(v) + '%'}
         />
       )}

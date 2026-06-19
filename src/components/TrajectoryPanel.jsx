@@ -83,7 +83,7 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
           year={year}
           healthMetric={metric}
           dark={dark}
-          height={compact ? 150 : 220}
+          height={inStack ? null : (compact ? 150 : 220)}
         />
       )}
       {zoomed && (

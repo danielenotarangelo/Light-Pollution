@@ -529,6 +529,20 @@ body.dark .chart-modal {
   from { opacity: 0; transform: scale(0.96) translateY(10px); }
   to   { opacity: 1; transform: scale(1)    translateY(0); }
 }
+@keyframes modal-fade-out {
+  from { opacity: 1; }
+  to   { opacity: 0; }
+}
+@keyframes modal-fall {
+  from { opacity: 1; transform: scale(1)    translateY(0); }
+  to   { opacity: 0; transform: scale(0.96) translateY(10px); }
+}
+.chart-modal-backdrop.closing {
+  animation: modal-fade-out 0.2s ease-out forwards;
+}
+.chart-modal.closing {
+  animation: modal-fall 0.2s ease-out forwards;
+}
 
 .stat-grid {
   display: grid;
@@ -829,11 +843,15 @@ body.dark .chart-modal {
   min-height: 0;
   scrollbar-width: none;
 }
+.panel-stack-card > .border-glow-inner > * {
+  flex-shrink: 0;
+}
 .panel-stack-card > .border-glow-inner::-webkit-scrollbar { display: none; }
 .panel-stack-card > .border-glow-inner:has(.info-btn:hover) {
   overflow: visible;
 }
 .panel-stack-card .chart {
+  flex: 1;
   min-height: 60px;
 }
 
@@ -993,8 +1011,8 @@ body.dark .chart-modal {
 .left-light-panel {
   position: fixed;
   left: 32px;
-  top: calc(var(--legend-bottom, 192px) + 66px);
-  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 58px);
+  top: calc(var(--legend-bottom, 192px) + 16px);
+  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 16px);
   width: 390px;
   z-index: 28;
   opacity: 0;
@@ -1012,8 +1030,8 @@ body.dark .chart-modal {
 .right-panel {
   position: fixed;
   right: 32px;
-  top: calc(var(--legend-bottom, 192px) + 66px);
-  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 58px);
+  top: calc(var(--legend-bottom, 192px) + 16px);
+  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 16px);
   width: 390px;
   z-index: 28;
   display: flex;
@@ -1138,45 +1156,18 @@ body.dark .chart-modal {
   overflow: visible;
 }
 
-/* Wealth/Health toggle — floats above the right panel */
-.rp-card-tabs {
-  position: absolute;
-  bottom: calc(100% + 14px);
-  left: 0;
-  right: 0;
-  z-index: 2;
+/* Tab navigator — fixed just above the right panel's top edge */
+.rp-tab-nav {
+  position: fixed;
+  right: calc(32px + (390px - 260px) / 2);
+  top: calc(var(--legend-bottom, 192px) + 16px - 58px);
+  width: 260px;
+  z-index: 29;
   display: flex;
-  gap: 4px;
-  padding: 6px 8px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 999px;
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: var(--shadow);
-}
-
-.rp-card-tab {
-  flex: 1;
-  font-size: 13px;
-  font-weight: 600;
-  font-family: var(--font);
-  padding: 7px 12px;
-  border: none;
-  border-radius: 999px;
-  background: transparent;
-  color: var(--text-dim);
-  cursor: pointer;
-  text-align: center;
-  transition: color 0.2s,
-    background 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
-    box-shadow 0.35s;
-}
-.rp-card-tab:hover { color: var(--text); }
-.rp-card-tab.active {
-  background: var(--toggle-wh);
-  color: #fff;
-  box-shadow: 0 2px 10px color-mix(in srgb, var(--toggle-wh) 35%, transparent);
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 0 2px;
 }
 
 .rp-panel-card--center {
@@ -1240,30 +1231,38 @@ body.dark .chart-modal {
 /* Ranking metric tabs */
 .ranking-tabs {
   display: flex;
-  gap: 4px;
-  padding: 0 16px 10px;
+  gap: 3px;
+  padding: 3px;
+  margin: 0 16px 10px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 999px;
   flex-shrink: 0;
 }
 .ranking-tab {
   flex: 1;
-  padding: 5px 0;
-  border-radius: 8px;
-  border: 1px solid var(--panel-border);
+  font-size: 11px;
+  font-weight: 600;
+  font-family: var(--font);
+  letter-spacing: 0.01em;
+  padding: 5px 8px;
+  border: none;
+  border-radius: 999px;
   background: transparent;
   color: var(--text-dim);
-  font-size: 11px;
-  font-weight: 500;
   cursor: pointer;
-  transition: background 0.18s, color 0.18s, border-color 0.18s;
+  text-align: center;
+  transition: color 0.2s,
+    background 0.35s cubic-bezier(0.34, 1.56, 0.64, 1),
+    box-shadow 0.35s;
 }
 .ranking-tab:hover {
-  background: var(--panel-border);
   color: var(--text);
 }
 .ranking-tab.active {
   background: var(--lgi);
-  border-color: var(--lgi);
   color: #fff;
+  box-shadow: 0 2px 10px color-mix(in srgb, var(--lgi) 35%, transparent);
 }
 
 /* Ranking chart scroll container */
@@ -1312,7 +1311,7 @@ body.dark .chart-modal {
 
 .rp-nav-label {
   flex: 1;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 700;
   color: var(--text);
   text-align: center;
@@ -1323,21 +1322,19 @@ body.dark .chart-modal {
 /* ── Global Ranking Panel (overview mode, left side) ── */
 .global-ranking-panel {
   position: fixed;
-  left: 0;
-  top: calc(var(--legend-bottom, 90px) + 8px);
-  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 20px);
+  left: 32px;
+  top: calc(var(--legend-bottom, 192px) + 16px);
+  bottom: calc(100vh - var(--timeline-top, calc(100vh - 130px)) + 16px);
   width: 420px;
   z-index: 27;
-  padding: 0 16px 0 20px;
+  padding: 0;
   display: flex;
   flex-direction: column;
-  transform: translateX(-100%);
   opacity: 0;
   pointer-events: none;
-  transition: transform 0.65s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.45s ease;
+  transition: opacity 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .global-ranking-panel.visible {
-  transform: translateX(0);
   opacity: 1;
   pointer-events: auto;
 }
@@ -1564,6 +1561,15 @@ body.dark .chart-modal {
   color: var(--text);
 }
 
+@keyframes compare-in {
+  from { opacity: 0; transform: translateY(-5px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes compare-out {
+  from { opacity: 1; transform: translateY(0); }
+  to   { opacity: 0; transform: translateY(-5px); }
+}
+
 /* Compare trigger button */
 .compare-trigger-btn {
   display: flex;
@@ -1581,6 +1587,10 @@ body.dark .chart-modal {
   cursor: pointer;
   box-shadow: var(--shadow);
   transition: color 0.15s, background 0.15s;
+  animation: compare-in 0.18s ease-in both;
+}
+.compare-trigger-btn.exiting {
+  animation: compare-out 0.18s ease-out both;
 }
 .compare-trigger-btn:hover {
   color: var(--text);
@@ -1596,6 +1606,10 @@ body.dark .chart-modal {
   backdrop-filter: blur(14px);
   box-shadow: var(--shadow);
   width: 280px;
+  animation: compare-in 0.18s ease-in both;
+}
+.compare-picker-card.exiting {
+  animation: compare-out 0.18s ease-out both;
 }
 .compare-search-row {
   display: flex;
@@ -1674,7 +1688,12 @@ body.dark .compare-search-row {
 .compare-cancel-btn:hover { background: var(--hairline); color: var(--text); }
 
 /* Compare result badge (second country selected) */
+.compare-result-badge.exiting {
+  animation: compare-out 0.18s ease-out both;
+}
 .compare-result-badge {
+  animation: compare-in 0.18s ease-in both;
+}
   display: flex;
   align-items: center;
   gap: 10px;
@@ -1744,29 +1763,39 @@ body.dark .compare-search-row {
   width: 100%;
 }
 
-/* ── Left/Right Panel responsive ───────────────────────────────── */
+/* ── Left/Right/Ranking Panel responsive ───────────────────────── */
 @media (min-width: 1920px) {
-  .right-panel      { width: 480px; right: 48px; }
-  .left-light-panel { width: 480px; left: 48px; }
+  .right-panel           { width: 480px; right: 48px; }
+  .left-light-panel      { width: 480px; left: 48px; }
+  .global-ranking-panel  { width: 500px; left: 48px; }
+  .rp-tab-nav            { right: calc(48px + (480px - 260px) / 2); }
 }
 @media (min-width: 1600px) and (max-width: 1919px) {
-  .right-panel      { width: 430px; right: 40px; }
-  .left-light-panel { width: 430px; left: 40px; }
+  .right-panel           { width: 430px; right: 40px; }
+  .left-light-panel      { width: 430px; left: 40px; }
+  .global-ranking-panel  { width: 460px; left: 40px; }
+  .rp-tab-nav            { right: calc(40px + (430px - 260px) / 2); }
 }
 @media (max-width: 1280px) {
   .right-panel           { width: 360px; right: 28px; }
   .left-light-panel      { width: 360px; left: 28px; }
+  .global-ranking-panel  { width: 380px; left: 28px; }
+  .rp-tab-nav            { right: calc(28px + (360px - 260px) / 2); }
   .timeline              { width: min(500px, 48vw); }
 }
 @media (max-width: 1100px) {
   .right-panel           { width: 310px; right: 16px; }
   .left-light-panel      { width: 310px; left: 16px; }
+  .global-ranking-panel  { width: 320px; left: 16px; }
+  .rp-tab-nav            { right: calc(16px + (310px - 260px) / 2); }
   .panel-tab-card > .border-glow-inner { padding: 14px 16px; }
   .timeline              { width: min(420px, 42vw); }
 }
 @media (max-width: 900px) {
   .right-panel           { width: 260px; right: 10px; }
   .left-light-panel      { width: 260px; left: 10px; }
+  .global-ranking-panel  { width: 270px; left: 10px; }
+  .rp-tab-nav            { right: 10px; width: 220px; }
   .compare-bar-stack     { display: none; }
   .timeline              { width: min(320px, 52vw); }
 }

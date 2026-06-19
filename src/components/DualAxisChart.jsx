@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function DualAxisChart({ series, year, dark, height = 240 }) {
+export default function DualAxisChart({ series, year, dark, height }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 
@@ -13,7 +13,7 @@ export default function DualAxisChart({ series, year, dark, height = 240 }) {
     if (!series?.length) return;
 
     const W = el.clientWidth || 286;
-    const H = el.clientHeight || height;
+    const H = el.clientHeight || height || 240;
     const m = { top: 12, right: 42, bottom: 22, left: 42 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
@@ -113,5 +113,5 @@ export default function DualAxisChart({ series, year, dark, height = 240 }) {
     mDotG.attr('cx', x(cy.year)).attr('cy', yG(cy.g));
   }, [year, series, dark, height]);
 
-  return <div ref={ref} className="chart" />;
+  return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

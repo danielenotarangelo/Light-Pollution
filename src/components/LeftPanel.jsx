@@ -60,7 +60,7 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose, 
         Light <span className="dot" style={{ background: 'var(--gdp)' }} />
         Wealth
       </div>
-      {visible && <DualAxisChart series={series} year={year} dark={dark} height={compact ? 150 : 240} />}
+      {visible && <DualAxisChart series={series} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
       {zoomed && (
         <ChartModal title="Light & Wealth" subtitle="Radiance & GDP per capita" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
           <DualAxisChart series={series} year={year} dark={dark} height={400} />

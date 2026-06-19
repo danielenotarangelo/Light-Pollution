@@ -1,6 +1,8 @@
 import { useState, useRef, useEffect } from 'react';
 import { getFlagEmoji } from '../utils/countryFlags.js';
 
+const ANIM_MS = 180;
+
 export default function CompareBar({
   selected,
   compareCountry,
@@ -12,15 +14,35 @@ export default function CompareBar({
   onSelectCompare,
   onClearCompare,
 }) {
-  const [query,      setQuery]      = useState('');
+  const [query,       setQuery]       = useState('');
   const [suggestions, setSuggestions] = useState([]);
-  const [activeIdx,  setActiveIdx]  = useState(-1);
-  const inputRef  = useRef(null);
+  const [activeIdx,   setActiveIdx]   = useState(-1);
+  const inputRef   = useRef(null);
   const wrapperRef = useRef(null);
 
+  // Which sub-element is currently rendered (lags behind props to allow exit anim)
+  const targetState = compareMode ? 'picker' : compareCountry ? 'result' : 'trigger';
+  const [displayState, setDisplayState] = useState(targetState);
+  const [exiting, setExiting] = useState(false);
+
   useEffect(() => {
-    if (compareMode) inputRef.current?.focus();
-    else { setQuery(''); setSuggestions([]); setActiveIdx(-1); }
+    if (targetState === displayState) return;
+    setExiting(true);
+    const t = setTimeout(() => {
+      setDisplayState(targetState);
+      setExiting(false);
+    }, ANIM_MS);
+    return () => clearTimeout(t);
+  }, [targetState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Focus input after picker card has animated in
+  useEffect(() => {
+    if (!compareMode) {
+      setQuery(''); setSuggestions([]); setActiveIdx(-1);
+      return;
+    }
+    const t = setTimeout(() => inputRef.current?.focus(), ANIM_MS + 10);
+    return () => clearTimeout(t);
   }, [compareMode]);
 
   useEffect(() => {
@@ -59,10 +81,11 @@ export default function CompareBar({
 
   const flag1 = getFlagEmoji(selected);
   const flag2 = compareCountry ? getFlagEmoji(compareCountry) : null;
+  const animClass = exiting ? ' exiting' : '';
 
   return (
     <div className="compare-bar-stack">
-      {/* Primary badge */}
+      {/* Primary badge — always visible */}
       <div className="country-badge-center">
         <div className="country-badge-center-info">
           <span className="country-badge-center-label">Selected territory</span>
@@ -75,18 +98,15 @@ export default function CompareBar({
       </div>
 
       {/* State 1: no compare yet */}
-      {!compareMode && !compareCountry && (
-        <button className="compare-trigger-btn" onClick={onEnterCompare}>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round">
-            <path d="M18 8l4 4-4 4M6 8l-4 4 4 4M14 4l-4 16"/>
-          </svg>
+      {displayState === 'trigger' && (
+        <button className={`compare-trigger-btn${animClass}`} onClick={onEnterCompare}>
           Compare with…
         </button>
       )}
 
       {/* State 2: compare mode active — waiting for second country */}
-      {compareMode && (
-        <div className="compare-picker-card" ref={wrapperRef}>
+      {displayState === 'picker' && (
+        <div className={`compare-picker-card${animClass}`} ref={wrapperRef}>
           <div className="compare-search-row">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" style={{ flexShrink: 0, opacity: 0.5 }}>
               <circle cx="11" cy="11" r="7"/><line x1="16.5" y1="16.5" x2="22" y2="22"/>
@@ -129,8 +149,8 @@ export default function CompareBar({
       )}
 
       {/* State 3: second country selected */}
-      {compareCountry && !compareMode && (
-        <div className="compare-result-badge">
+      {displayState === 'result' && (
+        <div className={`compare-result-badge${animClass}`}>
           <span className="compare-vs">vs</span>
           <span className="compare-result-name">
             {flag2 && <span style={{ marginRight: 6 }}>{flag2}</span>}
