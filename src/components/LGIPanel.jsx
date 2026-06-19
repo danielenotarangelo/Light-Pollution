@@ -1,29 +1,45 @@
 import { useState } from 'react';
+import LGILineChart from './LGILineChart.jsx';
 import LGIChart from './LGIChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
+import { getFlagEmoji } from '../utils/countryFlags.js';
+
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
 
 const fmtLGI = v => {
   if (v == null || Math.abs(v) < 1e-8) return '—';
-  return (v >= 0 ? '+' : '') + (v * 100).toFixed(1) + '%';
+  const pct = v * 100;
+  const digits = Math.abs(pct) >= 1 ? 0 : 1;
+  return (v >= 0 ? '+' : '') + pct.toFixed(digits) + '%';
 };
 
-export default function LGIPanel({ lookup, country, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+const avgOf = (arr, key) => {
+  const vals = arr.filter(d => d[key] != null && Math.abs(d[key]) > 1e-8);
+  return vals.length ? vals.reduce((s, d) => s + d[key], 0) / vals.length : null;
+};
+
+export default function LGIPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
-  const series = country ? getSeries(lookup, YEARS, country) : [];
-  const cur = country && lookup[country] ? lookup[country][year] : null;
-  const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
-  const lgiValues = series.filter(d => d.lgi != null && Math.abs(d.lgi) > 1e-8);
-  const avgLGI = lgiValues.length
-    ? lgiValues.reduce((sum, d) => sum + d.lgi, 0) / lgiValues.length
-    : null;
+  const series     = country        ? getSeries(lookup, YEARS, country)        : [];
+  const cmpSeries  = compareCountry ? getSeries(lookup, YEARS, compareCountry) : null;
+  const cur        = country        && lookup[country]        ? lookup[country][year]        : null;
+  const cmpCur     = compareCountry && lookup[compareCountry] ? lookup[compareCountry][year] : null;
+  const bg         = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
-  const curLGI = cur?.lgi ?? null;
+  const curLGI    = cur?.lgi    ?? null;
+  const cmpLGI    = cmpCur?.lgi ?? null;
+  const avgLGI    = avgOf(series, 'lgi');
+  const cmpAvgLGI = cmpSeries ? avgOf(cmpSeries, 'lgi') : null;
+
   const lgiColor = v => v != null && v >= 0 ? 'var(--lgi)' : 'var(--lgr)';
+  const flag1 = getFlagEmoji(country);
+  const flag2 = compareCountry ? getFlagEmoji(compareCountry) : null;
 
   return (
     <BorderGlow
@@ -42,7 +58,20 @@ export default function LGIPanel({ lookup, country, year, dark, open, onClose, i
         <div>
           <div className="fp-label">Year-over-year radiance change</div>
           <h2>Luminosity Growth</h2>
-          {country && <div className="fp-country">{country}</div>}
+
+          {country && !compareCountry && <div className="fp-country">{country}</div>}
+          {country && compareCountry && (
+            <div className="fp-compare-countries">
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span className="fp-vs">vs</span>
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
+
           <div className="meta">{year}</div>
         </div>
         <div className="fp-head-actions">
@@ -52,30 +81,69 @@ export default function LGIPanel({ lookup, country, year, dark, open, onClose, i
           {onClose && <button className="close-x" onClick={onClose}>✕</button>}
         </div>
       </div>
+
       <div className="stat-grid">
         <div className="stat">
           <div className="label">This year</div>
-          <div className="value" style={{ color: lgiColor(curLGI) }}>
-            {fmtLGI(curLGI)}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {fmtLGI(curLGI)}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {fmtLGI(cmpLGI)}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: lgiColor(curLGI) }}>{fmtLGI(curLGI)}</div>
+          )}
           <div className="unit">change</div>
         </div>
+
         <div className="stat">
           <div className="label">Avg growth</div>
-          <div className="value" style={{ color: lgiColor(avgLGI) }}>
-            {fmtLGI(avgLGI)}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {fmtLGI(avgLGI)}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {fmtLGI(cmpAvgLGI)}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: lgiColor(avgLGI) }}>{fmtLGI(avgLGI)}</div>
+          )}
           <div className="unit">per year</div>
         </div>
       </div>
+
       <div className="chart-title">
-        <span className="dot" style={{ background: 'var(--lgi)' }} />
-        Annual radiance growth rate
+        {compareCountry ? 'Annual radiance growth rate' : (
+          <><span className="dot" style={{ background: 'var(--lgi)' }} />Annual radiance growth rate</>
+        )}
       </div>
-      {visible && <LGIChart series={series} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
+
+      {visible && <LGILineChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
+
+
       {zoomed && (
         <ChartModal title="Luminosity Growth" subtitle="Year-over-year radiance change" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <LGIChart series={series} year={year} dark={dark} height={380} />
+          <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={380} />
+          {compareCountry && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
         </ChartModal>
       )}
     </BorderGlow>
