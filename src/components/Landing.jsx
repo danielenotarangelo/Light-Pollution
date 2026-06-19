@@ -92,6 +92,12 @@ export default function Landing({ onEnter }) {
   const [current, setCurrent] = useState(0);
   const [direction, setDirection] = useState(1);
   const [leaving, setLeaving] = useState(false);
+  const [skipVisible, setSkipVisible] = useState(false);
+
+  useEffect(() => {
+    const t = setTimeout(() => setSkipVisible(true), 1500);
+    return () => clearTimeout(t);
+  }, []);
 
   const total = SLIDES.length;
   const isLast = current === total - 1;
@@ -125,6 +131,17 @@ export default function Landing({ onEnter }) {
 
   return (
     <div className={`landing${leaving ? ' leaving' : ''}`}>
+
+      <button
+        className={`landing-skip${skipVisible ? ' visible' : ''}`}
+        onClick={() => { setLeaving(true); setTimeout(onEnter, 750); }}
+        aria-label="Skip intro"
+      >
+        Flip the switch
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+          <polyline points="9 18 15 12 9 6" />
+        </svg>
+      </button>
 
       <div className="landing-stage">
         <AnimatePresence mode="wait" custom={direction}>
