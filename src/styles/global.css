@@ -395,6 +395,15 @@ header {
   color: var(--text-dim);
   margin-top: 2px;
 }
+.panel-desc {
+  font-size: 10.5px;
+  line-height: 1.5;
+  color: var(--text-dim);
+  margin: 0 0 10px;
+  padding: 7px 9px;
+  background: var(--hairline);
+  border-radius: 8px;
+}
 .close-x {
   width: 26px;
   height: 26px;
@@ -493,8 +502,8 @@ header {
   background: #f8f9fc;
   border-radius: 20px;
   padding: 28px 28px 20px;
-  width: min(92vw, 820px);
-  max-height: 88vh;
+  width: min(96vw, 960px);
+  max-height: 92vh;
   overflow-y: auto;
   box-shadow: 0 32px 80px rgba(0, 0, 0, 0.45);
   animation: modal-rise 0.18s ease;

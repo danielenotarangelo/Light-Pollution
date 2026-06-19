@@ -1,0 +1,130 @@
+import { useState, useMemo } from 'react';
+import * as d3 from 'd3';
+import BorderGlow from './BorderGlow.jsx';
+import TierDistChart from './TierDistChart.jsx';
+import ChartModal from './ChartModal.jsx';
+
+function computePoints(lookup, year, metric) {
+  const entries = Object.entries(lookup)
+    .map(([name, ts]) => ({ name, g: ts[year]?.g, v: ts[year]?.[metric] }))
+    .filter(e => e.g != null && e.v != null);
+
+  if (entries.length < 4) return [];
+
+  const gdpSorted = entries.map(e => e.g).sort(d3.ascending);
+  const q1 = d3.quantile(gdpSorted, 0.25);
+  const q2 = d3.quantile(gdpSorted, 0.50);
+  const q3 = d3.quantile(gdpSorted, 0.75);
+
+  return entries.map(e => ({
+    name:  e.name,
+    tier:  e.g <= q1 ? 0 : e.g <= q2 ? 1 : e.g <= q3 ? 2 : 3,
+    value: e.v,
+  }));
+}
+
+const R_COLOR = '#f97316';
+const H_COLOR = '#a855f7';
+
+export default function TierDistPanel({ lookup, country, year, dark, healthMetric = 'd', inStack = false }) {
+  const [zoomedR, setZoomedR] = useState(false);
+  const [zoomedH, setZoomedH] = useState(false);
+
+  const bg = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
+
+  const rPoints = useMemo(() => computePoints(lookup, year, 'r'),           [lookup, year]);
+  const hPoints = useMemo(() => computePoints(lookup, year, healthMetric),  [lookup, year, healthMetric]);
+
+  const hLabel = healthMetric === 'd' ? 'Depression prevalence (/100k)' : 'Anxiety prevalence (/100k)';
+  const hTitle = healthMetric === 'd' ? 'Depressive Disorders'          : 'Anxiety Disorders';
+
+  return (
+    <BorderGlow
+      className={inStack ? 'panel-stack-card' : 'float-panel visible'}
+      backgroundColor={bg}
+      borderRadius={22}
+      glowRadius={5}
+      glowIntensity={0.06}
+      glowColor="249 115 22"
+      edgeSensitivity={60}
+      coneSpread={10}
+      fillOpacity={0.01}
+      colors={[R_COLOR, H_COLOR, '#f59e0b']}
+    >
+      <div className="fp-head">
+        <div>
+          <div className="fp-label">Income &amp; Light · {year}</div>
+          <h2>Global Distribution</h2>
+          {country && <div className="fp-country">{country}</div>}
+        </div>
+      </div>
+
+      <p className="panel-desc">
+        All ~183 countries split into four GDP quartiles. Each column shows how radiance
+        and mental-health prevalence are distributed <em>within</em> that income group —
+        box marks the IQR, line the median.
+        {country && <> <strong>{country}</strong> is highlighted.</>}
+      </p>
+
+      <div className="chart-title">
+        <span className="dot" style={{ background: R_COLOR }} />
+        Radiance by income tier
+        {country && (
+          <button className="zoom-btn" onClick={e => { e.stopPropagation(); setZoomedR(true); }} title="Expand chart">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </button>
+        )}
+      </div>
+      <TierDistChart
+        points={rPoints}
+        country={country}
+        color={R_COLOR}
+        ylabel="nW/cm²/sr"
+        dark={dark}
+        height={inStack ? null : 180}
+        logScale
+      />
+
+      <div className="chart-title" style={{ marginTop: 10 }}>
+        <span className="dot" style={{ background: H_COLOR }} />
+        {healthMetric === 'd' ? 'Depression' : 'Anxiety'} prevalence by income tier
+        {country && (
+          <button className="zoom-btn" onClick={e => { e.stopPropagation(); setZoomedH(true); }} title="Expand chart">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+          </button>
+        )}
+      </div>
+      <TierDistChart
+        points={hPoints}
+        country={country}
+        color={H_COLOR}
+        ylabel="/100k"
+        dark={dark}
+        height={inStack ? null : 180}
+      />
+
+      {zoomedR && (
+        <ChartModal
+          title="Radiance Distribution"
+          subtitle="Mean radiance by GDP income tier"
+          country={country}
+          meta={String(year)}
+          onClose={() => setZoomedR(false)}
+        >
+          <TierDistChart points={rPoints} country={country} color={R_COLOR} ylabel="nW/cm²/sr" dark={dark} height={440} logScale />
+        </ChartModal>
+      )}
+      {zoomedH && (
+        <ChartModal
+          title={hTitle}
+          subtitle="Prevalence by GDP income tier"
+          country={country}
+          meta={String(year)}
+          onClose={() => setZoomedH(false)}
+        >
+          <TierDistChart points={hPoints} country={country} color={H_COLOR} ylabel="/100k" dark={dark} height={440} />
+        </ChartModal>
+      )}
+    </BorderGlow>
+  );
+}

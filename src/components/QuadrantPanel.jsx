@@ -148,7 +148,7 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
       )}
       {zoomed && (
         <ChartModal title="Radiance & Health Quadrants" subtitle={`All countries · ${year}`} country={country} meta={`Divided by global median radiance & ${metricShort.toLowerCase()} rate`} onClose={() => setZoomed(false)}>
-          <QuadrantChart lookup={lookup} year={year} selected={country} compareCountry={compareCountry} healthMetric={metric} dark={dark} height={460} />
+          <QuadrantChart lookup={lookup} year={year} selected={country} compareCountry={compareCountry} healthMetric={metric} dark={dark} height={560} />
         </ChartModal>
       )}
     </BorderGlow>

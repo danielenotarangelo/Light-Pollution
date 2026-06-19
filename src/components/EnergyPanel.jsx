@@ -146,7 +146,7 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
 
       {zoomedEnergy && (
         <ChartModal title="Energy Consumption" subtitle="Electric power consumption (kWh per capita)" country={country} meta={String(year)} onClose={() => setZoomedEnergy(false)}>
-          <MetricChart series={series} compareSeries={compareSeries} metricKey="e" year={year} color="#10b981" dark={dark} height={340} fmt={v => d3.format(',.0f')(v)} />
+          <MetricChart series={series} compareSeries={compareSeries} metricKey="e" year={year} color="#10b981" dark={dark} height={440} fmt={v => d3.format(',.0f')(v)} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
@@ -161,7 +161,7 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
       )}
       {zoomedUrban && (
         <ChartModal title="Urbanization Rate" subtitle="Urban population as % of total" country={country} meta={String(year)} onClose={() => setZoomedUrban(false)}>
-          <MetricChart series={series} compareSeries={compareSeries} metricKey="u" year={year} color="#06b6d4" dark={dark} height={340} fmt={v => d3.format('.1f')(v) + '%'} />
+          <MetricChart series={series} compareSeries={compareSeries} metricKey="u" year={year} color="#06b6d4" dark={dark} height={440} fmt={v => d3.format('.1f')(v) + '%'} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

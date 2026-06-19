@@ -142,7 +142,7 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
 
       {zoomed && (
         <ChartModal title="Trajectory" subtitle="How light pollution & mental health evolved together" country={country} meta={`${yearRange} · circle marks ${year}`} onClose={() => setZoomed(false)}>
-          <TrajectoryChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={400} />
+          <TrajectoryChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={500} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

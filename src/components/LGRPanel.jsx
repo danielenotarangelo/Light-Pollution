@@ -127,7 +127,7 @@ export default function LGRPanel({ lookup, country, compareCountry, year, dark, 
 
       {zoomed && (
         <ChartModal title="Light / GDP Ratio" subtitle="Radiance per unit of wealth" country={country} meta={`×10⁻⁴ · ${year}`} onClose={() => setZoomed(false)}>
-          <LGRChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={380} />
+          <LGRChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={480} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

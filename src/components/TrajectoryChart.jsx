@@ -25,8 +25,8 @@ export default function TrajectoryChart({ series, compareSeries, year, healthMet
     const m = { top: 16, right: 14, bottom: 36, left: 44 };
     const iw = W - m.left - m.right;
     const ih = H - m.top - m.bottom;
-    const ac = dark ? '#5b647d' : '#939bb2';
-    const gc = dark ? '#2a3048' : '#e2e6ee';
+    const ac = dark ? '#8892a8' : '#939bb2';
+    const gc = dark ? '#3a4160' : '#e2e6ee';
     const bg = dark ? '#0d101c' : '#f8f9fc';
 
     const allR = [...data.map(d => d.r), ...cmpData.map(d => d.r)];
@@ -45,10 +45,14 @@ export default function TrajectoryChart({ series, compareSeries, year, healthMet
       .domain([minH * 0.95, maxH * 1.05])
       .range([ih, 0]);
 
-    // Year → color: plasma from purple (2013) to yellow (2023)
-    const colorScale = d3.scaleSequential(d3.interpolatePlasma).domain([2013, 2025]);
-    // Compare: cool scale (blue → cyan)
-    const cmpColorScale = d3.scaleSequential(d3.interpolateCool).domain([2013, 2025]);
+    // Dark mode: turbo (bright red→yellow→cyan) has uniform perceptual brightness on dark bg
+    // Light mode: plasma (purple→yellow) has good contrast on light bg
+    const colorScale = dark
+      ? d3.scaleSequential(t => d3.interpolateTurbo(0.1 + t * 0.78)).domain([2013, 2025])
+      : d3.scaleSequential(t => d3.interpolatePlasma(0.15 + t * 0.78)).domain([2013, 2025]);
+    const cmpColorScale = dark
+      ? d3.scaleSequential(t => d3.interpolateRgb('#a78bfa', '#34d399')(t)).domain([2013, 2025])
+      : d3.scaleSequential(t => d3.interpolateCool(0.2 + t * 0.65)).domain([2013, 2025]);
 
     d3.select(el).style('position', 'relative');
     const svg = d3.select(el).append('svg').attr('width', W).attr('height', H);
@@ -96,7 +100,7 @@ export default function TrajectoryChart({ series, compareSeries, year, healthMet
     if (cmpData.length >= 2) {
       g.append('path').datum(cmpData)
         .attr('fill', 'none')
-        .attr('stroke', dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)')
+        .attr('stroke', dark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.15)')
         .attr('stroke-width', 1.5)
         .attr('marker-end', 'url(#traj-arrow-cmp)')
         .attr('d', d3.line().x(d => x(d.r)).y(d => y(d[healthMetric])));
@@ -116,7 +120,7 @@ export default function TrajectoryChart({ series, compareSeries, year, healthMet
     // Trajectory line with arrowhead at end
     g.append('path').datum(data)
       .attr('fill', 'none')
-      .attr('stroke', dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)')
+      .attr('stroke', dark ? 'rgba(255,255,255,0.30)' : 'rgba(0,0,0,0.15)')
       .attr('stroke-width', 1.5)
       .attr('marker-end', 'url(#traj-arrow)')
       .attr('d', d3.line().x(d => x(d.r)).y(d => y(d[healthMetric])));

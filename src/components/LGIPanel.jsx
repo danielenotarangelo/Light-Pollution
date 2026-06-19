@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import LGILineChart from './LGILineChart.jsx';
 import LGIChart from './LGIChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
@@ -28,6 +27,7 @@ export default function LGIPanel({ lookup, country, compareCountry, year, dark, 
 
   const series     = country        ? getSeries(lookup, YEARS, country)        : [];
   const cmpSeries  = compareCountry ? getSeries(lookup, YEARS, compareCountry) : null;
+
   const cur        = country        && lookup[country]        ? lookup[country][year]        : null;
   const cmpCur     = compareCountry && lookup[compareCountry] ? lookup[compareCountry][year] : null;
   const bg         = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
@@ -128,12 +128,11 @@ export default function LGIPanel({ lookup, country, compareCountry, year, dark, 
         )}
       </div>
 
-      {visible && <LGILineChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
-
+      {visible && <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
 
       {zoomed && (
         <ChartModal title="Luminosity Growth" subtitle="Year-over-year radiance change" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={380} />
+          <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={480} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

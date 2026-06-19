@@ -4,12 +4,14 @@ import LGRPanel from './LGRPanel.jsx';
 import QuadrantPanel from './QuadrantPanel.jsx';
 import TrajectoryPanel from './TrajectoryPanel.jsx';
 import EnergyPanel from './EnergyPanel.jsx';
+import TierDistPanel from './TierDistPanel.jsx';
 import Stack from './Stack.jsx';
 
 const TABS = [
   { id: 'wealth',      label: 'Wealth' },
   { id: 'health',      label: 'Health' },
   { id: 'environment', label: 'Environment' },
+  { id: 'context',     label: 'Distribution' },
 ];
 
 function ChevronLeft() {
@@ -50,6 +52,9 @@ export default function RightPanel({ lookup, country, compareCountry, year, dark
   const environmentCards = [
     <EnergyPanel key="energy" {...shared} />,
   ];
+  const contextCards = [
+    <TierDistPanel key="tier" {...sharedH} />,
+  ];
 
   const tabIdx  = TABS.findIndex(t => t.id === tab);
   const prevTab = () => { setDir('right'); setTab(TABS[(tabIdx - 1 + TABS.length) % TABS.length].id); };
@@ -58,7 +63,8 @@ export default function RightPanel({ lookup, country, compareCountry, year, dark
   const activeCards =
     tab === 'wealth'      ? wealthCards :
     tab === 'health'      ? healthCards :
-                            environmentCards;
+    tab === 'environment' ? environmentCards :
+                            contextCards;
 
   return (
     <div className={`right-panel${visible ? ' visible' : ''}`}>

@@ -101,7 +101,7 @@ export default function LeftPanel({ lookup, country, compareCountry, year, dark,
       {visible && <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
       {zoomed && (
         <ChartModal title="Light & Wealth" subtitle="Radiance & GDP per capita" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={400} />
+          <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={500} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
