@@ -582,6 +582,58 @@ body.dark .chart-modal {
   align-items: center;
   gap: 7px;
 }
+
+/* ── Compare mode ─────────────────────────────────────────────────── */
+.fp-compare-countries {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin-top: 2px;
+  margin-bottom: 2px;
+}
+.fp-compare-country {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-dim);
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.fp-vs {
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+}
+.cmp-value {
+  font-size: 0.55em;
+  font-weight: 600;
+  opacity: 0.6;
+  margin-left: 3px;
+}
+.cmp-stat-pair {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 3px 0 1px;
+}
+.cmp-stat-row {
+  font-size: 17px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.cmp-stat-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  display: inline-block;
+}
 .chart-title .dot {
   width: 8px;
   height: 8px;
@@ -1525,6 +1577,34 @@ body.dark .chart-modal {
   flex-direction: column;
   align-items: center;
   gap: 8px;
+}
+
+.compare-bar-dual {
+  position: fixed;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 29;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  white-space: nowrap;
+}
+
+.compare-badge-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.compare-vs-separator {
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-faint);
+  flex-shrink: 0;
 }
 
 /* ── Centered country badge (desktop, between the two panels) ── */

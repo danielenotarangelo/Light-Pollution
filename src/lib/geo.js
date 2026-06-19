@@ -37,19 +37,22 @@ export function makeGeoPath(ctx) {
 // Paint the choropleth overlay onto the offscreen canvas context.
 // Transparent everywhere except data countries, so the satellite Earth
 // shows through.
-export function paintOverlay({ ctx, geoPath, geo, data, year, variable, healthMetric, selected }) {
+export function paintOverlay({ ctx, geoPath, geo, data, year, variable, healthMetric, selected, compareCountry }) {
   ctx.clearRect(0, 0, TEX_W, TEX_H);
   if (!variable) {
     geo.features.forEach((f) => {
+      const name = f.properties.name;
       ctx.beginPath();
       geoPath(f);
-      ctx.lineWidth = f.properties.name === selected ? 4 : 0.8;
-      ctx.strokeStyle = f.properties.name === selected ? '#ffffff' : 'rgba(255,255,255,0.18)';
+      const selColor = compareCountry ? '#f59e0b' : '#ffffff';
+      ctx.lineWidth = (name === selected || name === compareCountry) ? 4 : 0.8;
+      ctx.strokeStyle = name === selected ? selColor : name === compareCountry ? '#38bdf8' : 'rgba(255,255,255,0.18)';
       ctx.stroke();
     });
     return;
   }
   const colorScale = makeColorScale(data.domains, variable, healthMetric);
+  const selColor = compareCountry ? '#f59e0b' : '#ffffff';
   geo.features.forEach((f) => {
     const name = f.properties.name;
     const v = getVal(data.lookup, name, year, variable, healthMetric);
@@ -63,8 +66,8 @@ export function paintOverlay({ ctx, geoPath, geo, data, year, variable, healthMe
       ctx.fillStyle = c + '';
     }
     ctx.fill();
-    ctx.lineWidth = name === selected ? 4 : 0.8;
-    ctx.strokeStyle = name === selected ? '#ffffff' : 'rgba(255,255,255,0.25)';
+    ctx.lineWidth = (name === selected || name === compareCountry) ? 4 : 0.8;
+    ctx.strokeStyle = name === selected ? selColor : name === compareCountry ? '#38bdf8' : 'rgba(255,255,255,0.25)';
     ctx.stroke();
   });
 }

@@ -2,6 +2,8 @@ import { useState, useRef, useEffect } from 'react';
 import { getFlagEmoji } from '../utils/countryFlags.js';
 
 const ANIM_MS = 180;
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
 
 export default function CompareBar({
   selected,
@@ -9,6 +11,7 @@ export default function CompareBar({
   compareMode,
   countries,
   onClose,
+  onCloseSelected,
   onEnterCompare,
   onCancelCompare,
   onSelectCompare,
@@ -20,7 +23,6 @@ export default function CompareBar({
   const inputRef   = useRef(null);
   const wrapperRef = useRef(null);
 
-  // Which sub-element is currently rendered (lags behind props to allow exit anim)
   const targetState = compareMode ? 'picker' : compareCountry ? 'result' : 'trigger';
   const [displayState, setDisplayState] = useState(targetState);
   const [exiting, setExiting] = useState(false);
@@ -35,7 +37,6 @@ export default function CompareBar({
     return () => clearTimeout(t);
   }, [targetState]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Focus input after picker card has animated in
   useEffect(() => {
     if (!compareMode) {
       setQuery(''); setSuggestions([]); setActiveIdx(-1);
@@ -83,9 +84,40 @@ export default function CompareBar({
   const flag2 = compareCountry ? getFlagEmoji(compareCountry) : null;
   const animClass = exiting ? ' exiting' : '';
 
+  // ── Dual badge: both countries selected ──────────────────────────
+  if (displayState === 'result') {
+    return (
+      <div className={`compare-bar-dual${animClass ? ' exiting' : ''}`}>
+        <div className="country-badge-center">
+          <span className="compare-badge-dot" style={{ background: COLOR_A }} />
+          <div className="country-badge-center-info">
+            <span className="country-badge-center-name">
+              {flag1 && <span style={{ marginRight: 6 }}>{flag1}</span>}
+              {selected}
+            </span>
+          </div>
+          <button className="close-x" onClick={onCloseSelected}>✕</button>
+        </div>
+
+        <span className="compare-vs-separator">vs</span>
+
+        <div className="country-badge-center">
+          <span className="compare-badge-dot" style={{ background: COLOR_B }} />
+          <div className="country-badge-center-info">
+            <span className="country-badge-center-name">
+              {flag2 && <span style={{ marginRight: 6 }}>{flag2}</span>}
+              {compareCountry}
+            </span>
+          </div>
+          <button className="close-x" onClick={onClearCompare}>✕</button>
+        </div>
+      </div>
+    );
+  }
+
+  // ── Single badge + trigger / picker ──────────────────────────────
   return (
     <div className="compare-bar-stack">
-      {/* Primary badge — always visible */}
       <div className="country-badge-center">
         <div className="country-badge-center-info">
           <span className="country-badge-center-label">Selected territory</span>
@@ -97,14 +129,12 @@ export default function CompareBar({
         <button className="close-x" onClick={onClose}>✕</button>
       </div>
 
-      {/* State 1: no compare yet */}
       {displayState === 'trigger' && (
         <button className={`compare-trigger-btn${animClass}`} onClick={onEnterCompare}>
           Compare with…
         </button>
       )}
 
-      {/* State 2: compare mode active — waiting for second country */}
       {displayState === 'picker' && (
         <div className={`compare-picker-card${animClass}`} ref={wrapperRef}>
           <div className="compare-search-row">
@@ -121,12 +151,7 @@ export default function CompareBar({
               autoComplete="off"
               spellCheck={false}
             />
-            {query && (
-              <button className="compare-clear-btn" tabIndex={-1}
-                onClick={() => { setQuery(''); setSuggestions([]); inputRef.current?.focus(); }}>
-                ✕
-              </button>
-            )}
+            <button className="close-x" tabIndex={-1} onClick={onCancelCompare} style={{ flexShrink: 0 }}>✕</button>
           </div>
 
           {suggestions.length > 0 && (
@@ -144,19 +169,6 @@ export default function CompareBar({
           )}
 
           <div className="compare-hint">or click a country on the globe</div>
-          <button className="compare-cancel-btn" onClick={onCancelCompare}>Cancel</button>
-        </div>
-      )}
-
-      {/* State 3: second country selected */}
-      {displayState === 'result' && (
-        <div className={`compare-result-badge${animClass}`}>
-          <span className="compare-vs">vs</span>
-          <span className="compare-result-name">
-            {flag2 && <span style={{ marginRight: 6 }}>{flag2}</span>}
-            {compareCountry}
-          </span>
-          <button className="close-x" onClick={onClearCompare}>✕</button>
         </div>
       )}
     </div>

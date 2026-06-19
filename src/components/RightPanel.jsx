@@ -28,7 +28,7 @@ function ChevronRight() {
   );
 }
 
-export default function RightPanel({ lookup, country, year, dark, healthMetric = 'd' }) {
+export default function RightPanel({ lookup, country, compareCountry, year, dark, healthMetric = 'd' }) {
   const [tab, setTab] = useState('wealth');
   const [dir, setDir] = useState('left');
 
@@ -36,7 +36,7 @@ export default function RightPanel({ lookup, country, year, dark, healthMetric =
 
   const visible = !!country;
 
-  const shared  = { lookup, country, year, dark, inStack: true };
+  const shared  = { lookup, country, compareCountry, year, dark, inStack: true };
   const sharedH = { ...shared, healthMetric };
 
   const wealthCards = [

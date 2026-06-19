@@ -179,6 +179,7 @@ export default function App() {
           compareMode={compareMode}
           countries={data ? Object.keys(data.lookup) : []}
           onClose={() => setSelected(null)}
+          onCloseSelected={() => setSelected(compareCountry)}
           onEnterCompare={() => setCompareMode(true)}
           onCancelCompare={() => setCompareMode(false)}
           onSelectCompare={(name) => { setCompareCountry(name); setCompareMode(false); }}
@@ -202,6 +203,7 @@ export default function App() {
           variable={variable}
           healthMetric={healthMetric}
           selected={selected}
+          compareCountry={compareCountry}
           onSelect={handleSelect}
           onTexturesLoaded={() => setTexLoaded(true)}
           zoomMult={selected ? 1 : (showRanking ? 1.12 : 0.95)}
@@ -235,7 +237,7 @@ export default function App() {
 
       {data && !isMobile && (
         <div className={`left-light-panel${selected ? ' visible' : ''}`}>
-          <LGIPanel lookup={data.lookup} country={selected} year={year} dark={dark} inStack={true} />
+          <LGIPanel lookup={data.lookup} country={selected} compareCountry={compareCountry} year={year} dark={dark} inStack={true} />
         </div>
       )}
 
@@ -262,6 +264,7 @@ export default function App() {
           <RightPanel
             lookup={data.lookup}
             country={selected}
+            compareCountry={compareCountry}
             year={year}
             dark={dark}
             healthMetric={healthMetric}

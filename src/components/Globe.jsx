@@ -48,6 +48,7 @@ export default function Globe({
   variable,
   healthMetric,
   selected,
+  compareCountry,
   onSelect,
   onTexturesLoaded,
   zoomMult = 1,
@@ -66,11 +67,11 @@ export default function Globe({
   const autoRotateRef = useRef(true);
   const startIdleTimerRef = useRef(null);
   // Keep latest props accessible inside event handlers / RAF loop.
-  const propsRef = useRef({ data, geo, year, variable, healthMetric, selected });
-  propsRef.current = { data, geo, year, variable, healthMetric, selected };
+  const propsRef = useRef({ data, geo, year, variable, healthMetric, selected, compareCountry, onSelect });
+  propsRef.current = { data, geo, year, variable, healthMetric, selected, compareCountry, onSelect };
 
   const repaintOverlay = useCallback(() => {
-    const { data, geo, year, variable, healthMetric, selected } = propsRef.current;
+    const { data, geo, year, variable, healthMetric, selected, compareCountry } = propsRef.current;
     if (!overlayCtxRef.current || !data || !geo) return;
     paintOverlay({
       ctx: overlayCtxRef.current,
@@ -81,6 +82,7 @@ export default function Globe({
       variable,
       healthMetric,
       selected,
+      compareCountry,
     });
     if (overlayTexRef.current) overlayTexRef.current.needsUpdate = true;
   }, []);
@@ -288,7 +290,7 @@ export default function Globe({
         const ll = pickLatLon(e);
         if (ll) {
           const name = countryAtLatLon(propsRef.current.geo, ll[0], ll[1]);
-          if (name && propsRef.current.data.lookup[name]) onSelect(name);
+          if (name && propsRef.current.data.lookup[name]) propsRef.current.onSelect(name);
         }
       }
     };
@@ -380,7 +382,7 @@ export default function Globe({
         const ll = pickLatLon({ clientX: t.clientX, clientY: t.clientY });
         if (ll) {
           const name = countryAtLatLon(propsRef.current.geo, ll[0], ll[1]);
-          if (name && propsRef.current.data.lookup[name]) onSelect(name);
+          if (name && propsRef.current.data.lookup[name]) propsRef.current.onSelect(name);
         }
       }
     };
@@ -460,7 +462,7 @@ export default function Globe({
   // Repaint the choropleth whenever year / variable / selection changes.
   useEffect(() => {
     repaintOverlay();
-  }, [year, variable, healthMetric, selected, repaintOverlay]);
+  }, [year, variable, healthMetric, selected, compareCountry, repaintOverlay]);
 
   // Fly-to animation: rotate globe to center the selected country.
   useEffect(() => {
