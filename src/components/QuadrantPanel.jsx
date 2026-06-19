@@ -4,16 +4,19 @@ import QuadrantChart from './QuadrantChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 
-export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
+
+export default function QuadrantPanel({ lookup, country, compareCountry, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const [metric, setMetric] = useState(healthMetric);
   const visible = inTab ? true : (inStack ? !!country : (!!country && open));
-  const cur = country && lookup[country] ? lookup[country][year] : null;
+  const cur        = country        && lookup[country]        ? lookup[country][year]        : null;
+  const compareCur = compareCountry && lookup[compareCountry] ? lookup[compareCountry][year] : null;
   const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
   const metricShort = metric === 'd' ? 'Depressive' : 'Anxiety';
 
-  // Compute global medians to show which quadrant the selected country is in
   const pts = [];
   for (const c in lookup) {
     const y = lookup[c][year];
@@ -22,15 +25,19 @@ export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd
   const medR = d3.median(pts, d => d.r);
   const medH = d3.median(pts, d => d.h);
 
-  let quadrantLabel = '—';
-  if (cur?.r != null && cur[metric] != null && medR != null && medH != null) {
-    const bright = cur.r > medR;
-    const high = cur[metric] > medH;
-    if (bright && high) quadrantLabel = 'Bright · high disorders';
-    else if (bright && !high) quadrantLabel = 'Bright · low disorders';
-    else if (!bright && high) quadrantLabel = 'Dim · high disorders';
-    else quadrantLabel = 'Dim · low disorders';
-  }
+  const getQuadrant = (entry) => {
+    if (!entry?.r != null || entry?.[metric] == null || medR == null || medH == null) return null;
+    if (entry.r == null) return null;
+    const bright = entry.r > medR;
+    const high   = entry[metric] > medH;
+    if (bright && high)   return 'Bright · high disorders';
+    if (bright && !high)  return 'Bright · low disorders';
+    if (!bright && high)  return 'Dim · high disorders';
+    return 'Dim · low disorders';
+  };
+
+  const quadrantA = getQuadrant(cur);
+  const quadrantB = compareCountry ? getQuadrant(compareCur) : null;
 
   return (
     <BorderGlow
@@ -49,7 +56,18 @@ export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd
         <div>
           <div className="fp-label">All countries · {year}</div>
           <h2>Radiance &amp; Health Quadrants</h2>
-          {country && <div className="fp-country">{country}</div>}
+          {country && !compareCountry && <div className="fp-country">{country}</div>}
+          {country && compareCountry && (
+            <div className="fp-compare-countries">
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span className="fp-vs">vs</span>
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
           <div className="meta">Divided by global median radiance &amp; {metricShort.toLowerCase()} rate</div>
           <div className="panel-metric-toggle">
             <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
@@ -63,29 +81,66 @@ export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd
           {onClose && <button className="close-x" onClick={onClose}>✕</button>}
         </div>
       </div>
+
       <div className="stat-grid">
         <div className="stat">
           <div className="label">Radiance</div>
-          <div className="value">{cur?.r != null ? d3.format('.2f')(cur.r) : '—'}</div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {cur?.r != null ? d3.format('.2f')(cur.r) : '—'}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {compareCur?.r != null ? d3.format('.2f')(compareCur.r) : '—'}
+              </div>
+            </div>
+          ) : (
+            <div className="value">{cur?.r != null ? d3.format('.2f')(cur.r) : '—'}</div>
+          )}
           <div className="unit">nW/cm²/sr</div>
         </div>
+
         <div className="stat">
           <div className="label">{metricShort}</div>
-          <div className="value" style={{ color: 'var(--health)' }}>
-            {cur?.[healthMetric] != null ? d3.format(',.0f')(cur[metric]) : '—'}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {cur?.[metric] != null ? d3.format(',.0f')(cur[metric]) : '—'}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {compareCur?.[metric] != null ? d3.format(',.0f')(compareCur[metric]) : '—'}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: 'var(--health)' }}>
+              {cur?.[metric] != null ? d3.format(',.0f')(cur[metric]) : '—'}
+            </div>
+          )}
           <div className="unit">/100k</div>
         </div>
       </div>
+
       <div className="chart-title">
-        <span className="dot" style={{ background: 'var(--accent)' }} />
-        {quadrantLabel}
+        {compareCountry ? (
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
+            {quadrantA && <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span className="cmp-stat-dot" style={{ background: COLOR_A }} /><span style={{ fontSize: 11 }}>{quadrantA}</span></span>}
+            {quadrantB && <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span className="cmp-stat-dot" style={{ background: COLOR_B }} /><span style={{ fontSize: 11 }}>{quadrantB}</span></span>}
+          </div>
+        ) : (
+          <><span className="dot" style={{ background: 'var(--accent)' }} />{quadrantA ?? '—'}</>
+        )}
       </div>
+
       {visible && (
         <QuadrantChart
           lookup={lookup}
           year={year}
           selected={country}
+          compareCountry={compareCountry}
           healthMetric={metric}
           dark={dark}
           height={inStack ? null : (compact ? 150 : 260)}
@@ -93,7 +148,7 @@ export default function QuadrantPanel({ lookup, country, year, healthMetric = 'd
       )}
       {zoomed && (
         <ChartModal title="Radiance & Health Quadrants" subtitle={`All countries · ${year}`} country={country} meta={`Divided by global median radiance & ${metricShort.toLowerCase()} rate`} onClose={() => setZoomed(false)}>
-          <QuadrantChart lookup={lookup} year={year} selected={country} healthMetric={metric} dark={dark} height={460} />
+          <QuadrantChart lookup={lookup} year={year} selected={country} compareCountry={compareCountry} healthMetric={metric} dark={dark} height={460} />
         </ChartModal>
       )}
     </BorderGlow>

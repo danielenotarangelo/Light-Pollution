@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function TrajectoryChart({ series, year, healthMetric, dark, height }) {
+export default function TrajectoryChart({ series, compareSeries, year, healthMetric, dark, height }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 
@@ -16,6 +16,9 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
       .filter(d => d.r != null && d[healthMetric] != null)
       .sort((a, b) => a.year - b.year);
     if (data.length < 2) return;
+    const cmpData = (compareSeries || [])
+      .filter(d => d.r != null && d[healthMetric] != null)
+      .sort((a, b) => a.year - b.year);
 
     const W = el.clientWidth || 286;
     const H = el.clientHeight || height || 220;
@@ -26,10 +29,12 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
     const gc = dark ? '#2a3048' : '#e2e6ee';
     const bg = dark ? '#0d101c' : '#f8f9fc';
 
-    const minR = d3.min(data, d => d.r);
-    const maxR = d3.max(data, d => d.r);
-    const minH = d3.min(data, d => d[healthMetric]);
-    const maxH = d3.max(data, d => d[healthMetric]);
+    const allR = [...data.map(d => d.r), ...cmpData.map(d => d.r)];
+    const allH = [...data.map(d => d[healthMetric]), ...cmpData.map(d => d[healthMetric])];
+    const minR = d3.min(allR);
+    const maxR = d3.max(allR);
+    const minH = d3.min(allH);
+    const maxH = d3.max(allH);
 
     // Use log scale if radiance spans more than 3× — otherwise linear avoids axis label clutter
     const useLog = maxR / (minR || 0.01) > 3;
@@ -42,14 +47,17 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
 
     // Year → color: plasma from purple (2013) to yellow (2023)
     const colorScale = d3.scaleSequential(d3.interpolatePlasma).domain([2013, 2025]);
+    // Compare: cool scale (blue → cyan)
+    const cmpColorScale = d3.scaleSequential(d3.interpolateCool).domain([2013, 2025]);
 
     d3.select(el).style('position', 'relative');
     const svg = d3.select(el).append('svg').attr('width', W).attr('height', H);
     const g = svg.append('g').attr('transform', `translate(${m.left},${m.top})`);
 
-    // Arrowhead marker (colored like the most recent year)
+    // Arrowhead markers
     const arrowColor = colorScale(data[data.length - 1].year);
-    svg.append('defs').append('marker')
+    const defs = svg.append('defs');
+    defs.append('marker')
       .attr('id', 'traj-arrow')
       .attr('viewBox', '0 -4 9 8')
       .attr('refX', 7).attr('refY', 0)
@@ -58,6 +66,17 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
       .append('path')
       .attr('d', 'M0,-4L9,0L0,4Z')
       .attr('fill', arrowColor);
+    if (cmpData.length >= 2) {
+      defs.append('marker')
+        .attr('id', 'traj-arrow-cmp')
+        .attr('viewBox', '0 -4 9 8')
+        .attr('refX', 7).attr('refY', 0)
+        .attr('markerWidth', 5).attr('markerHeight', 5)
+        .attr('orient', 'auto')
+        .append('path')
+        .attr('d', 'M0,-4L9,0L0,4Z')
+        .attr('fill', cmpColorScale(cmpData[cmpData.length - 1].year));
+    }
 
     // Axes
     g.append('g').attr('transform', `translate(0,${ih})`)
@@ -72,6 +91,27 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
       .attr('x', iw / 2).attr('y', ih + 30)
       .attr('text-anchor', 'middle').attr('fill', ac).style('font-size', '9px')
       .text('mean radiance →');
+
+    // Compare trajectory (drawn first, behind primary)
+    if (cmpData.length >= 2) {
+      g.append('path').datum(cmpData)
+        .attr('fill', 'none')
+        .attr('stroke', dark ? 'rgba(255,255,255,0.18)' : 'rgba(0,0,0,0.15)')
+        .attr('stroke-width', 1.5)
+        .attr('marker-end', 'url(#traj-arrow-cmp)')
+        .attr('d', d3.line().x(d => x(d.r)).y(d => y(d[healthMetric])));
+
+      const isCmpEndpoint = d => d === cmpData[0] || d === cmpData[cmpData.length - 1];
+      g.selectAll('circle.yd-cmp').data(cmpData).enter().append('circle')
+        .attr('class', 'yd-cmp')
+        .attr('cx', d => x(d.r))
+        .attr('cy', d => y(d[healthMetric]))
+        .attr('r', d => isCmpEndpoint(d) ? 5 : 3)
+        .attr('fill', d => cmpColorScale(d.year))
+        .attr('stroke', bg)
+        .attr('stroke-width', 1.5)
+        .attr('opacity', 0.9);
+    }
 
     // Trajectory line with arrowhead at end
     g.append('path').datum(data)
@@ -106,12 +146,19 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
         .text(d.year);
     });
 
-    // Year-highlight ring (updated by the year effect)
+    // Year-highlight rings (updated by the year effect)
     const highlight = g.append('circle').attr('r', 8)
       .attr('fill', 'none')
       .attr('stroke', 'var(--accent)')
       .attr('stroke-width', 2)
       .style('display', 'none');
+    const highlightCmp = cmpData.length >= 2
+      ? g.append('circle').attr('r', 8)
+          .attr('fill', 'none')
+          .attr('stroke', 'var(--accent)')
+          .attr('stroke-width', 2)
+          .style('display', 'none')
+      : null;
 
     // Hover tooltip
     const tip = d3.select(el).append('div').attr('class', 'chart-hover-tip').style('display', 'none');
@@ -130,20 +177,27 @@ export default function TrajectoryChart({ series, year, healthMetric, dark, heig
       })
       .on('mouseleave', () => tip.style('display', 'none'));
 
-    d3Ref.current = { x, y, data, highlight, hKey: healthMetric };
-  }, [series, healthMetric, dark, height]);
+    d3Ref.current = { x, y, data, cmpData, highlight, highlightCmp, hKey: healthMetric };
+  }, [series, compareSeries, healthMetric, dark, height]);
 
-  // Year effect: move the ring to the selected year's dot
+  // Year effect: move the rings to the selected year's dots
   useEffect(() => {
     const state = d3Ref.current;
     if (!state) return;
-    const { x, y, data, highlight, hKey } = state;
+    const { x, y, data, cmpData, highlight, highlightCmp, hKey } = state;
+
     const pt = data.find(d => d.year === year);
-    if (!pt) { highlight.style('display', 'none'); return; }
-    highlight.style('display', null)
-      .attr('cx', x(pt.r))
-      .attr('cy', y(pt[hKey]));
-  }, [year, series, healthMetric, dark, height]);
+    if (!pt) { highlight.style('display', 'none'); }
+    else {
+      highlight.style('display', null).attr('cx', x(pt.r)).attr('cy', y(pt[hKey]));
+    }
+
+    if (highlightCmp) {
+      const ptC = cmpData.find(d => d.year === year);
+      if (!ptC) { highlightCmp.style('display', 'none'); }
+      else { highlightCmp.style('display', null).attr('cx', x(ptC.r)).attr('cy', y(ptC[hKey])); }
+    }
+  }, [year, series, compareSeries, healthMetric, dark, height]);
 
   return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

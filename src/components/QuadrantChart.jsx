@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function QuadrantChart({ lookup, year, selected, healthMetric, dark, height }) {
+export default function QuadrantChart({ lookup, year, selected, compareCountry, healthMetric, dark, height }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -85,9 +85,11 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
     g.append('text').attr('x', pad).attr('y', ih - pad).attr('fill', lc).style('font-size', fs).text('dim · low');
     g.append('text').attr('x', iw - pad).attr('y', ih - pad).attr('text-anchor', 'end').attr('fill', lc).style('font-size', fs).text('bright · low');
 
-    // Dots — selected country rendered last so it sits on top
-    const others = pts.filter(d => d.country !== selected);
+    // Dots — selected and compare rendered last so they sit on top
+    const highlighted = new Set([selected, compareCountry].filter(Boolean));
+    const others = pts.filter(d => !highlighted.has(d.country));
     const selPt = pts.find(d => d.country === selected);
+    const cmpPt = compareCountry ? pts.find(d => d.country === compareCountry) : null;
 
     g.selectAll('circle.pt').data(others).enter().append('circle')
       .attr('class', 'pt')
@@ -97,10 +99,27 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
       .attr('fill', 'var(--health)')
       .attr('opacity', 0.35);
 
+    if (cmpPt) {
+      g.append('circle')
+        .attr('cx', x(cmpPt.r)).attr('cy', y(cmpPt.h)).attr('r', 6)
+        .attr('fill', '#38bdf8').attr('stroke', bg).attr('stroke-width', 2);
+      const cx2 = x(cmpPt.r);
+      const cy2 = y(cmpPt.h);
+      const cmpLabelRight = cx2 < iw * 0.75;
+      g.append('text')
+        .attr('x', cmpLabelRight ? cx2 + 9 : cx2 - 9)
+        .attr('y', cy2 + 3)
+        .attr('text-anchor', cmpLabelRight ? 'start' : 'end')
+        .attr('fill', '#38bdf8')
+        .style('font-size', '11px').style('font-weight', '600')
+        .text(cmpPt.country);
+    }
+
     if (selPt) {
+      const selColor = compareCountry ? '#f59e0b' : 'var(--accent)';
       g.append('circle')
         .attr('cx', x(selPt.r)).attr('cy', y(selPt.h)).attr('r', 6)
-        .attr('fill', 'var(--accent)').attr('stroke', bg).attr('stroke-width', 2);
+        .attr('fill', selColor).attr('stroke', bg).attr('stroke-width', 2);
       const sx = x(selPt.r);
       const sy = y(selPt.h);
       const labelRight = sx < iw * 0.75;
@@ -108,7 +127,7 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
         .attr('x', labelRight ? sx + 9 : sx - 9)
         .attr('y', sy + 3)
         .attr('text-anchor', labelRight ? 'start' : 'end')
-        .attr('fill', 'var(--accent)')
+        .attr('fill', selColor)
         .style('font-size', '11px').style('font-weight', '600')
         .text(selPt.country);
     }
@@ -143,7 +162,7 @@ export default function QuadrantChart({ lookup, year, selected, healthMetric, da
       })
       .on('mouseleave', () => tip.style('display', 'none'));
 
-  }, [lookup, year, selected, healthMetric, dark, height]);
+  }, [lookup, year, selected, compareCountry, healthMetric, dark, height]);
 
   return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }

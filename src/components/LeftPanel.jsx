@@ -5,11 +5,16 @@ import ChartModal from './ChartModal.jsx';
 import { fmt, getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
 
-export default function LeftPanel({ lookup, country, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
+
+export default function LeftPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
   const series = country ? getSeries(lookup, YEARS, country) : [];
+  const compareSeries = compareCountry ? getSeries(lookup, YEARS, compareCountry) : null;
   const cur = country && lookup[country] ? lookup[country][year] : null;
+  const compareCur = compareCountry && lookup[compareCountry] ? lookup[compareCountry][year] : null;
   const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
   return (
@@ -29,7 +34,18 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose, 
         <div>
           <div className="fp-label">Radiance &amp; GDP per capita</div>
           <h2>Light &amp; Wealth</h2>
-          {country && <div className="fp-country">{country}</div>}
+          {country && !compareCountry && <div className="fp-country">{country}</div>}
+          {country && compareCountry && (
+            <div className="fp-compare-countries">
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span className="fp-vs">vs</span>
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
           <div className="meta">{year}</div>
         </div>
         <div className="fp-head-actions">
@@ -42,28 +58,60 @@ export default function LeftPanel({ lookup, country, year, dark, open, onClose, 
       <div className="stat-grid">
         <div className="stat">
           <div className="label">Radiance</div>
-          <div className="value" style={{ color: 'var(--radiance)' }}>
-            {cur ? fmt(cur.r, 'r') : '—'}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {cur ? fmt(cur.r, 'r') : '—'}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {compareCur ? fmt(compareCur.r, 'r') : '—'}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: 'var(--radiance)' }}>{cur ? fmt(cur.r, 'r') : '—'}</div>
+          )}
           <div className="unit">nW/cm²/sr</div>
         </div>
         <div className="stat">
           <div className="label">GDP / capita</div>
-          <div className="value" style={{ color: 'var(--gdp)' }}>
-            {cur ? fmt(cur.g, 'g') : '—'}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {cur ? fmt(cur.g, 'g') : '—'}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {compareCur ? fmt(compareCur.g, 'g') : '—'}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: 'var(--gdp)' }}>{cur ? fmt(cur.g, 'g') : '—'}</div>
+          )}
           <div className="unit">USD</div>
         </div>
       </div>
       <div className="chart-title">
-        <span className="dot" style={{ background: 'var(--radiance)' }} />
-        Light <span className="dot" style={{ background: 'var(--gdp)' }} />
-        Wealth
+        {compareCountry ? 'Light · Wealth' : (
+          <><span className="dot" style={{ background: 'var(--radiance)' }} />Light <span className="dot" style={{ background: 'var(--gdp)' }} />Wealth</>
+        )}
       </div>
-      {visible && <DualAxisChart series={series} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
+      {visible && <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
       {zoomed && (
         <ChartModal title="Light & Wealth" subtitle="Radiance & GDP per capita" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <DualAxisChart series={series} year={year} dark={dark} height={400} />
+          <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={400} />
+          {compareCountry && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
         </ChartModal>
       )}
     </BorderGlow>

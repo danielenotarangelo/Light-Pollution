@@ -6,23 +6,32 @@ import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
 import { YEARS } from '../lib/constants.js';
 
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
+
 const fmtSigned = (v, fn) => v == null ? '—' : (v >= 0 ? '+' : '') + fn(v);
 
-export default function TrajectoryPanel({ lookup, country, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+export default function TrajectoryPanel({ lookup, country, compareCountry, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const [metric, setMetric] = useState(healthMetric);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
-  const series = country ? getSeries(lookup, YEARS, country) : [];
+  const series        = country        ? getSeries(lookup, YEARS, country)        : [];
+  const compareSeries = compareCountry ? getSeries(lookup, YEARS, compareCountry) : null;
   const bg = bgColor ?? (dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)');
 
   const metricShort = metric === 'd' ? 'Depressive' : 'Anxiety';
 
-  // Delta from first to last available point
-  const valid = series.filter(d => d.r != null && d[metric] != null);
-  const first = valid[0];
-  const last = valid[valid.length - 1];
-  const deltaR = first && last ? last.r - first.r : null;
-  const deltaH = first && last ? last[metric] - first[metric] : null;
+  const valid    = series.filter(d => d.r != null && d[metric] != null);
+  const first    = valid[0];
+  const last     = valid[valid.length - 1];
+  const deltaR   = first && last ? last.r - first.r : null;
+  const deltaH   = first && last ? last[metric] - first[metric] : null;
+
+  const validCmp  = (compareSeries || []).filter(d => d.r != null && d[metric] != null);
+  const firstCmp  = validCmp[0];
+  const lastCmp   = validCmp[validCmp.length - 1];
+  const deltaRCmp = firstCmp && lastCmp ? lastCmp.r - firstCmp.r : null;
+  const deltaHCmp = firstCmp && lastCmp ? lastCmp[metric] - firstCmp[metric] : null;
 
   const yearRange = first && last ? `${first.year}→${last.year}` : '—';
 
@@ -41,9 +50,20 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">How light pollution & mental health evolved together</div>
+          <div className="fp-label">How light pollution &amp; mental health evolved together</div>
           <h2>Trajectory</h2>
-          {country && <div className="fp-country">{country}</div>}
+          {country && !compareCountry && <div className="fp-country">{country}</div>}
+          {country && compareCountry && (
+            <div className="fp-compare-countries">
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span className="fp-vs">vs</span>
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
           <div className="meta">{yearRange} · circle marks {year}</div>
           <div className="panel-metric-toggle">
             <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
@@ -57,38 +77,82 @@ export default function TrajectoryPanel({ lookup, country, year, healthMetric = 
           {onClose && <button className="close-x" onClick={onClose}>✕</button>}
         </div>
       </div>
+
       <div className="stat-grid">
         <div className="stat">
           <div className="label">Δ Radiance</div>
-          <div className="value" style={{ color: deltaR == null ? undefined : deltaR >= 0 ? 'var(--lgi)' : 'var(--lgr)' }}>
-            {fmtSigned(deltaR, v => d3.format('.2f')(Math.abs(v)))}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {fmtSigned(deltaR, v => d3.format('.2f')(Math.abs(v)))}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {fmtSigned(deltaRCmp, v => d3.format('.2f')(Math.abs(v)))}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: deltaR == null ? undefined : deltaR >= 0 ? 'var(--lgi)' : 'var(--lgr)' }}>
+              {fmtSigned(deltaR, v => d3.format('.2f')(Math.abs(v)))}
+            </div>
+          )}
           <div className="unit">nW/cm²/sr</div>
         </div>
+
         <div className="stat">
           <div className="label">Δ {metricShort}</div>
-          <div className="value" style={{ color: 'var(--health)' }}>
-            {fmtSigned(deltaH, v => d3.format(',.0f')(Math.abs(v)))}
-          </div>
+          {compareCountry ? (
+            <div className="cmp-stat-pair">
+              <div className="cmp-stat-row" style={{ color: COLOR_A }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />
+                {fmtSigned(deltaH, v => d3.format(',.0f')(Math.abs(v)))}
+              </div>
+              <div className="cmp-stat-row" style={{ color: COLOR_B }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />
+                {fmtSigned(deltaHCmp, v => d3.format(',.0f')(Math.abs(v)))}
+              </div>
+            </div>
+          ) : (
+            <div className="value" style={{ color: 'var(--health)' }}>
+              {fmtSigned(deltaH, v => d3.format(',.0f')(Math.abs(v)))}
+            </div>
+          )}
           <div className="unit">/100k</div>
         </div>
       </div>
+
       <div className="chart-title">
-        <span className="dot" style={{ background: 'var(--accent)' }} />
-        Earlier years (purple) → recent years (yellow) · arrow shows direction
+        {compareCountry
+          ? 'Color: earlier → recent years · arrow shows direction'
+          : <><span className="dot" style={{ background: 'var(--accent)' }} />Earlier years (purple) → recent years (yellow) · arrow shows direction</>
+        }
       </div>
+
       {visible && (
         <TrajectoryChart
           series={series}
+          compareSeries={compareSeries}
           year={year}
           healthMetric={metric}
           dark={dark}
           height={inStack ? null : (compact ? 150 : 220)}
         />
       )}
+
       {zoomed && (
         <ChartModal title="Trajectory" subtitle="How light pollution & mental health evolved together" country={country} meta={`${yearRange} · circle marks ${year}`} onClose={() => setZoomed(false)}>
-          <TrajectoryChart series={series} year={year} healthMetric={metric} dark={dark} height={400} />
+          <TrajectoryChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={400} />
+          {compareCountry && (
+            <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
         </ChartModal>
       )}
     </BorderGlow>
