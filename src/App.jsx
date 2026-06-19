@@ -16,6 +16,7 @@ import Timeline from './components/Timeline.jsx';
 import DotField from './components/DotField.jsx';
 import Galaxy from './components/Galaxy.jsx';
 import Landing from './components/Landing.jsx';
+import Results from './components/Results.jsx';
 import { AnimatePresence } from 'motion/react';
 import { useData } from './hooks/useData.js';
 
@@ -29,6 +30,7 @@ export default function App() {
   const [dark, setDark] = useState(false);
   const [texLoaded, setTexLoaded] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
+  const [showResults, setShowResults] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
   const [flyTo, setFlyTo] = useState(null);
   const [compareCountry, setCompareCountry] = useState(null);
@@ -127,6 +129,7 @@ export default function App() {
   return (
     <div className="app">
       {showLanding && <Landing onEnter={() => setShowLanding(false)} />}
+      {showResults && <Results onClose={() => setShowResults(false)} data={data} />}}
       <div className="dot-field-wrapper">
         {dark ? (
           <Galaxy
@@ -279,6 +282,12 @@ export default function App() {
         playing={playing}
         onTogglePlay={() => setPlaying((p) => !p)}
       />
+
+      {!showLanding && (
+        <button className="floating-results-btn" onClick={() => setShowResults(true)} title="Interesting Results">
+          Interesting Results
+        </button>
+      )}
     </div>
   );
 }
