@@ -8,6 +8,9 @@ dist/
 pipeline/venv/
 pipeline/__pycache__/
 pipeline/*.pyc
+
+# Raw data sources (large, regenerated via pipeline)
+public/data/raw/viirs/
 __pycache__/
 *.pyc
 *.pyo

@@ -7,6 +7,7 @@ const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023]
 const TIER_LABELS = ['Low income', 'Lower-mid', 'Upper-mid', 'High income'];
 const TIER_COLORS = ['#60a5fa', '#818cf8', '#a78bfa', '#c084fc'];
 
+
 // ── Mini chart components ────────────────────────────────────────────────────
 
 function TrendBars({ vals, years, highlightYear }) {

@@ -53,13 +53,20 @@ export default function Globe({
   onTexturesLoaded,
   zoomMult = 1,
   flyTo = null,
+  showTexture = true,
 }) {
   const mountRef = useRef(null);
   const canvasRef = useRef(null);
   const tooltipRef = useRef(null);
 
   // Mutable scene refs that persist across renders.
-  const sceneRef = useRef(null);
+  const sceneRef    = useRef(null);
+  const dayTexRef   = useRef(null);
+  const darkTexRef  = useRef(null);
+  const showTexRef  = useRef(showTexture);
+  showTexRef.current = showTexture;
+  const viirsDataRef   = useRef({});   // { year: Float32Array }
+  const updateViirsRef = useRef(null); // function(yr) — swaps point cloud
   const overlayCtxRef = useRef(null);
   const geoPathRef = useRef(null);
   const overlayTexRef = useRef(null);
@@ -126,9 +133,9 @@ export default function Globe({
     loader.setCrossOrigin('anonymous');
 
     const earthMat = new THREE.MeshStandardMaterial({
-      color: 0x1a2740,
-      roughness: 0.65,
-      metalness: 0.04,
+      color: 0x1a1c28,
+      roughness: 0.88,
+      metalness: 0.0,
     });
     const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 128, 128), earthMat);
     worldGroup.add(earth);
@@ -145,9 +152,12 @@ export default function Globe({
       (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        earthMat.map = t;
-        earthMat.color.set(0xffffff);
-        earthMat.needsUpdate = true;
+        dayTexRef.current = t;
+        if (showTexRef.current) {
+          earthMat.map = t;
+          earthMat.color.set(0xffffff);
+          earthMat.needsUpdate = true;
+        }
         tick();
       },
       undefined,
@@ -156,9 +166,12 @@ export default function Globe({
           TEXTURES.fallback,
           (t) => {
             t.colorSpace = THREE.SRGBColorSpace;
-            earthMat.map = t;
-            earthMat.color.set(0xffffff);
-            earthMat.needsUpdate = true;
+            dayTexRef.current = t;
+            if (showTexRef.current) {
+              earthMat.map = t;
+              earthMat.color.set(0xffffff);
+              earthMat.needsUpdate = true;
+            }
             tick();
           },
           undefined,
@@ -185,6 +198,28 @@ export default function Globe({
         cx.putImageData(id, 0, 0);
         earthMat.roughnessMap = new THREE.CanvasTexture(cv);
         earthMat.needsUpdate = true;
+
+        // Build dark-mode texture from the same mask:
+        // px is now inverted → 0 = ocean, 255 = land
+        const dkCv = document.createElement('canvas');
+        dkCv.width = cv.width; dkCv.height = cv.height;
+        const dkCtx = dkCv.getContext('2d');
+        const dkId = dkCtx.createImageData(cv.width, cv.height);
+        const dkPx = dkId.data;
+        for (let j = 0; j < px.length; j += 4) {
+          const f = px[j] / 255; // 0 = ocean, 1 = land
+          dkPx[j]     = Math.round(6  + f * 24); // R
+          dkPx[j + 1] = Math.round(10 + f * 30); // G
+          dkPx[j + 2] = Math.round(20 + f * 45); // B
+          dkPx[j + 3] = 255;
+        }
+        dkCtx.putImageData(dkId, 0, 0);
+        darkTexRef.current = new THREE.CanvasTexture(dkCv);
+        if (!showTexRef.current) {
+          earthMat.map = darkTexRef.current;
+          earthMat.color.set(0xffffff);
+          earthMat.needsUpdate = true;
+        }
       },
       undefined,
       () => {}
@@ -238,6 +273,85 @@ export default function Globe({
     );
     worldGroup.add(overlayMesh);
 
+
+    // VIIRS point cloud — one material shared across all years
+    const glowCanvas = document.createElement('canvas');
+    glowCanvas.width = 64; glowCanvas.height = 64;
+    const gc = glowCanvas.getContext('2d');
+    const grad = gc.createRadialGradient(32, 32, 0, 32, 32, 32);
+    grad.addColorStop(0,    'rgba(255,255,255,1)');
+    grad.addColorStop(0.25, 'rgba(255,255,255,0.8)');
+    grad.addColorStop(0.6,  'rgba(255,255,255,0.2)');
+    grad.addColorStop(1,    'rgba(255,255,255,0)');
+    gc.fillStyle = grad;
+    gc.fillRect(0, 0, 64, 64);
+    const glowTex = new THREE.CanvasTexture(glowCanvas);
+
+    const ptMat = new THREE.PointsMaterial({
+      size: 0.07,
+      map: glowTex,
+      vertexColors: true,
+      transparent: true,
+      opacity: 0.92,
+      sizeAttenuation: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      alphaTest: 0.01,
+    });
+
+    let pointsMesh = null;
+    let alive = true;
+    const LOG_NORM = Math.log(51);
+    const PR = R * 1.003;
+
+    const buildMesh = (floats) => {
+      const n = floats.length / 3;
+      const positions = new Float32Array(n * 3);
+      const colors    = new Float32Array(n * 3);
+      for (let i = 0; i < n; i++) {
+        const lon = floats[i * 3];
+        const lat = floats[i * 3 + 1];
+        const rad = floats[i * 3 + 2];
+        const phi   = (90 - lat) * Math.PI / 180;
+        const theta = (lon + 180) * Math.PI / 180;
+        positions[i * 3]     = -PR * Math.sin(phi) * Math.cos(theta);
+        positions[i * 3 + 1] =  PR * Math.cos(phi);
+        positions[i * 3 + 2] =  PR * Math.sin(phi) * Math.sin(theta);
+        const t = Math.min(1, Math.log(rad + 1) / LOG_NORM);
+        colors[i * 3]     = t;
+        colors[i * 3 + 1] = t * 0.75;
+        colors[i * 3 + 2] = t * 0.28;
+      }
+      const ptGeo = new THREE.BufferGeometry();
+      ptGeo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+      ptGeo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
+      return new THREE.Points(ptGeo, ptMat);
+    };
+
+    const updateViirs = (yr) => {
+      const floats = viirsDataRef.current[yr];
+      if (!floats) return;
+      if (pointsMesh) {
+        worldGroup.remove(pointsMesh);
+        pointsMesh.geometry.dispose();
+        pointsMesh = null;
+      }
+      pointsMesh = buildMesh(floats);
+      worldGroup.add(pointsMesh);
+    };
+    updateViirsRef.current = updateViirs;
+
+    const YEARS = [2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023];
+    YEARS.forEach((yr) => {
+      fetch(`${import.meta.env.BASE_URL}data/viirs_points_${yr}.bin`)
+        .then((r) => r.arrayBuffer())
+        .then((buf) => {
+          if (!alive) return;
+          viirsDataRef.current[yr] = new Float32Array(buf);
+          if (yr === propsRef.current.year) updateViirs(yr);
+        })
+        .catch(() => {});
+    });
 
     scene.add(new THREE.AmbientLight(0xffffff, 1.6));
 
@@ -418,12 +532,20 @@ export default function Globe({
     animate();
 
     // Expose for repaint from prop-change effects.
-    sceneRef.current = { renderer, scene, camera, worldGroup, baseZ };
+    sceneRef.current = { renderer, scene, camera, worldGroup, baseZ, earthMat };
 
     // Safety: signal loaded after 5s no matter what.
     const safety = setTimeout(() => onTexturesLoaded && onTexturesLoaded(), 5000);
 
     return () => {
+      alive = false;
+      if (pointsMesh) {
+        worldGroup.remove(pointsMesh);
+        pointsMesh.geometry.dispose();
+        pointsMesh = null;
+      }
+      glowTex.dispose();
+      ptMat.dispose();
       cancelAnimationFrame(raf);
       clearTimeout(safety);
       clearTimeout(idleTimer);
@@ -463,6 +585,26 @@ export default function Globe({
   useEffect(() => {
     repaintOverlay();
   }, [year, variable, healthMetric, selected, compareCountry, repaintOverlay]);
+
+  // Swap VIIRS point cloud when year changes.
+  useEffect(() => {
+    updateViirsRef.current?.(year);
+  }, [year]);
+
+  // Toggle between physical texture and dark globe.
+  useEffect(() => {
+    const state = sceneRef.current;
+    if (!state) return;
+    const { earthMat } = state;
+    if (showTexture) {
+      earthMat.map = dayTexRef.current ?? null;
+      earthMat.color.set(dayTexRef.current ? 0xffffff : 0x1a1c28);
+    } else {
+      earthMat.map = darkTexRef.current ?? null;
+      earthMat.color.set(darkTexRef.current ? 0xffffff : 0x1a1c28);
+    }
+    earthMat.needsUpdate = true;
+  }, [showTexture]);
 
   // Fly-to animation: rotate globe to center the selected country.
   useEffect(() => {
