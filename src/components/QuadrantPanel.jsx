@@ -26,7 +26,7 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
   const medH = d3.median(pts, d => d.h);
 
   const getQuadrant = (entry) => {
-    if (!entry?.r != null || entry?.[metric] == null || medR == null || medH == null) return null;
+    if (entry?.r == null || entry?.[metric] == null || medR == null || medH == null) return null;
     if (entry.r == null) return null;
     const bright = entry.r > medR;
     const high   = entry[metric] > medH;
@@ -55,7 +55,14 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
       <div className="fp-head">
         <div>
           <div className="fp-label">All countries · {year}</div>
-          <h2>Radiance &amp; Health Quadrants</h2>
+          <div className="fp-title-row">
+            <h2>Radiance &amp; Health Quadrants</h2>
+            <span className="info-btn">i
+              <span className="info-tooltip">
+                The mental health data represents the prevalence of depressive and anxiety disorders, not sleep disorders specifically. Given the indirect nature of the relationship with light pollution, these results should be interpreted with caution.
+              </span>
+            </span>
+          </div>
           {country && !compareCountry && <div className="fp-country">{country}</div>}
           {country && compareCountry && (
             <div className="fp-compare-countries">
@@ -68,11 +75,6 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
               </span>
             </div>
           )}
-          <div className="meta">Divided by global median radiance &amp; {metricShort.toLowerCase()} rate</div>
-          <div className="panel-metric-toggle">
-            <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
-            <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
-          </div>
         </div>
         <div className="fp-head-actions">
           {country && <button className="zoom-btn" onClick={e => { e.stopPropagation(); setZoomed(true); }} title="Expand chart">
@@ -82,8 +84,17 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
         </div>
       </div>
 
-      <div className="stat-grid">
-        <div className="stat">
+      <p className="panel-desc">
+        Each dot is a country, positioned by its radiance (x-axis) and mental health disorder prevalence (y-axis). The axes cross at the global median, dividing countries into four groups based on whether they are above or below average on each dimension.
+      </p>
+
+      <div className="panel-metric-toggle">
+        <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
+        <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
+      </div>
+
+      <div className="stat-grid" style={{ marginBottom: 12, gap: 7 }}>
+        <div className="stat" style={{ padding: '7px 10px' }}>
           <div className="label">Radiance</div>
           {compareCountry ? (
             <div className="cmp-stat-pair">
@@ -97,12 +108,12 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
               </div>
             </div>
           ) : (
-            <div className="value">{cur?.r != null ? d3.format('.2f')(cur.r) : '—'}</div>
+            <div className="value" style={{ fontSize: 18 }}>{cur?.r != null ? d3.format('.2f')(cur.r) : '—'}</div>
           )}
           <div className="unit">nW/cm²/sr</div>
         </div>
 
-        <div className="stat">
+        <div className="stat" style={{ padding: '7px 10px' }}>
           <div className="label">{metricShort}</div>
           {compareCountry ? (
             <div className="cmp-stat-pair">
@@ -116,23 +127,12 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
               </div>
             </div>
           ) : (
-            <div className="value" style={{ color: 'var(--health)' }}>
+            <div className="value" style={{ color: 'var(--health)', fontSize: 18 }}>
               {cur?.[metric] != null ? d3.format(',.0f')(cur[metric]) : '—'}
             </div>
           )}
           <div className="unit">/100k</div>
         </div>
-      </div>
-
-      <div className="chart-title">
-        {compareCountry ? (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-            {quadrantA && <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span className="cmp-stat-dot" style={{ background: COLOR_A }} /><span style={{ fontSize: 11 }}>{quadrantA}</span></span>}
-            {quadrantB && <span style={{ display: 'flex', alignItems: 'center', gap: 5 }}><span className="cmp-stat-dot" style={{ background: COLOR_B }} /><span style={{ fontSize: 11 }}>{quadrantB}</span></span>}
-          </div>
-        ) : (
-          <><span className="dot" style={{ background: 'var(--accent)' }} />{quadrantA ?? '—'}</>
-        )}
       </div>
 
       {visible && (
@@ -143,11 +143,15 @@ export default function QuadrantPanel({ lookup, country, compareCountry, year, h
           compareCountry={compareCountry}
           healthMetric={metric}
           dark={dark}
-          height={inStack ? null : (compact ? 150 : 260)}
+          height={inStack ? null : (compact ? 150 : 360)}
         />
       )}
       {zoomed && (
-        <ChartModal title="Radiance & Health Quadrants" subtitle={`All countries · ${year}`} country={country} meta={`Divided by global median radiance & ${metricShort.toLowerCase()} rate`} onClose={() => setZoomed(false)}>
+        <ChartModal title="Radiance & Health Quadrants" subtitle={`All countries · ${year}`} country={country} onClose={() => setZoomed(false)}>
+          <div className="panel-metric-toggle" style={{ marginBottom: 12 }}>
+            <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
+            <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
+          </div>
           <QuadrantChart lookup={lookup} year={year} selected={country} compareCountry={compareCountry} healthMetric={metric} dark={dark} height={560} />
         </ChartModal>
       )}

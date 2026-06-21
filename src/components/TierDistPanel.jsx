@@ -25,8 +25,10 @@ function computePoints(lookup, year, metric) {
 
 const R_COLOR = '#f97316';
 const H_COLOR = '#a855f7';
+const COLOR_A = '#f59e0b';
+const COLOR_B = '#38bdf8';
 
-export default function TierDistPanel({ lookup, country, year, dark, healthMetric = 'd', inStack = false }) {
+export default function TierDistPanel({ lookup, country, compareCountry, year, dark, healthMetric = 'd', inStack = false }) {
   const [zoomedR, setZoomedR] = useState(false);
   const [zoomedH, setZoomedH] = useState(false);
 
@@ -54,8 +56,26 @@ export default function TierDistPanel({ lookup, country, year, dark, healthMetri
       <div className="fp-head">
         <div>
           <div className="fp-label">Income &amp; Light · {year}</div>
-          <h2>Global Distribution</h2>
-          {country && <div className="fp-country">{country}</div>}
+          <div className="fp-title-row">
+            <h2>Global Distribution</h2>
+            <span className="info-btn">i
+              <span className="info-tooltip">
+                The mental health data represents the prevalence of depressive and anxiety disorders, not sleep disorders specifically. Given the indirect nature of the relationship with light pollution, these results should be interpreted with caution.
+              </span>
+            </span>
+          </div>
+          {country && !compareCountry && <div className="fp-country">{country}</div>}
+          {country && compareCountry && (
+            <div className="fp-compare-countries">
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_A }} />{country}
+              </span>
+              <span className="fp-vs">vs</span>
+              <span className="fp-compare-country" style={{ fontSize: 14 }}>
+                <span className="cmp-stat-dot" style={{ background: COLOR_B }} />{compareCountry}
+              </span>
+            </div>
+          )}
         </div>
       </div>
 
@@ -78,6 +98,7 @@ export default function TierDistPanel({ lookup, country, year, dark, healthMetri
       <TierDistChart
         points={rPoints}
         country={country}
+        compareCountry={compareCountry}
         color={R_COLOR}
         ylabel="nW/cm²/sr"
         dark={dark}
@@ -97,6 +118,7 @@ export default function TierDistPanel({ lookup, country, year, dark, healthMetri
       <TierDistChart
         points={hPoints}
         country={country}
+        compareCountry={compareCountry}
         color={H_COLOR}
         ylabel="/100k"
         dark={dark}
@@ -111,7 +133,7 @@ export default function TierDistPanel({ lookup, country, year, dark, healthMetri
           meta={String(year)}
           onClose={() => setZoomedR(false)}
         >
-          <TierDistChart points={rPoints} country={country} color={R_COLOR} ylabel="nW/cm²/sr" dark={dark} height={440} logScale />
+          <TierDistChart points={rPoints} country={country} compareCountry={compareCountry} color={R_COLOR} ylabel="nW/cm²/sr" dark={dark} height={440} logScale />
         </ChartModal>
       )}
       {zoomedH && (
@@ -122,7 +144,7 @@ export default function TierDistPanel({ lookup, country, year, dark, healthMetri
           meta={String(year)}
           onClose={() => setZoomedH(false)}
         >
-          <TierDistChart points={hPoints} country={country} color={H_COLOR} ylabel="/100k" dark={dark} height={440} />
+          <TierDistChart points={hPoints} country={country} compareCountry={compareCountry} color={H_COLOR} ylabel="/100k" dark={dark} height={440} />
         </ChartModal>
       )}
     </BorderGlow>

@@ -50,10 +50,8 @@ export default function Globe({
   selected,
   compareCountry,
   onSelect,
-  onTexturesLoaded,
   zoomMult = 1,
   flyTo = null,
-  showTexture = true,
 }) {
   const mountRef = useRef(null);
   const canvasRef = useRef(null);
@@ -62,9 +60,6 @@ export default function Globe({
   // Mutable scene refs that persist across renders.
   const sceneRef    = useRef(null);
   const dayTexRef   = useRef(null);
-  const darkTexRef  = useRef(null);
-  const showTexRef  = useRef(showTexture);
-  showTexRef.current = showTexture;
   const viirsDataRef   = useRef({});   // { year: Float32Array }
   const updateViirsRef = useRef(null); // function(yr) — swaps point cloud
   const overlayCtxRef = useRef(null);
@@ -140,11 +135,11 @@ export default function Globe({
     const earth = new THREE.Mesh(new THREE.SphereGeometry(R, 128, 128), earthMat);
     worldGroup.add(earth);
 
-    let loaded = 0;
-    const need = 2;
-    const tick = () => {
-      loaded++;
-      if (loaded >= need && onTexturesLoaded) onTexturesLoaded();
+    const applyDayTex = (t) => {
+      dayTexRef.current = t;
+      earthMat.map = t;
+      earthMat.color.set(0xffffff);
+      earthMat.needsUpdate = true;
     };
 
     loader.load(
@@ -152,31 +147,14 @@ export default function Globe({
       (t) => {
         t.colorSpace = THREE.SRGBColorSpace;
         t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-        dayTexRef.current = t;
-        if (showTexRef.current) {
-          earthMat.map = t;
-          earthMat.color.set(0xffffff);
-          earthMat.needsUpdate = true;
-        }
-        tick();
+        applyDayTex(t);
       },
       undefined,
       () => {
-        loader.load(
-          TEXTURES.fallback,
-          (t) => {
-            t.colorSpace = THREE.SRGBColorSpace;
-            dayTexRef.current = t;
-            if (showTexRef.current) {
-              earthMat.map = t;
-              earthMat.color.set(0xffffff);
-              earthMat.needsUpdate = true;
-            }
-            tick();
-          },
-          undefined,
-          tick
-        );
+        loader.load(TEXTURES.fallback, (t) => {
+          t.colorSpace = THREE.SRGBColorSpace;
+          applyDayTex(t);
+        });
       }
     );
     loader.load(
@@ -198,43 +176,15 @@ export default function Globe({
         cx.putImageData(id, 0, 0);
         earthMat.roughnessMap = new THREE.CanvasTexture(cv);
         earthMat.needsUpdate = true;
-
-        // Build dark-mode texture from the same mask:
-        // px is now inverted → 0 = ocean, 255 = land
-        const dkCv = document.createElement('canvas');
-        dkCv.width = cv.width; dkCv.height = cv.height;
-        const dkCtx = dkCv.getContext('2d');
-        const dkId = dkCtx.createImageData(cv.width, cv.height);
-        const dkPx = dkId.data;
-        for (let j = 0; j < px.length; j += 4) {
-          const f = px[j] / 255; // 0 = ocean, 1 = land
-          dkPx[j]     = Math.round(6  + f * 24); // R
-          dkPx[j + 1] = Math.round(10 + f * 30); // G
-          dkPx[j + 2] = Math.round(20 + f * 45); // B
-          dkPx[j + 3] = 255;
-        }
-        dkCtx.putImageData(dkId, 0, 0);
-        darkTexRef.current = new THREE.CanvasTexture(dkCv);
-        if (!showTexRef.current) {
-          earthMat.map = darkTexRef.current;
-          earthMat.color.set(0xffffff);
-          earthMat.needsUpdate = true;
-        }
       },
       undefined,
       () => {}
     );
-    loader.load(
-      TEXTURES.bump,
-      (t) => {
-        earthMat.bumpMap = t;
-        earthMat.bumpScale = 0.06;
-        earthMat.needsUpdate = true;
-        tick();
-      },
-      undefined,
-      tick
-    );
+    loader.load(TEXTURES.bump, (t) => {
+      earthMat.bumpMap = t;
+      earthMat.bumpScale = 0.06;
+      earthMat.needsUpdate = true;
+    });
 
 
     // Data overlay sphere.
@@ -534,9 +484,6 @@ export default function Globe({
     // Expose for repaint from prop-change effects.
     sceneRef.current = { renderer, scene, camera, worldGroup, baseZ, earthMat };
 
-    // Safety: signal loaded after 5s no matter what.
-    const safety = setTimeout(() => onTexturesLoaded && onTexturesLoaded(), 5000);
-
     return () => {
       alive = false;
       if (pointsMesh) {
@@ -547,7 +494,6 @@ export default function Globe({
       glowTex.dispose();
       ptMat.dispose();
       cancelAnimationFrame(raf);
-      clearTimeout(safety);
       clearTimeout(idleTimer);
       canvas.removeEventListener('mousedown', onDown);
       window.removeEventListener('mouseup', onUp);
@@ -591,20 +537,6 @@ export default function Globe({
     updateViirsRef.current?.(year);
   }, [year]);
 
-  // Toggle between physical texture and dark globe.
-  useEffect(() => {
-    const state = sceneRef.current;
-    if (!state) return;
-    const { earthMat } = state;
-    if (showTexture) {
-      earthMat.map = dayTexRef.current ?? null;
-      earthMat.color.set(dayTexRef.current ? 0xffffff : 0x1a1c28);
-    } else {
-      earthMat.map = darkTexRef.current ?? null;
-      earthMat.color.set(darkTexRef.current ? 0xffffff : 0x1a1c28);
-    }
-    earthMat.needsUpdate = true;
-  }, [showTexture]);
 
   // Fly-to animation: rotate globe to center the selected country.
   useEffect(() => {

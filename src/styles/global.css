@@ -396,13 +396,12 @@ header {
   margin-top: 2px;
 }
 .panel-desc {
-  font-size: 10.5px;
-  line-height: 1.5;
-  color: var(--text-dim);
-  margin: 0 0 10px;
-  padding: 7px 9px;
-  background: var(--hairline);
-  border-radius: 8px;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-faint);
+  margin: -8px 0 12px;
+  padding: 3px 0 3px 11px;
+  border-left: 2px solid var(--panel-border);
 }
 .close-x {
   width: 26px;
@@ -453,12 +452,14 @@ header {
 
 .panel-metric-toggle {
   display: inline-flex;
+  align-self: flex-start;
   gap: 3px;
   background: var(--panel);
   border: 1px solid var(--panel-border);
   border-radius: 999px;
   padding: 3px;
-  margin-top: 8px;
+  margin-top: 0;
+  margin-bottom: 12px;
 }
 .panel-metric-btn {
   font-size: 11px;

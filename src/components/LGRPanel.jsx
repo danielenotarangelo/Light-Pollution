@@ -46,14 +46,6 @@ export default function LGRPanel({ lookup, country, compareCountry, year, dark, 
           <div className="fp-label">Radiance per unit of wealth</div>
           <div className="fp-title-row">
             <h2>Light / GDP Ratio</h2>
-            <span className="info-btn" aria-label="Interpretation note">
-              i
-              <div className="info-tooltip">
-                Lower values indicate more GDP per unit of emitted light. A declining ratio
-                suggests the economy is growing faster than light pollution — a proxy for
-                improving energy efficiency.
-              </div>
-            </span>
           </div>
           {country && !compareCountry && <div className="fp-country">{country}</div>}
           {country && compareCountry && (
@@ -76,6 +68,10 @@ export default function LGRPanel({ lookup, country, compareCountry, year, dark, 
           {onClose && <button className="close-x" onClick={onClose}>✕</button>}
         </div>
       </div>
+
+      <p className="panel-desc">
+        How much light this country emits per dollar of economic output. A falling line means the economy is growing faster than light use — producing more wealth without a proportional rise in light pollution.
+      </p>
 
       <div className="stat-grid">
         <div className="stat">

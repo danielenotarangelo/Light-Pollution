@@ -28,8 +28,6 @@ export default function App() {
   const [selected, setSelected] = useState(null);
   const [playing, setPlaying] = useState(false);
   const [dark, setDark] = useState(false);
-  const [globeTexture, setGlobeTexture] = useState(true);
-  const [texLoaded, setTexLoaded] = useState(false);
   const [showLanding, setShowLanding] = useState(true);
   const [showResults, setShowResults] = useState(false);
   const [showRanking, setShowRanking] = useState(false);
@@ -160,8 +158,8 @@ export default function App() {
         )}
       </div>
 
-      {(loading || !texLoaded) && (
-        <div className={`loading${loading ? '' : ' hidden'}`}>
+      {loading && (
+        <div className="loading">
           <div className="spin" />
         </div>
       )}
@@ -171,8 +169,6 @@ export default function App() {
         onVariableChange={setVariable}
         dark={dark}
         onToggleTheme={() => setDark((d) => !d)}
-        globeTexture={globeTexture}
-        onToggleGlobeTexture={() => setGlobeTexture((t) => !t)}
       />
 
       {data && <Legend domains={data.domains} variable={variable || 'r'} healthMetric={healthMetric} hidden={!variable || !!(isSmallPhone && selected)} />}
@@ -211,10 +207,8 @@ export default function App() {
           selected={selected}
           compareCountry={compareCountry}
           onSelect={handleSelect}
-          onTexturesLoaded={() => setTexLoaded(true)}
           zoomMult={selected ? 1 : (showRanking ? 1.12 : 0.95)}
           flyTo={flyTo}
-          showTexture={globeTexture}
         />
       )}
 

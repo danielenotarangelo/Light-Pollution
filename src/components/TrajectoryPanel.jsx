@@ -50,8 +50,15 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">How light pollution &amp; mental health evolved together</div>
-          <h2>Trajectory</h2>
+          <div className="fp-label">Year-over-year path</div>
+          <div className="fp-title-row">
+            <h2>Radiance &amp; Health Trend</h2>
+            <span className="info-btn">i
+              <span className="info-tooltip">
+                The mental health data represents the prevalence of depressive and anxiety disorders, not sleep disorders specifically. Given the indirect nature of the relationship with light pollution, these results should be interpreted with caution.
+              </span>
+            </span>
+          </div>
           {country && !compareCountry && <div className="fp-country">{country}</div>}
           {country && compareCountry && (
             <div className="fp-compare-countries">
@@ -64,11 +71,6 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
               </span>
             </div>
           )}
-          <div className="meta">{yearRange} · circle marks {year}</div>
-          <div className="panel-metric-toggle">
-            <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
-            <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
-          </div>
         </div>
         <div className="fp-head-actions">
           {country && <button className="zoom-btn" onClick={e => { e.stopPropagation(); setZoomed(true); }} title="Expand chart">
@@ -76,6 +78,15 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
           </button>}
           {onClose && <button className="close-x" onClick={onClose}>✕</button>}
         </div>
+      </div>
+
+      <p className="panel-desc">
+        Each dot is one year: x-axis is radiance, y-axis is mental-health prevalence. Follow the arrow to see whether both rose together, diverged, or reversed over the period.
+      </p>
+
+      <div className="panel-metric-toggle">
+        <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
+        <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
       </div>
 
       <div className="stat-grid">
@@ -121,13 +132,11 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
           <div className="unit">/100k</div>
         </div>
       </div>
-
-      <div className="chart-title">
-        {compareCountry
-          ? 'Color: earlier → recent years · arrow shows direction'
-          : <><span className="dot" style={{ background: 'var(--accent)' }} />Earlier years (purple) → recent years (yellow) · arrow shows direction</>
-        }
-      </div>
+      {first && last && (
+        <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: '-4px 0 10px' }}>
+          Δ values are the difference between {first.year} and {last.year}
+        </p>
+      )}
 
       {visible && (
         <TrajectoryChart
@@ -141,8 +150,17 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
       )}
 
       {zoomed && (
-        <ChartModal title="Trajectory" subtitle="How light pollution & mental health evolved together" country={country} meta={`${yearRange} · circle marks ${year}`} onClose={() => setZoomed(false)}>
+        <ChartModal title="Radiance & Health Trend" subtitle="Year-over-year path" country={country} onClose={() => setZoomed(false)}>
+          <div className="panel-metric-toggle" style={{ marginBottom: 12 }}>
+            <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
+            <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
+          </div>
           <TrajectoryChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={500} />
+          {first && last && (
+            <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: '8px 0 0' }}>
+              Δ values are the difference between {first.year} and {last.year}
+            </p>
+          )}
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

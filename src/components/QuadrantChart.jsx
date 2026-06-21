@@ -76,14 +76,6 @@ export default function QuadrantChart({ lookup, year, selected, compareCountry, 
     g.append('line').attr('x1', 0).attr('x2', iw).attr('y1', qy).attr('y2', qy)
       .attr('stroke', ac).attr('stroke-dasharray', '3,2').attr('opacity', 0.55);
 
-    // Quadrant labels
-    const lc = dark ? 'rgba(255,255,255,0.22)' : 'rgba(0,0,0,0.2)';
-    const pad = 5;
-    const fs = '7.5px';
-    g.append('text').attr('x', pad).attr('y', pad + 8).attr('fill', lc).style('font-size', fs).text('dim · high');
-    g.append('text').attr('x', iw - pad).attr('y', pad + 8).attr('text-anchor', 'end').attr('fill', lc).style('font-size', fs).text('bright · high');
-    g.append('text').attr('x', pad).attr('y', ih - pad).attr('fill', lc).style('font-size', fs).text('dim · low');
-    g.append('text').attr('x', iw - pad).attr('y', ih - pad).attr('text-anchor', 'end').attr('fill', lc).style('font-size', fs).text('bright · low');
 
     // Dots — selected and compare rendered last so they sit on top
     const highlighted = new Set([selected, compareCountry].filter(Boolean));

@@ -21,7 +21,9 @@ function jitterOf(name, width) {
   return ((h / 0xffff) - 0.5) * width;
 }
 
-export default function TierDistChart({ points, country, color, ylabel, dark, height, logScale = false }) {
+const COLOR_CMP = '#38bdf8';
+
+export default function TierDistChart({ points, country, compareCountry, color, ylabel, dark, height, logScale = false }) {
   const ref = useRef(null);
 
   useEffect(() => {
@@ -99,7 +101,7 @@ export default function TierDistChart({ points, country, color, ylabel, dark, he
 
       // Jittered dots (drawn first, behind box)
       tierPts.forEach(({ name, value }) => {
-        const isSelected = name === country;
+        const isSelected = name === country || name === compareCountry;
         const jx = cx + jitterOf(name, jitterW);
         const vy = y(value);
 
@@ -158,7 +160,20 @@ export default function TierDistChart({ points, country, color, ylabel, dark, he
         g.append('circle')
           .attr('cx', jx).attr('cy', vy)
           .attr('r', 4.5)
-          .attr('fill', color)
+          .attr('fill', compareCountry ? '#f59e0b' : color)
+          .attr('stroke', bg)
+          .attr('stroke-width', 1.5);
+      }
+
+      // Compare country dot — drawn on top
+      const cmpPt = compareCountry ? tierPts.find(p => p.name === compareCountry) : null;
+      if (cmpPt) {
+        const jx = cx + jitterOf(cmpPt.name, jitterW);
+        const vy = y(cmpPt.value);
+        g.append('circle')
+          .attr('cx', jx).attr('cy', vy)
+          .attr('r', 4.5)
+          .attr('fill', COLOR_CMP)
           .attr('stroke', bg)
           .attr('stroke-width', 1.5);
       }
@@ -175,12 +190,28 @@ export default function TierDistChart({ points, country, color, ylabel, dark, he
         .attr('x', flipLeft ? cx - 7 : cx + 7)
         .attr('y', cy - 7)
         .attr('text-anchor', flipLeft ? 'end' : 'start')
-        .attr('fill', color)
+        .attr('fill', compareCountry ? '#f59e0b' : color)
         .style('font-size', '8px').style('font-weight', '700')
         .text(lbl);
     }
 
-  }, [points, country, color, ylabel, dark, height, logScale]);
+    // Compare country label
+    const cmpPt = compareCountry ? points.find(p => p.name === compareCountry) : null;
+    if (cmpPt) {
+      const cx  = x(cmpPt.tier) + bw / 2 + jitterOf(cmpPt.name, jitterW);
+      const cy  = y(cmpPt.value);
+      const lbl = cmpPt.name.length > 11 ? cmpPt.name.slice(0, 10) + '…' : cmpPt.name;
+      const flipLeft = cx > iw * 0.65;
+      g.append('text')
+        .attr('x', flipLeft ? cx - 7 : cx + 7)
+        .attr('y', cy - 7)
+        .attr('text-anchor', flipLeft ? 'end' : 'start')
+        .attr('fill', COLOR_CMP)
+        .style('font-size', '8px').style('font-weight', '700')
+        .text(lbl);
+    }
+
+  }, [points, country, compareCountry, color, ylabel, dark, height, logScale]);
 
   return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
 }
