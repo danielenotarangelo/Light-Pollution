@@ -55,9 +55,9 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">Income &amp; Light · {year}</div>
+          <div className="fp-label">GDP income groups · {year}</div>
           <div className="fp-title-row">
-            <h2>Global Distribution</h2>
+            <h2>Light &amp; Health by Income Level</h2>
             <span className="info-btn">i
               <span className="info-tooltip">
                 The mental health data represents the prevalence of depressive and anxiety disorders, not sleep disorders specifically. Given the indirect nature of the relationship with light pollution, these results should be interpreted with caution.
@@ -80,9 +80,9 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
       </div>
 
       <p className="panel-desc">
-        All ~183 countries split into four GDP quartiles. Each column shows how radiance
-        and mental-health prevalence are distributed <em>within</em> that income group —
-        box marks the IQR, line the median.
+        Countries are grouped into four income levels based on GDP per capita. Each column shows
+        the spread of radiance and mental health disorder rates within that group: richer countries
+        tend to emit significantly more light, while the health picture is more nuanced.
         {country && <> <strong>{country}</strong> is highlighted.</>}
       </p>
 
@@ -127,8 +127,8 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
 
       {zoomedR && (
         <ChartModal
-          title="Radiance Distribution"
-          subtitle="Mean radiance by GDP income tier"
+          title="Radiance by Income Level"
+          subtitle="Distribution across four GDP income groups"
           country={country}
           meta={String(year)}
           onClose={() => setZoomedR(false)}
@@ -139,7 +139,7 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
       {zoomedH && (
         <ChartModal
           title={hTitle}
-          subtitle="Prevalence by GDP income tier"
+          subtitle="Distribution across four GDP income groups"
           country={country}
           meta={String(year)}
           onClose={() => setZoomedH(false)}

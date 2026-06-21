@@ -37,8 +37,8 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
     >
       <div className="fp-head">
         <div>
-          <div className="fp-label">Energy &amp; Urbanization</div>
-          <h2>Environment</h2>
+          <div className="fp-label">Contextual factors</div>
+          <h2>Energy Use &amp; Urbanization</h2>
           {country && !compareCountry && <div className="fp-country">{country}</div>}
           {country && compareCountry && (
             <div className="fp-compare-countries">
@@ -55,8 +55,12 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
         </div>
       </div>
 
-      <div className="stat-grid">
-        <div className="stat">
+      <p className="panel-desc">
+        Energy consumption and urbanization are two of the main drivers of artificial light at night. Countries that use more electricity and have a larger share of urban population tend to produce significantly more light pollution.
+      </p>
+
+      <div className="stat-grid" style={{ marginBottom: 12, gap: 7 }}>
+        <div className="stat" style={{ padding: '7px 10px' }}>
           <div className="label">Energy use</div>
           {compareCountry ? (
             <div className="cmp-stat-pair">
@@ -70,11 +74,11 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
               </div>
             </div>
           ) : (
-            <div className="value" style={{ color: '#10b981' }}>{fmtEnergy(cur?.e)}</div>
+            <div className="value" style={{ color: '#10b981', fontSize: 18 }}>{fmtEnergy(cur?.e)}</div>
           )}
           <div className="unit">per capita</div>
         </div>
-        <div className="stat">
+        <div className="stat" style={{ padding: '7px 10px' }}>
           <div className="label">Urban pop.</div>
           {compareCountry ? (
             <div className="cmp-stat-pair">
@@ -88,7 +92,7 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
               </div>
             </div>
           ) : (
-            <div className="value" style={{ color: '#06b6d4' }}>{fmtUrban(cur?.u)}</div>
+            <div className="value" style={{ color: '#06b6d4', fontSize: 18 }}>{fmtUrban(cur?.u)}</div>
           )}
           <div className="unit">% of total</div>
         </div>
@@ -145,7 +149,7 @@ export default function EnergyPanel({ lookup, country, compareCountry, year, dar
       )}
 
       {zoomedEnergy && (
-        <ChartModal title="Energy Consumption" subtitle="Electric power consumption (kWh per capita)" country={country} meta={String(year)} onClose={() => setZoomedEnergy(false)}>
+        <ChartModal title="Energy Use" subtitle="Electric power consumption (kWh per capita)" country={country} meta={String(year)} onClose={() => setZoomedEnergy(false)}>
           <MetricChart series={series} compareSeries={compareSeries} metricKey="e" year={year} color="#10b981" dark={dark} height={440} fmt={v => d3.format(',.0f')(v)} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>

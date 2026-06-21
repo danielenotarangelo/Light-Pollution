@@ -10,8 +10,8 @@ import Stack from './Stack.jsx';
 const TABS = [
   { id: 'wealth',      label: 'Wealth' },
   { id: 'health',      label: 'Health' },
-  { id: 'environment', label: 'Environment' },
-  { id: 'context',     label: 'Distribution' },
+  { id: 'environment', label: 'Energy & Urbanization' },
+  { id: 'context',     label: 'Income Groups' },
 ];
 
 function ChevronLeft() {

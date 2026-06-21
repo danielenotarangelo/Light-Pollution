@@ -4,33 +4,32 @@ import './Landing.css';
 
 const SLIDES = [
   {
-    eyebrow: 'Data Visualization · 2013–2023',
     title: 'Nights of Light',
     body: 'Explore the relationship between artificial light pollution, economic development, and mental health across a decade of global data.',
     big: true,
   },
   {
     eyebrow: 'The Globe',
-    title: 'Explore & Interact',
-    body: 'Drag to rotate the globe, scroll to zoom, and click on any country to select it and unlock its historical data.',
+    title: 'An Interactive Map',
+    body: 'Drag to rotate, scroll to zoom, and click any country to select it. Switch between Radiance, GDP, and mental health in the header — each metric recolours the globe instantly.',
     icon: 'globe',
   },
   {
-    eyebrow: 'Variables',
-    title: 'Three Lenses',
-    body: 'Switch between Radiance (light emitted at night), GDP per capita, and mental health prevalence using the controls in the header. Each metric recolours the globe.',
-    icon: 'layers',
-  },
-  {
-    eyebrow: 'Country Data',
-    title: 'Dive Deeper',
-    body: 'Clicking a country opens two panels: one tracking how radiance and wealth evolved over time, and one comparing light pollution against mental health prevalence.',
+    eyebrow: 'Country Panels',
+    title: 'Dive Into the Data',
+    body: 'Click any country to open a set of charts covering its light pollution trends, economic context, health correlations, and how it compares to the rest of the world.',
     icon: 'chart',
   },
   {
-    eyebrow: 'Timeline',
-    title: 'A Decade of Change',
-    body: 'Use the slider at the bottom to move between 2013 and 2023. Press play to animate the globe and watch global patterns shift over ten years.',
+    eyebrow: 'Compare Mode',
+    title: 'Country vs. Country',
+    body: 'Use the Compare button in the search bar to pick a second country. All panels update to show both countries side by side with colour-coded values and highlighted dots.',
+    icon: 'compare',
+  },
+  {
+    eyebrow: 'Timeline & Results',
+    title: 'Play & Discover',
+    body: 'Scrub the timeline to animate the globe across 2013–2023. When you\'re ready, open Key Findings in the header for a summary of the main patterns across all countries.',
     icon: 'timeline',
   },
 ];
@@ -44,34 +43,37 @@ const ICONS = {
       <line x1="3" y1="15" x2="21" y2="15" />
     </svg>
   ),
-  layers: (
+  chart: (
     <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 22 8.5 12 15 2 8.5" />
-      <polyline points="2 12 12 18.5 22 12" />
-      <polyline points="2 16 12 22.5 22 16" />
+      <rect x="3" y="14" width="4" height="7" rx="1" />
+      <rect x="10" y="9" width="4" height="12" rx="1" />
+      <rect x="17" y="4" width="4" height="17" rx="1" />
     </svg>
   ),
-  chart: (
+  health: (
     <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
       <line x1="3" y1="21" x2="21" y2="21" />
       <line x1="3" y1="4" x2="3" y2="21" />
-      <polyline points="6 14 10 9 14 12 19 6" />
-      <circle cx="10" cy="9" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="14" cy="12" r="1.3" fill="currentColor" stroke="none" />
-      <circle cx="19" cy="6" r="1.3" fill="currentColor" stroke="none" />
+      <polyline points="6 14 10 9 14 13 19 6" />
+      <circle cx="10" cy="9" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="14" cy="13" r="1.4" fill="currentColor" stroke="none" />
+      <circle cx="19" cy="6" r="1.4" fill="currentColor" stroke="none" />
+      <line x1="3" y1="12" x2="21" y2="12" strokeWidth="0.6" strokeDasharray="2,2" />
+    </svg>
+  ),
+  compare: (
+    <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
+      <circle cx="8" cy="12" r="5.5" />
+      <circle cx="16" cy="12" r="5.5" />
+      <line x1="12" y1="7.5" x2="12" y2="16.5" strokeDasharray="2,2" strokeWidth="0.9" />
     </svg>
   ),
   timeline: (
     <svg width="54" height="54" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-      {/* play button */}
       <polygon points="3 8 8 11.5 3 15" fill="currentColor" stroke="none" />
-      {/* slider track */}
       <line x1="11" y1="11.5" x2="21" y2="11.5" />
-      {/* filled progress */}
       <line x1="11" y1="11.5" x2="16" y2="11.5" strokeWidth="2.2" strokeLinecap="round" />
-      {/* thumb */}
       <circle cx="16" cy="11.5" r="2.2" fill="currentColor" stroke="none" />
-      {/* year ticks */}
       <line x1="11" y1="14" x2="11" y2="15.5" strokeWidth="1" />
       <line x1="14" y1="14" x2="14" y2="15.5" strokeWidth="1" />
       <line x1="17" y1="14" x2="17" y2="15.5" strokeWidth="1" />
@@ -141,9 +143,9 @@ export default function Landing({ onEnter }) {
             {slide.icon && (
               <div className="landing-icon">{ICONS[slide.icon]}</div>
             )}
-            <p className="landing-eyebrow">{slide.eyebrow}</p>
+            {slide.eyebrow && <p className="landing-eyebrow">{slide.eyebrow}</p>}
             <h1 className={`landing-title${slide.big ? ' big' : ''}`}>{slide.title}</h1>
-            <p className="landing-desc">{slide.body}</p>
+            {slide.body && <p className="landing-desc">{slide.body}</p>}
           </motion.div>
         </AnimatePresence>
       </div>

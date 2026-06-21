@@ -31,6 +31,25 @@ export default function TierDistChart({ points, country, compareCountry, color, 
     el.innerHTML = '';
     if (!points?.length) return;
 
+    // Tooltip
+    const tip = d3.select(el).append('div').attr('class', 'chart-hover-tip').style('display', 'none');
+
+    const showTip = (event, name, value, dotColor) => {
+      const fmt = logScale ? d3.format(',.2f') : d3.format(',.1f');
+      tip.html(`
+        <div class="tip-year">${name}</div>
+        <div class="tip-row"><span class="tip-dot" style="background:${dotColor}"></span>${fmt(value)} ${ylabel}</div>
+      `).style('display', 'block');
+      moveTip(event);
+    };
+    const moveTip = (event) => {
+      const rect = el.getBoundingClientRect();
+      const tx = event.clientX - rect.left + 10;
+      const ty = event.clientY - rect.top - 44;
+      tip.style('left', tx + 'px').style('top', ty + 'px');
+    };
+    const hideTip = () => tip.style('display', 'none');
+
     const W  = el.clientWidth  || 280;
     const H  = el.clientHeight || height || 180;
     const m  = { top: 8, right: 12, bottom: 34, left: 46 };
@@ -56,7 +75,7 @@ export default function TierDistChart({ points, country, compareCountry, color, 
 
     // Horizontal grid lines
     g.append('g')
-      .call(d3.axisLeft(y).ticks(4).tickSize(-iw).tickFormat(''))
+      .call(d3.axisLeft(y).ticks(3).tickSize(-iw).tickFormat(''))
       .call(s => {
         s.select('.domain').remove();
         s.selectAll('line').attr('stroke', gc).attr('stroke-dasharray', '2,3');
@@ -72,7 +91,7 @@ export default function TierDistChart({ points, country, compareCountry, color, 
 
     // Y axis
     g.append('g')
-      .call(d3.axisLeft(y).ticks(4).tickFormat(d3.format('~s')))
+      .call(d3.axisLeft(y).ticks(3).tickFormat(d3.format('~s')))
       .call(s => {
         s.selectAll('text').attr('fill', ac).style('font-size', '9px');
         s.selectAll('line,path').attr('stroke', gc);
@@ -162,7 +181,11 @@ export default function TierDistChart({ points, country, compareCountry, color, 
           .attr('r', 4.5)
           .attr('fill', compareCountry ? '#f59e0b' : color)
           .attr('stroke', bg)
-          .attr('stroke-width', 1.5);
+          .attr('stroke-width', 1.5)
+          .style('cursor', 'pointer')
+          .on('mouseover', (e) => showTip(e, selPt.name, selPt.value, compareCountry ? '#f59e0b' : color))
+          .on('mousemove', moveTip)
+          .on('mouseout', hideTip);
       }
 
       // Compare country dot — drawn on top
@@ -175,7 +198,11 @@ export default function TierDistChart({ points, country, compareCountry, color, 
           .attr('r', 4.5)
           .attr('fill', COLOR_CMP)
           .attr('stroke', bg)
-          .attr('stroke-width', 1.5);
+          .attr('stroke-width', 1.5)
+          .style('cursor', 'pointer')
+          .on('mouseover', (e) => showTip(e, cmpPt.name, cmpPt.value, COLOR_CMP))
+          .on('mousemove', moveTip)
+          .on('mouseout', hideTip);
       }
     });
 
@@ -213,5 +240,5 @@ export default function TierDistChart({ points, country, compareCountry, color, 
 
   }, [points, country, compareCountry, color, ylabel, dark, height, logScale]);
 
-  return <div ref={ref} className="chart" style={height != null ? { height } : undefined} />;
+  return <div ref={ref} className="chart" style={{ ...(height != null ? { height } : {}), position: 'relative' }} />;
 }

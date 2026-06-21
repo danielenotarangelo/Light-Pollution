@@ -1,4 +1,6 @@
-export default function Header({ variable, onVariableChange, dark, onToggleTheme }) {
+import StarBorder from './StarBorder.jsx';
+
+export default function Header({ variable, onVariableChange, dark, onToggleTheme, onResultsClick, showResults }) {
   const toggles = [
     { key: 'r',      label: 'Light'  },
     { key: 'g',      label: 'Wealth' },
@@ -9,7 +11,32 @@ export default function Header({ variable, onVariableChange, dark, onToggleTheme
     <header>
       <div className="brand">
         <h1>Nights of Light</h1>
-        <p>Artificial light · economic output · mental health · 2013–2023</p>
+        {showResults && (
+          <StarBorder
+            as="div"
+            className="results-btn-fadein"
+            color="#00e5ff"
+            speed="4s"
+            thickness={3}
+            onClick={onResultsClick}
+            style={{ borderRadius: 999, cursor: 'pointer' }}
+          >
+            <span style={{
+              display: 'block',
+              padding: '9px 20px',
+              fontSize: 14,
+              fontWeight: 700,
+              letterSpacing: '0.02em',
+              color: 'var(--text-dim)',
+              whiteSpace: 'nowrap',
+              background: 'var(--panel)',
+              backdropFilter: 'blur(14px)',
+              borderRadius: 999,
+            }}>
+              Interesting Results
+            </span>
+          </StarBorder>
+        )}
       </div>
       <div className="head-right">
         <div className="toggles">

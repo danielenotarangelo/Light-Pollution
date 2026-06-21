@@ -10,7 +10,7 @@
   --text-dim: #5c6580;
   --text-faint: #939bb2;
   --accent: #e8841a;
-  --radiance: #e8841a;
+  --radiance: #eab308;
   --gdp: #1fa97a;
   --health: #8a4fd6;
   --lgi: #2563eb;
@@ -29,7 +29,7 @@ body.dark {
   --text-dim: #95a0be;
   --text-faint: #5b647d;
   --accent: #ffb454;
-  --radiance: #ffb454;
+  --radiance: #fde047;
   --gdp: #5ad1a0;
   --health: #c08cff;
   --lgi: #60a5fa;
@@ -43,6 +43,7 @@ body.dark {
   margin: 0;
   padding: 0;
   box-sizing: border-box;
+  font-family: inherit;
 }
 html,
 body,
@@ -98,14 +99,26 @@ header {
   left: 0;
   right: 0;
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  padding: 26px 32px;
+  padding: 18px 32px;
   z-index: 30;
   pointer-events: none;
 }
+@keyframes results-btn-in {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 .brand {
   pointer-events: auto;
+  display: flex;
+  align-items: center;
+  gap: 52px;
+}
+
+.results-btn-fadein {
+  animation: results-btn-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 .brand h1 {
   font-size: 24px;
@@ -140,7 +153,7 @@ header {
 }
 .toggle {
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
   padding: 8px 16px;
   border: none;
@@ -1304,7 +1317,7 @@ body.dark .chart-modal {
 .ranking-tab {
   flex: 1;
   font-size: 11px;
-  font-weight: 600;
+  font-weight: 700;
   font-family: var(--font);
   letter-spacing: 0.01em;
   padding: 5px 8px;
@@ -1556,7 +1569,7 @@ body.dark .chart-modal {
 
 .overview-tab {
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.01em;
   padding: 7px 20px;
   border: none;

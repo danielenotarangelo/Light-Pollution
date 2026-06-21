@@ -169,6 +169,8 @@ export default function App() {
         onVariableChange={setVariable}
         dark={dark}
         onToggleTheme={() => setDark((d) => !d)}
+        onResultsClick={() => setShowResults(true)}
+        showResults={!showLanding}
       />
 
       {data && <Legend domains={data.domains} variable={variable || 'r'} healthMetric={healthMetric} hidden={!variable || !!(isSmallPhone && selected)} />}
@@ -281,11 +283,6 @@ export default function App() {
         onTogglePlay={() => setPlaying((p) => !p)}
       />
 
-      {!showLanding && (
-        <button className="floating-results-btn" onClick={() => setShowResults(true)} title="Interesting Results">
-          Interesting Results
-        </button>
-      )}
     </div>
   );
 }
