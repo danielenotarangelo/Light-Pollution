@@ -1,53 +1,98 @@
+/* ── Overlay ───────────────────────────────────────────────────────────────── */
 .results {
   position: fixed;
   inset: 0;
   z-index: 100;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: radial-gradient(ellipse at 50% 36%, var(--bg-grad-1), var(--bg-grad-2));
   opacity: 1;
-  transform: translateY(0);
-  transition: opacity 0.6s ease, transform 0.65s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: opacity 0.6s ease;
 }
 
 .results.leaving {
   opacity: 0;
-  transform: translateY(-32px);
   pointer-events: none;
 }
 
-/* Stage */
-.results-stage {
-  flex: 1;
+/* ── Scroll container ──────────────────────────────────────────────────────── */
+.results-scroll {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 80px 64px 120px;
+}
+
+/* ── Sections ──────────────────────────────────────────────────────────────── */
+.results-section {
+  padding: 80px 0;
+  border-bottom: 1px solid var(--hairline);
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.results-section:last-child {
+  border-bottom: none;
+}
+
+.results-section.visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Two-column layout for sections with charts */
+.results-section.has-chart {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 72px;
+}
+
+/* Intro hero */
+.results-section.is-intro {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 100%;
-  overflow: hidden;
-  position: relative;
+  min-height: 70vh;
+  text-align: center;
+  border-bottom: 1px solid var(--hairline);
 }
 
-.results-slide {
+/* ── Text column ───────────────────────────────────────────────────────────── */
+.results-section-text {
   display: flex;
   flex-direction: column;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+/* Non-chart sections: center everything */
+.results-section:not(.has-chart) .results-section-text {
   align-items: center;
   text-align: center;
-  gap: 18px;
   max-width: 700px;
-  padding: 0 56px;
+  margin: 0 auto;
+}
+
+/* ── Chart column ──────────────────────────────────────────────────────────── */
+.results-section-chart {
   width: 100%;
 }
 
-/* Icon */
+.results-mini-svg {
+  display: block;
+  width: 100%;
+  height: auto;
+  overflow: visible;
+}
+
+/* ── Icon ──────────────────────────────────────────────────────────────────── */
 .results-icon {
   color: var(--text-dim);
   opacity: 0.75;
-  margin-bottom: 2px;
 }
 
-/* Eyebrow */
+/* ── Eyebrow ───────────────────────────────────────────────────────────────── */
 .results-eyebrow {
   font-size: 12.5px;
   font-weight: 700;
@@ -57,11 +102,10 @@
   margin: 0;
 }
 
-/* Big stat */
+/* ── Big stat ──────────────────────────────────────────────────────────────── */
 .results-stat-block {
   display: flex;
   flex-direction: column;
-  align-items: center;
   gap: 4px;
 }
 
@@ -70,7 +114,6 @@
   font-weight: 800;
   letter-spacing: -0.03em;
   line-height: 1;
-  color: var(--accent, #3b82f6);
   background: linear-gradient(135deg, #60a5fa, #a78bfa);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -85,9 +128,9 @@
   text-transform: uppercase;
 }
 
-/* Title */
+/* ── Title ─────────────────────────────────────────────────────────────────── */
 .results-title {
-  font-size: clamp(28px, 3.8vw, 52px);
+  font-size: clamp(26px, 3vw, 46px);
   font-weight: 800;
   letter-spacing: -0.02em;
   line-height: 1.08;
@@ -96,35 +139,25 @@
 }
 
 .results-title.big {
-  font-size: clamp(48px, 7vw, 82px);
+  font-size: clamp(42px, 6vw, 78px);
   letter-spacing: -0.03em;
 }
 
-/* Body */
+/* ── Body ──────────────────────────────────────────────────────────────────── */
 .results-desc {
-  font-size: clamp(15px, 1.6vw, 19px);
+  font-size: clamp(15px, 1.4vw, 18px);
   font-weight: 500;
   color: var(--text-dim);
-  line-height: 1.7;
-  max-width: 540px;
+  line-height: 1.75;
   margin: 0;
 }
 
-/* Counter */
-.results-counter {
-  font-size: 11px;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  color: var(--text-faint);
-  margin: 4px 0 0;
-}
-
-/* Close button — same style as the theme toggle */
+/* ── Close button ──────────────────────────────────────────────────────────── */
 .results-close {
-  position: absolute;
+  position: fixed;
   top: 20px;
   right: 24px;
-  z-index: 10;
+  z-index: 110;
   width: 40px;
   height: 40px;
   border-radius: 50%;
@@ -145,21 +178,7 @@
   transform: translateY(-1px);
 }
 
-/* Chart container */
-.results-chart {
-  width: 100%;
-  max-width: 580px;
-  margin: 0 auto;
-}
-
-.results-mini-svg {
-  display: block;
-  width: 100%;
-  height: auto;
-  overflow: visible;
-}
-
-/* ── Chart element animations ───────────────────────────────────── */
+/* ── Chart element animations ──────────────────────────────────────────────── */
 @keyframes r-rise {
   from { transform: scaleY(0); }
   to   { transform: scaleY(1); }
@@ -196,22 +215,21 @@
   animation: r-fade 0.6s ease both;
 }
 
-.results-slide.has-chart {
-  gap: 12px;
-}
-
-
-
-/* Responsive */
+/* ── Responsive ────────────────────────────────────────────────────────────── */
 @media (max-width: 900px) {
-  .results-slide { padding: 0 40px 0 64px; }
+  .results-section.has-chart {
+    grid-template-columns: 1fr;
+    gap: 36px;
+  }
+  .results-scroll { padding: 64px 40px 80px; }
+  .results-section { padding: 60px 0; }
 }
 
 @media (max-width: 640px) {
-  .results-title      { font-size: clamp(22px, 7vw, 36px); }
-  .results-title.big  { font-size: clamp(32px, 10vw, 52px); }
-  .results-stat       { font-size: clamp(40px, 11vw, 64px); }
-  .results-desc       { font-size: clamp(13px, 3.5vw, 16px); }
-  .results-slide      { padding: 0 20px 0 44px; gap: 12px; }
-
+  .results-scroll      { padding: 48px 20px 60px; }
+  .results-section     { padding: 48px 0; }
+  .results-title       { font-size: clamp(22px, 7vw, 34px); }
+  .results-title.big   { font-size: clamp(32px, 10vw, 52px); }
+  .results-stat        { font-size: clamp(40px, 11vw, 64px); }
+  .results-desc        { font-size: clamp(13px, 3.5vw, 16px); }
 }

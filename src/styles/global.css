@@ -239,8 +239,8 @@ header {
 }
 
 /* Legend (top-left, under title) */
-.legend-hidden {
-  visibility: hidden;
+.legend.legend-hidden {
+  opacity: 0;
   pointer-events: none;
 }
 .legend {
@@ -255,7 +255,8 @@ header {
   width: 240px;
   backdrop-filter: blur(14px);
   box-shadow: var(--shadow);
-  transition: opacity 0.3s, top 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
+  opacity: 1;
+  transition: opacity 0.4s ease-in-out, top 0.4s cubic-bezier(0.2, 0.7, 0.2, 1);
 }
 .legend-title {
   font-size: 13px;

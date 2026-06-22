@@ -1,5 +1,4 @@
-import { useState, useEffect, useCallback, useMemo } from 'react';
-import { AnimatePresence, motion } from 'motion/react';
+import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import * as d3 from 'd3';
 import './Results.css';
 
@@ -108,7 +107,6 @@ function ScatterPlot({ points }) {
   const xPos = (v) => PL + ((Math.log10(Math.max(v, 0.01)) - logMin) / (logMax - logMin)) * cW;
   const yPos = (v) => PT + cH - ((v - yMin) / (yMax - yMin)) * cH;
 
-  // Trend line via linear regression on log(x) vs y
   const lxs = xs.map((x) => Math.log10(Math.max(x, 0.01)));
   const n = points.length;
   const mlx = lxs.reduce((s, v) => s + v, 0) / n;
@@ -123,31 +121,22 @@ function ScatterPlot({ points }) {
 
   return (
     <svg viewBox={`0 0 ${W} ${H}`} className="results-mini-svg">
-      {/* Axes */}
       <line x1={PL} y1={PT + cH} x2={PL + cW} y2={PT + cH} stroke="currentColor" strokeWidth={0.5} opacity={0.2} />
       <line x1={PL} y1={PT} x2={PL} y2={PT + cH} stroke="currentColor" strokeWidth={0.5} opacity={0.2} />
-
-      {/* Trend line */}
       <line className="r-line" style={{ animationDelay: '0.3s' }}
         x1={PL} y1={ty1} x2={PL + cW} y2={ty2}
         stroke="#a78bfa" strokeWidth={1.5} strokeDasharray="4 3" opacity={0.55} />
-
-      {/* Dots */}
       {points.map((p, i) => (
         <circle key={i} className="r-dot" style={{ animationDelay: `${0.05 + i * 0.018}s` }}
           cx={xPos(p.x)} cy={yPos(p.y)} r={3.5}
           fill="#60a5fa" opacity={0.72} />
       ))}
-
-      {/* X ticks */}
       {xTicks.map((v) => (
         <text key={v} x={xPos(v)} y={H - 8} textAnchor="middle"
           fontSize={8.5} fill="currentColor" opacity={0.4}>
           {v}
         </text>
       ))}
-
-      {/* Axis labels */}
       <text x={PL + cW / 2} y={H - 1} textAnchor="middle"
         fontSize={8.5} fill="currentColor" opacity={0.35}>
         Radiance nW/cm²/sr (log scale) →
@@ -263,42 +252,24 @@ const ICONS = {
       <line x1="2" y1="2" x2="22" y2="22" strokeWidth="1" strokeDasharray="2,2"/>
     </svg>
   ),
-  conclusion: (
-    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round">
-      <polygon points="12 2 15.1 8.3 22 9.3 17 14.1 18.2 21 12 17.8 5.8 21 7 14.1 2 9.3 8.9 8.3 12 2"/>
-    </svg>
-  ),
 };
-
-const slideVariants = {
-  enter:  (dir) => ({ y: dir > 0 ?  48 : -48, opacity: 0 }),
-  center: { y: 0, opacity: 1 },
-  exit:   (dir) => ({ y: dir > 0 ? -48 :  48, opacity: 0 }),
-};
-const transition = { duration: 0.34, ease: [0.4, 0, 0.2, 1] };
 
 // ── Main component ───────────────────────────────────────────────────────────
 
 export default function Results({ onClose, data }) {
-  const [current,   setCurrent]   = useState(0);
-  const [direction, setDirection] = useState(1);
-  const [leaving,   setLeaving]   = useState(false);
+  const [leaving,  setLeaving]  = useState(false);
+  const [visible,  setVisible]  = useState(() => new Array(SLIDES.length).fill(false));
+  const sectionRefs = useRef([]);
 
-  const total  = SLIDES.length;
-  const isLast = current === total - 1;
-
-  // Compute all chart data once from the data bundle
   const computed = useMemo(() => {
     if (!data) return null;
     const entries = Object.values(data.lookup);
 
-    // Global median radiance per year
     const globalRadiance = YEARS.map((yr) => {
       const vs = entries.map((e) => e[yr]?.r).filter((v) => v != null);
       return d3.median(vs) ?? 0;
     });
 
-    // Income tier stats for 2023
     const y23full = entries
       .map((e) => ({ r: e[2023]?.r, g: e[2023]?.g, dep: e[2023]?.d, anx: e[2023]?.a, energy: e[2023]?.e }))
       .filter((e) => e.g != null && e.r != null);
@@ -333,18 +304,6 @@ export default function Results({ onClose, data }) {
     return { globalRadiance, tierRadiance, tierDepression, tierAnxiety, tierEnergy, scatterPoints };
   }, [data]);
 
-  const goTo = useCallback((idx) => {
-    if (idx === current || leaving || idx < 0 || idx >= total) return;
-    setDirection(idx > current ? 1 : -1);
-    setCurrent(idx);
-  }, [current, leaving, total]);
-
-  const advance = useCallback(() => {
-    if (leaving) return;
-    if (isLast) { setLeaving(true); setTimeout(onClose, 600); }
-    else goTo(current + 1);
-  }, [current, isLast, leaving, goTo, onClose]);
-
   const close = useCallback(() => {
     if (leaving) return;
     setLeaving(true);
@@ -352,17 +311,31 @@ export default function Results({ onClose, data }) {
   }, [leaving, onClose]);
 
   useEffect(() => {
-    const onKey = (e) => {
-      if (e.key === 'Escape') close();
-      else if (e.key === 'ArrowRight' || e.key === 'ArrowDown') advance();
-      else if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   goTo(current - 1);
-    };
+    const observer = new IntersectionObserver(
+      (entries) => {
+        setVisible((prev) => {
+          let changed = false;
+          const next = [...prev];
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const idx = Number(entry.target.dataset.idx);
+              if (!next[idx]) { next[idx] = true; changed = true; }
+            }
+          });
+          return changed ? next : prev;
+        });
+      },
+      { threshold: 0.1 }
+    );
+    sectionRefs.current.forEach((ref) => { if (ref) observer.observe(ref); });
+    return () => observer.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const onKey = (e) => { if (e.key === 'Escape') close(); };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
-  }, [advance, goTo, close, current]);
-
-  const slide = SLIDES[current];
-  const hasChart = !!slide.chart && !!computed;
+  }, [close]);
 
   return (
     <div className={`results${leaving ? ' leaving' : ''}`}>
@@ -373,67 +346,45 @@ export default function Results({ onClose, data }) {
         </svg>
       </button>
 
-      <div className="results-stage">
-        <AnimatePresence mode="wait" custom={direction}>
-          <motion.div
-            key={current}
-            custom={direction}
-            variants={slideVariants}
-            initial="enter"
-            animate="center"
-            exit="exit"
-            transition={transition}
-            className={`results-slide${hasChart ? ' has-chart' : ''}`}
-          >
-            {slide.icon && (
-              <div className="results-icon">{ICONS[slide.icon]}</div>
-            )}
-            {slide.eyebrow && <p className="results-eyebrow">{slide.eyebrow}</p>}
-            {slide.stat && (
-              <div className="results-stat-block">
-                <span className="results-stat">{slide.stat}</span>
-                {slide.statNote && <span className="results-stat-note">{slide.statNote}</span>}
+      <div className="results-scroll">
+        {SLIDES.map((slide, i) => {
+          const hasChart = !!slide.chart;
+          const isIntro  = i === 0;
+          return (
+            <section
+              key={i}
+              ref={(el) => { sectionRefs.current[i] = el; }}
+              data-idx={i}
+              className={`results-section${visible[i] ? ' visible' : ''}${hasChart ? ' has-chart' : ''}${isIntro ? ' is-intro' : ''}`}
+            >
+              <div className="results-section-text">
+                {slide.icon && <div className="results-icon">{ICONS[slide.icon]}</div>}
+                {slide.eyebrow && <p className="results-eyebrow">{slide.eyebrow}</p>}
+                {slide.stat && (
+                  <div className="results-stat-block">
+                    <span className="results-stat">{slide.stat}</span>
+                    {slide.statNote && <span className="results-stat-note">{slide.statNote}</span>}
+                  </div>
+                )}
+                <h2 className={`results-title${slide.big ? ' big' : ''}`}>{slide.title}</h2>
+                <p className="results-desc">{slide.body}</p>
               </div>
-            )}
-            <h2 className={`results-title${slide.big ? ' big' : ''}`}>{slide.title}</h2>
 
-            {hasChart && (
-              <motion.div
-                className="results-chart"
-                initial={{ opacity: 0, y: 14 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.18, duration: 0.42, ease: [0.4, 0, 0.2, 1] }}
-              >
-                {slide.chart === 'trend'   && <TrendBars vals={computed.globalRadiance} years={YEARS} />}
-                {slide.chart === 'covid'   && <TrendBars vals={computed.globalRadiance} years={YEARS} highlightYear={2020} />}
-                {slide.chart === 'tier-r'  && <HBarChart vals={computed.tierRadiance}   labels={TIER_LABELS} fmt={(v) => `${v.toFixed(2)} nW`} />}
-                {slide.chart === 'tier-d'  && <HBarChart vals={computed.tierDepression} labels={TIER_LABELS} fmt={(v) => v.toFixed(0)} />}
-                {slide.chart === 'tier-a'  && <HBarChart vals={computed.tierAnxiety}    labels={TIER_LABELS} fmt={(v) => v.toFixed(0)} />}
-                {slide.chart === 'tier-e'  && <HBarChart vals={computed.tierEnergy}     labels={TIER_LABELS} fmt={(v) => `${(v/1000).toFixed(1)}k kWh`} />}
-                {slide.chart === 'scatter' && <ScatterPlot points={computed.scatterPoints} />}
-              </motion.div>
-            )}
-
-            <p className="results-desc">{slide.body}</p>
-            <p className="results-counter">{current + 1} / {total}</p>
-          </motion.div>
-        </AnimatePresence>
+              {hasChart && computed && visible[i] && (
+                <div className="results-section-chart">
+                  {slide.chart === 'trend'   && <TrendBars vals={computed.globalRadiance} years={YEARS} />}
+                  {slide.chart === 'covid'   && <TrendBars vals={computed.globalRadiance} years={YEARS} highlightYear={2020} />}
+                  {slide.chart === 'tier-r'  && <HBarChart vals={computed.tierRadiance}   labels={TIER_LABELS} fmt={(v) => `${v.toFixed(2)} nW`} />}
+                  {slide.chart === 'tier-d'  && <HBarChart vals={computed.tierDepression} labels={TIER_LABELS} fmt={(v) => v.toFixed(0)} />}
+                  {slide.chart === 'tier-a'  && <HBarChart vals={computed.tierAnxiety}    labels={TIER_LABELS} fmt={(v) => v.toFixed(0)} />}
+                  {slide.chart === 'tier-e'  && <HBarChart vals={computed.tierEnergy}     labels={TIER_LABELS} fmt={(v) => `${(v / 1000).toFixed(1)}k kWh`} />}
+                  {slide.chart === 'scatter' && <ScatterPlot points={computed.scatterPoints} />}
+                </div>
+              )}
+            </section>
+          );
+        })}
       </div>
-
-      <button className="landing-arrow-btn" onClick={advance} aria-label={isLast ? 'Close' : 'Next finding'}>
-        <svg className="landing-arrow" width="28" height="28" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-          <polyline points="6 9 12 15 18 9" />
-        </svg>
-      </button>
-
-      <nav className="landing-dots" aria-label="Finding navigation">
-        {SLIDES.map((_, i) => (
-          <button key={i} className={`landing-dot${i === current ? ' active' : ''}`}
-            onClick={() => goTo(i)} aria-label={`Finding ${i + 1}`} />
-        ))}
-      </nav>
-
     </div>
   );
 }
