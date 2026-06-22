@@ -1,10 +1,10 @@
 import { useState, useEffect } from 'react';
-import LeftPanel from './LeftPanel.jsx';
-import LGRPanel from './LGRPanel.jsx';
+import RadianceGDPPanel from './RadianceGDPPanel.jsx';
+import LightGDPRatioPanel from './LightGDPRatioPanel.jsx';
 import QuadrantPanel from './QuadrantPanel.jsx';
-import TrajectoryPanel from './TrajectoryPanel.jsx';
+import HealthTrendPanel from './HealthTrendPanel.jsx';
 import EnergyPanel from './EnergyPanel.jsx';
-import TierDistPanel from './TierDistPanel.jsx';
+import IncomeGroupPanel from './IncomeGroupPanel.jsx';
 import Stack from './Stack.jsx';
 
 const TABS = [
@@ -42,18 +42,18 @@ export default function RightPanel({ lookup, country, compareCountry, year, dark
   const sharedH = { ...shared, healthMetric };
 
   const wealthCards = [
-    <LeftPanel  key="left" {...shared} />,
-    <LGRPanel   key="lgr"  {...shared} />,
+    <RadianceGDPPanel  key="left" {...shared} />,
+    <LightGDPRatioPanel   key="lgr"  {...shared} />,
   ];
   const healthCards = [
-    <TrajectoryPanel key="trajectory" {...sharedH} />,
+    <HealthTrendPanel key="trajectory" {...sharedH} />,
     <QuadrantPanel   key="quadrant"   {...sharedH} />,
   ];
   const environmentCards = [
     <EnergyPanel key="energy" {...shared} />,
   ];
   const contextCards = [
-    <TierDistPanel key="tier" {...sharedH} />,
+    <IncomeGroupPanel key="tier" {...sharedH} />,
   ];
 
   const tabIdx  = TABS.findIndex(t => t.id === tab);

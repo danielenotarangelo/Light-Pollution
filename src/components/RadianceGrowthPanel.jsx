@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import LGIChart from './LGIChart.jsx';
+import RadianceGrowthChart from './RadianceGrowthChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
@@ -21,7 +21,7 @@ const avgOf = (arr, key) => {
   return vals.length ? vals.reduce((s, d) => s + d[key], 0) / vals.length : null;
 };
 
-export default function LGIPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+export default function RadianceGrowthPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
 
@@ -128,11 +128,11 @@ export default function LGIPanel({ lookup, country, compareCountry, year, dark, 
         )}
       </div>
 
-      {visible && <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
+      {visible && <RadianceGrowthChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
 
       {zoomed && (
         <ChartModal title="Luminosity Growth" subtitle="Year-over-year radiance change" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <LGIChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={480} />
+          <RadianceGrowthChart series={series} compareSeries={cmpSeries} year={year} dark={dark} height={480} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

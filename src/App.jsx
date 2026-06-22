@@ -2,13 +2,13 @@ import { useState, useCallback, useEffect } from 'react';
 import Header from './components/Header.jsx';
 import Legend from './components/Legend.jsx';
 import Globe from './components/Globe.jsx';
-import LeftPanel from './components/LeftPanel.jsx';
-import LGIPanel from './components/LGIPanel.jsx';
-import LGRPanel from './components/LGRPanel.jsx';
+import RadianceGDPPanel from './components/RadianceGDPPanel.jsx';
+import RadianceGrowthPanel from './components/RadianceGrowthPanel.jsx';
+import LightGDPRatioPanel from './components/LightGDPRatioPanel.jsx';
 import QuadrantPanel from './components/QuadrantPanel.jsx';
-import TrajectoryPanel from './components/TrajectoryPanel.jsx';
+import HealthTrendPanel from './components/HealthTrendPanel.jsx';
 import RightPanel from './components/RightPanel.jsx';
-import GlobalRankingPanel from './components/GlobalRankingPanel.jsx';
+import RankingPanel from './components/RankingPanel.jsx';
 import OverviewBar from './components/OverviewBar.jsx';
 import CompareBar from './components/CompareBar.jsx';
 import Stack from './components/Stack.jsx';
@@ -229,7 +229,7 @@ export default function App() {
 
       {/* Ranking panel — visible when Rankings tab is active and no country selected */}
       {data && !isMobile && (
-        <GlobalRankingPanel
+        <RankingPanel
           lookup={data.lookup}
           year={year}
           dark={dark}
@@ -240,18 +240,18 @@ export default function App() {
 
       {data && !isMobile && (
         <div className={`left-light-panel${selected ? ' visible' : ''}`}>
-          <LGIPanel lookup={data.lookup} country={selected} compareCountry={compareCountry} year={year} dark={dark} inStack={true} />
+          <RadianceGrowthPanel lookup={data.lookup} country={selected} compareCountry={compareCountry} year={year} dark={dark} inStack={true} />
         </div>
       )}
 
       {data && (() => {
         const sharedMob = { lookup: data.lookup, country: selected, year, dark, healthMetric, inStack: true, compact: true, bgColor: mobileBg };
         const mobileCards = [
-          <LeftPanel       key="left"       {...sharedMob} />,
-          <LGIPanel        key="lgi"        {...sharedMob} />,
-          <LGRPanel        key="lgr"        {...sharedMob} />,
+          <RadianceGDPPanel       key="left"       {...sharedMob} />,
+          <RadianceGrowthPanel        key="lgi"        {...sharedMob} />,
+          <LightGDPRatioPanel        key="lgr"        {...sharedMob} />,
           <QuadrantPanel   key="quadrant"   {...sharedMob} />,
-          <TrajectoryPanel key="trajectory" {...sharedMob} />,
+          <HealthTrendPanel key="trajectory" {...sharedMob} />,
         ];
 
         return isMobile ? (

@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';
 
-export default function LGIChart({ series, compareSeries, year, dark, height }) {
+export default function RadianceGrowthChart({ series, compareSeries, year, dark, height }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 

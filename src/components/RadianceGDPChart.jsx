@@ -4,7 +4,7 @@ import * as d3 from 'd3';
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';
 
-export default function DualAxisChart({ series, compareSeries, year, dark, height }) {
+export default function RadianceGDPChart({ series, compareSeries, year, dark, height }) {
   const containerRef = useRef(null);
   const d3Ref = useRef(null);
 

@@ -3,7 +3,7 @@ import BorderGlow from './BorderGlow.jsx';
 import RankingChart, { RANK_METRICS } from './RankingChart.jsx';
 import ChartModal from './ChartModal.jsx';
 
-export default function GlobalRankingPanel({ lookup, year, dark, visible, onSelect }) {
+export default function RankingPanel({ lookup, year, dark, visible, onSelect }) {
   const [metric,   setMetric]   = useState('r');
   const [expanded, setExpanded] = useState(false);
 

@@ -1,7 +1,7 @@
 import { useRef, useEffect } from 'react';
 import * as d3 from 'd3';
 
-export default function TrajectoryChart({ series, compareSeries, year, healthMetric, dark, height }) {
+export default function HealthTrendChart({ series, compareSeries, year, healthMetric, dark, height }) {
   const ref = useRef(null);
   const d3Ref = useRef(null);
 

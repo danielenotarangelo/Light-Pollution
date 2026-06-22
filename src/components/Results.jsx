@@ -310,6 +310,7 @@ export default function Results({ onClose, data }) {
     setTimeout(onClose, 600);
   }, [leaving, onClose]);
 
+  // Chart mounting: mount charts once section has scrolled into view
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -325,11 +326,12 @@ export default function Results({ onClose, data }) {
           return changed ? next : prev;
         });
       },
-      { threshold: 0.1 }
+      { threshold: 0.15, rootMargin: '0px 0px -180px 0px' }
     );
     sectionRefs.current.forEach((ref) => { if (ref) observer.observe(ref); });
     return () => observer.disconnect();
   }, []);
+
 
   useEffect(() => {
     const onKey = (e) => { if (e.key === 'Escape') close(); };

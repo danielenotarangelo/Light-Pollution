@@ -26,18 +26,37 @@
 .results-section {
   padding: 80px 0;
   border-bottom: 1px solid var(--hairline);
+}
+
+/* Each child of the text column starts hidden and slides up */
+.results-section-text > *,
+.results-section-chart {
   opacity: 0;
-  transform: translateY(40px);
-  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  transform: translateY(72px);
+}
+
+/* When the section becomes visible, children animate in */
+.results-section.visible .results-section-text > * {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.results-section.visible .results-section-text > *:nth-child(1) { transition-delay: 0s; }
+.results-section.visible .results-section-text > *:nth-child(2) { transition-delay: 0.08s; }
+.results-section.visible .results-section-text > *:nth-child(3) { transition-delay: 0.16s; }
+.results-section.visible .results-section-text > *:nth-child(4) { transition-delay: 0.24s; }
+.results-section.visible .results-section-text > *:nth-child(5) { transition-delay: 0.32s; }
+
+/* Chart slides in after text */
+.results-section.visible .results-section-chart {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 0.6s ease 0.38s, transform 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.38s;
 }
 
 .results-section:last-child {
   border-bottom: none;
-}
-
-.results-section.visible {
-  opacity: 1;
-  transform: none;
 }
 
 /* Two-column layout for sections with charts */

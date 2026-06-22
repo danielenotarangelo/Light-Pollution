@@ -23,7 +23,7 @@ function jitterOf(name, width) {
 
 const COLOR_CMP = '#38bdf8';
 
-export default function TierDistChart({ points, country, compareCountry, color, ylabel, dark, height, logScale = false }) {
+export default function IncomeGroupChart({ points, country, compareCountry, color, ylabel, dark, height, logScale = false }) {
   const ref = useRef(null);
 
   useEffect(() => {

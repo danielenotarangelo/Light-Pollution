@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import LGRChart from './LGRChart.jsx';
+import LightGDPRatioChart from './LightGDPRatioChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
@@ -16,7 +16,7 @@ const fmtChange = (cur, first) => {
   return (pct >= 0 ? '+' : '') + pct.toFixed(1) + '%';
 };
 
-export default function LGRPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+export default function LightGDPRatioPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
   const series = country ? getSeries(lookup, YEARS, country) : [];
@@ -119,11 +119,11 @@ export default function LGRPanel({ lookup, country, compareCountry, year, dark, 
         )}
       </div>
 
-      {visible && <LGRChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
+      {visible && <LightGDPRatioChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 200)} />}
 
       {zoomed && (
         <ChartModal title="Light / GDP Ratio" subtitle="Radiance per unit of wealth" country={country} meta={`×10⁻⁴ · ${year}`} onClose={() => setZoomed(false)}>
-          <LGRChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={480} />
+          <LightGDPRatioChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={480} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import * as d3 from 'd3';
-import TrajectoryChart from './TrajectoryChart.jsx';
+import HealthTrendChart from './HealthTrendChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 import { getSeries } from '../lib/data.js';
@@ -11,7 +11,7 @@ const COLOR_B = '#38bdf8';
 
 const fmtSigned = (v, fn) => v == null ? '—' : (v >= 0 ? '+' : '') + fn(v);
 
-export default function TrajectoryPanel({ lookup, country, compareCountry, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+export default function HealthTrendPanel({ lookup, country, compareCountry, year, healthMetric = 'd', dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const [metric, setMetric] = useState(healthMetric);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
@@ -139,7 +139,7 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
       )}
 
       {visible && (
-        <TrajectoryChart
+        <HealthTrendChart
           series={series}
           compareSeries={compareSeries}
           year={year}
@@ -155,7 +155,7 @@ export default function TrajectoryPanel({ lookup, country, compareCountry, year,
             <button className={`panel-metric-btn${metric === 'd' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('d'); }}>Depressive</button>
             <button className={`panel-metric-btn${metric === 'a' ? ' active' : ''}`} onClick={e => { e.stopPropagation(); setMetric('a'); }}>Anxiety</button>
           </div>
-          <TrajectoryChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={500} />
+          <HealthTrendChart series={series} compareSeries={compareSeries} year={year} healthMetric={metric} dark={dark} height={500} />
           {first && last && (
             <p style={{ fontSize: 11, color: 'var(--text-faint)', margin: '8px 0 0' }}>
               Δ values are the difference between {first.year} and {last.year}

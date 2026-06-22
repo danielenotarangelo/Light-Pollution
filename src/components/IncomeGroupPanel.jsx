@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import * as d3 from 'd3';
 import BorderGlow from './BorderGlow.jsx';
-import TierDistChart from './TierDistChart.jsx';
+import IncomeGroupChart from './IncomeGroupChart.jsx';
 import ChartModal from './ChartModal.jsx';
 
 function computePoints(lookup, year, metric) {
@@ -28,7 +28,7 @@ const H_COLOR = '#a855f7';
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';
 
-export default function TierDistPanel({ lookup, country, compareCountry, year, dark, healthMetric = 'd', inStack = false }) {
+export default function IncomeGroupPanel({ lookup, country, compareCountry, year, dark, healthMetric = 'd', inStack = false }) {
   const [zoomedR, setZoomedR] = useState(false);
   const [zoomedH, setZoomedH] = useState(false);
 
@@ -95,7 +95,7 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
           </button>
         )}
       </div>
-      <TierDistChart
+      <IncomeGroupChart
         points={rPoints}
         country={country}
         compareCountry={compareCountry}
@@ -115,7 +115,7 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
           </button>
         )}
       </div>
-      <TierDistChart
+      <IncomeGroupChart
         points={hPoints}
         country={country}
         compareCountry={compareCountry}
@@ -133,7 +133,7 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
           meta={String(year)}
           onClose={() => setZoomedR(false)}
         >
-          <TierDistChart points={rPoints} country={country} compareCountry={compareCountry} color={R_COLOR} ylabel="nW/cm²/sr" dark={dark} height={440} logScale />
+          <IncomeGroupChart points={rPoints} country={country} compareCountry={compareCountry} color={R_COLOR} ylabel="nW/cm²/sr" dark={dark} height={440} logScale />
         </ChartModal>
       )}
       {zoomedH && (
@@ -144,7 +144,7 @@ export default function TierDistPanel({ lookup, country, compareCountry, year, d
           meta={String(year)}
           onClose={() => setZoomedH(false)}
         >
-          <TierDistChart points={hPoints} country={country} compareCountry={compareCountry} color={H_COLOR} ylabel="/100k" dark={dark} height={440} />
+          <IncomeGroupChart points={hPoints} country={country} compareCountry={compareCountry} color={H_COLOR} ylabel="/100k" dark={dark} height={440} />
         </ChartModal>
       )}
     </BorderGlow>

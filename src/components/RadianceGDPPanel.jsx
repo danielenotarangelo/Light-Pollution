@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import DualAxisChart from './DualAxisChart.jsx';
+import RadianceGDPChart from './RadianceGDPChart.jsx';
 import BorderGlow from './BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 import { fmt, getSeries } from '../lib/data.js';
@@ -8,7 +8,7 @@ import { YEARS } from '../lib/constants.js';
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';
 
-export default function LeftPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
+export default function RadianceGDPPanel({ lookup, country, compareCountry, year, dark, open, onClose, inStack = false, inTab = false, bgColor, compact = false }) {
   const [zoomed, setZoomed] = useState(false);
   const visible = inTab ? !!country : (inStack ? !!country : (!!country && open));
   const series = country ? getSeries(lookup, YEARS, country) : [];
@@ -98,10 +98,10 @@ export default function LeftPanel({ lookup, country, compareCountry, year, dark,
           <><span className="dot" style={{ background: 'var(--radiance)' }} />Light <span className="dot" style={{ background: 'var(--gdp)' }} />Wealth</>
         )}
       </div>
-      {visible && <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
+      {visible && <RadianceGDPChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={inStack ? null : (compact ? 150 : 240)} />}
       {zoomed && (
         <ChartModal title="Light & Wealth" subtitle="Radiance & GDP per capita" country={country} meta={String(year)} onClose={() => setZoomed(false)}>
-          <DualAxisChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={500} />
+          <RadianceGDPChart series={series} compareSeries={compareSeries} year={year} dark={dark} height={500} />
           {compareCountry && (
             <div style={{ display: 'flex', alignItems: 'center', gap: 14, marginTop: 10 }}>
               <span style={{ display: 'flex', alignItems: 'center', gap: 5, fontSize: 12, fontWeight: 600, color: 'var(--text-dim)' }}>
