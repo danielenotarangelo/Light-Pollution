@@ -3,69 +3,76 @@ import BorderGlow from './BorderGlow.jsx';
 import RankingChart, { RANK_METRICS } from './RankingChart.jsx';
 import ChartModal from './ChartModal.jsx';
 
-export default function RankingPanel({ lookup, country, year, dark, inStack = false }) {
+export default function GlobalRankingPanel({ lookup, year, dark, visible, onSelect }) {
   const [metric,   setMetric]   = useState('r');
   const [expanded, setExpanded] = useState(false);
 
-  const bg      = dark ? 'rgba(13, 16, 28, 0.85)' : 'rgba(248, 249, 252, 0.90)';
   const curMeta = RANK_METRICS.find(m => m.key === metric);
+  const bg = dark ? 'rgba(13, 16, 28, 0.92)' : 'rgba(248, 249, 252, 0.95)';
 
   return (
     <>
-      <BorderGlow
-        className={inStack ? 'panel-stack-card' : 'float-panel visible'}
-        backgroundColor={bg}
-        borderRadius={22}
-        glowRadius={5}
-        glowIntensity={0.06}
-        glowColor="220 80 65"
-        edgeSensitivity={60}
-        coneSpread={10}
-        fillOpacity={0.01}
-        colors={['#3b82f6', '#2563eb', '#60a5fa']}
-      >
-        <div className="fp-head">
-          <div>
-            <div className="fp-label">Global ranking — {year}</div>
-            <h2>Top 10 Countries</h2>
-            <div className="meta">{curMeta?.unit}</div>
+      <div className={`global-ranking-panel${visible ? ' visible' : ''}`}>
+        <BorderGlow
+          className="global-ranking-inner"
+          backgroundColor={bg}
+          borderRadius={22}
+          glowRadius={6}
+          glowIntensity={0.07}
+          glowColor="59 130 246"
+          edgeSensitivity={80}
+          coneSpread={12}
+          fillOpacity={0.01}
+          colors={['#3b82f6', '#2563eb', '#60a5fa']}
+        >
+          <div className="grp-head">
+            <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between' }}>
+              <div>
+                <div className="fp-label">Global overview · {year}</div>
+                <h2>Top 10 Countries</h2>
+              </div>
+              <button
+                className="zoom-btn"
+                onClick={e => { e.stopPropagation(); setExpanded(true); }}
+                title="Expand ranking"
+                style={{ marginTop: 4 }}
+              >
+                <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                  <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
+                </svg>
+              </button>
+            </div>
           </div>
-          <div className="fp-head-actions">
-            <button
-              className="zoom-btn"
-              onClick={e => { e.stopPropagation(); setExpanded(true); }}
-              title="Expand ranking"
-            >
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
-                <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/>
-              </svg>
-            </button>
+
+          <p className="grp-hint">Click any country on the globe to explore its data</p>
+
+          <div className="ranking-tabs">
+            {RANK_METRICS.map(m => (
+              <button
+                key={m.key}
+                className={`ranking-tab${metric === m.key ? ' active' : ''}`}
+                onClick={() => setMetric(m.key)}
+              >
+                {m.label}
+              </button>
+            ))}
           </div>
-        </div>
 
-        <div className="ranking-tabs">
-          {RANK_METRICS.map(m => (
-            <button
-              key={m.key}
-              className={`ranking-tab${metric === m.key ? ' active' : ''}`}
-              onClick={() => setMetric(m.key)}
-            >
-              {m.label}
-            </button>
-          ))}
-        </div>
+          <div className="grp-unit">{curMeta?.unit}</div>
 
-        <div className="ranking-chart-wrap">
-          <RankingChart
-            lookup={lookup}
-            year={year}
-            dark={dark}
-            country={country}
-            metric={metric}
-            topN={10}
-          />
-        </div>
-      </BorderGlow>
+          <div className="grp-chart-wrap">
+            <RankingChart
+              lookup={lookup}
+              year={year}
+              dark={dark}
+              country={null}
+              metric={metric}
+              onSelect={onSelect}
+              topN={10}
+            />
+          </div>
+        </BorderGlow>
+      </div>
 
       {expanded && (
         <ChartModal
@@ -89,8 +96,9 @@ export default function RankingPanel({ lookup, country, year, dark, inStack = fa
             lookup={lookup}
             year={year}
             dark={dark}
-            country={country}
+            country={null}
             metric={metric}
+            onSelect={onSelect}
             topN={null}
           />
         </ChartModal>
