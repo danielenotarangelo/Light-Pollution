@@ -41,7 +41,7 @@ const ISO2 = {
   "Sao Tome and Principe": "ST", "Saudi Arabia": "SA", "Senegal": "SN",
   "Serbia": "RS", "Seychelles": "SC", "Sierra Leone": "SL", "Singapore": "SG",
   "Slovakia": "SK", "Slovenia": "SI", "Solomon Islands": "SB",
-  "South Africa": "ZA", "South Sudan": "SS", "Spain": "ES", "Sri Lanka": "LK",
+  "South Africa": "ZA", "South Korea": "KR", "South Sudan": "SS", "Spain": "ES", "Sri Lanka": "LK",
   "Sudan": "SD", "Suriname": "SR", "Sweden": "SE", "Switzerland": "CH",
   "Syrian Arab Republic": "SY", "Tajikistan": "TJ", "Thailand": "TH",
   "Timor-Leste": "TL", "Togo": "TG", "Tonga": "TO", "Trinidad and Tobago": "TT",

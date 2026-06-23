@@ -30,7 +30,7 @@ WB_NAME_MAP = {
     "Gambia, The":                    "Gambia",
     "Iran, Islamic Rep.":             "Iran (Islamic Republic of)",
     "Korea, Dem. People's Rep.":      "Democratic People's Republic of Korea",
-    "Korea, Rep.":                    "Republic of Korea",
+    "Korea, Rep.":                    "South Korea",
     "Kyrgyz Republic":                "Kyrgyzstan",
     "Lao PDR":                        "Lao People's Democratic Republic",
     "Micronesia, Fed. Sts.":          "Micronesia (Federated States of)",

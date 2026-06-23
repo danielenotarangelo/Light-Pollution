@@ -39,7 +39,7 @@ NE_TO_DATA = {
     'Iran': 'Iran (Islamic Republic of)',
     'Laos': "Lao People's Democratic Republic",
     'Vietnam': 'Viet Nam',
-    'South Korea': 'Republic of Korea',
+    'South Korea': 'South Korea',
     'North Korea': "Democratic People's Republic of Korea",
     'Moldova': 'Republic of Moldova',
     'Russia': 'Russian Federation',
