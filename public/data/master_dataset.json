@@ -5029,6 +5029,132 @@
     ]
   },
   {
+    "country": "Congo",
+    "timeseries": [
+      {
+        "year": 2013,
+        "mean_radiance": 0.075772,
+        "gdp_per_capita": 3697.42,
+        "depressive_rate": 4282.83,
+        "anxiety_rate": 4102.04,
+        "luminosity_growth_index": 0.0,
+        "luminosity_gdp_ratio": 2e-05,
+        "energy_kwh_pc": 198.0606,
+        "urban_pct": 62.8683
+      },
+      {
+        "year": 2014,
+        "mean_radiance": 0.124269,
+        "gdp_per_capita": 3601.24,
+        "depressive_rate": 4356.58,
+        "anxiety_rate": 4126.13,
+        "luminosity_growth_index": 64.0,
+        "luminosity_gdp_ratio": 3.5e-05,
+        "energy_kwh_pc": 199.1608,
+        "urban_pct": 63.0075
+      },
+      {
+        "year": 2015,
+        "mean_radiance": 0.077678,
+        "gdp_per_capita": 2439.35,
+        "depressive_rate": 4142.66,
+        "anxiety_rate": 4128.37,
+        "luminosity_growth_index": 2.52,
+        "luminosity_gdp_ratio": 3.2e-05,
+        "energy_kwh_pc": 297.1998,
+        "urban_pct": 63.1356
+      },
+      {
+        "year": 2016,
+        "mean_radiance": 0.284607,
+        "gdp_per_capita": 2093.11,
+        "depressive_rate": 4447.05,
+        "anxiety_rate": 4194.45,
+        "luminosity_growth_index": 275.61,
+        "luminosity_gdp_ratio": 0.000136,
+        "energy_kwh_pc": 304.2583,
+        "urban_pct": 63.2515
+      },
+      {
+        "year": 2017,
+        "mean_radiance": 0.288985,
+        "gdp_per_capita": 2211.63,
+        "depressive_rate": 4291.89,
+        "anxiety_rate": 4245.99,
+        "luminosity_growth_index": 281.39,
+        "luminosity_gdp_ratio": 0.000131,
+        "energy_kwh_pc": 306.2973,
+        "urban_pct": 63.3545
+      },
+      {
+        "year": 2018,
+        "mean_radiance": 0.248958,
+        "gdp_per_capita": 2694.43,
+        "depressive_rate": 4053.23,
+        "anxiety_rate": 4277.83,
+        "luminosity_growth_index": 228.56,
+        "luminosity_gdp_ratio": 9.2e-05,
+        "energy_kwh_pc": 243.1099,
+        "urban_pct": 63.4435
+      },
+      {
+        "year": 2019,
+        "mean_radiance": 0.336674,
+        "gdp_per_capita": 2488.42,
+        "depressive_rate": 4196.98,
+        "anxiety_rate": 4323.29,
+        "luminosity_growth_index": 344.32,
+        "luminosity_gdp_ratio": 0.000135,
+        "energy_kwh_pc": 265.6383,
+        "urban_pct": 63.5176
+      },
+      {
+        "year": 2020,
+        "mean_radiance": 0.371426,
+        "gdp_per_capita": 1993.59,
+        "depressive_rate": 4941.1,
+        "anxiety_rate": 5414.19,
+        "luminosity_growth_index": 390.19,
+        "luminosity_gdp_ratio": 0.000186,
+        "energy_kwh_pc": 310.2842,
+        "urban_pct": 63.5761
+      },
+      {
+        "year": 2021,
+        "mean_radiance": 0.409137,
+        "gdp_per_capita": 2516.16,
+        "depressive_rate": 4930.88,
+        "anxiety_rate": 5588.68,
+        "luminosity_growth_index": 439.96,
+        "luminosity_gdp_ratio": 0.000163,
+        "energy_kwh_pc": 321.6126,
+        "urban_pct": 63.6179
+      },
+      {
+        "year": 2022,
+        "mean_radiance": 0.424469,
+        "gdp_per_capita": 2620.84,
+        "depressive_rate": 5104.8,
+        "anxiety_rate": 5748.94,
+        "luminosity_growth_index": 460.19,
+        "luminosity_gdp_ratio": 0.000162,
+        "energy_kwh_pc": 305.8771,
+        "urban_pct": 63.6422
+      },
+      {
+        "year": 2023,
+        "mean_radiance": 0.461996,
+        "gdp_per_capita": 2477.98,
+        "depressive_rate": 5158.92,
+        "anxiety_rate": 6702.54,
+        "luminosity_growth_index": 509.72,
+        "luminosity_gdp_ratio": 0.000186,
+        "energy_kwh_pc": 338.3534,
+        "urban_pct": 63.6627
+      }
+    ]
+  },
+  {
     "country": "Costa Rica",
     "timeseries": [
       {
@@ -7008,6 +7134,132 @@
         "luminosity_gdp_ratio": 3.5e-05,
         "energy_kwh_pc": 5722.1631,
         "urban_pct": 70.677
+      }
+    ]
+  },
+  {
+    "country": "Eswatini",
+    "timeseries": [
+      {
+        "year": 2013,
+        "mean_radiance": 0.431083,
+        "gdp_per_capita": 3949.94,
+        "depressive_rate": 2804.02,
+        "anxiety_rate": 3512.1,
+        "luminosity_growth_index": 0.0,
+        "luminosity_gdp_ratio": 0.000109,
+        "energy_kwh_pc": 1113.2842,
+        "urban_pct": 22.8122
+      },
+      {
+        "year": 2014,
+        "mean_radiance": 0.330685,
+        "gdp_per_capita": 3771.07,
+        "depressive_rate": 2819.95,
+        "anxiety_rate": 3521.94,
+        "luminosity_growth_index": -23.29,
+        "luminosity_gdp_ratio": 8.8e-05,
+        "energy_kwh_pc": 1128.2242,
+        "urban_pct": 23.0269
+      },
+      {
+        "year": 2015,
+        "mean_radiance": 0.331429,
+        "gdp_per_capita": 3419.82,
+        "depressive_rate": 2838.42,
+        "anxiety_rate": 3530.15,
+        "luminosity_growth_index": -23.12,
+        "luminosity_gdp_ratio": 9.7e-05,
+        "energy_kwh_pc": 1124.4184,
+        "urban_pct": 23.266
+      },
+      {
+        "year": 2016,
+        "mean_radiance": 0.550849,
+        "gdp_per_capita": 3238.18,
+        "depressive_rate": 2855.41,
+        "anxiety_rate": 3554.37,
+        "luminosity_growth_index": 27.78,
+        "luminosity_gdp_ratio": 0.00017,
+        "energy_kwh_pc": 1059.5847,
+        "urban_pct": 23.5279
+      },
+      {
+        "year": 2017,
+        "mean_radiance": 0.473313,
+        "gdp_per_capita": 3853.1,
+        "depressive_rate": 2871.49,
+        "anxiety_rate": 3574.26,
+        "luminosity_growth_index": 9.8,
+        "luminosity_gdp_ratio": 0.000123,
+        "energy_kwh_pc": 1145.7483,
+        "urban_pct": 23.8052
+      },
+      {
+        "year": 2018,
+        "mean_radiance": 0.479276,
+        "gdp_per_capita": 3972.65,
+        "depressive_rate": 2889.62,
+        "anxiety_rate": 3584.88,
+        "luminosity_growth_index": 11.18,
+        "luminosity_gdp_ratio": 0.000121,
+        "energy_kwh_pc": 1065.933,
+        "urban_pct": 24.0579
+      },
+      {
+        "year": 2019,
+        "mean_radiance": 0.594711,
+        "gdp_per_capita": 3913.15,
+        "depressive_rate": 3068.01,
+        "anxiety_rate": 3599.87,
+        "luminosity_growth_index": 37.96,
+        "luminosity_gdp_ratio": 0.000152,
+        "energy_kwh_pc": 1133.1718,
+        "urban_pct": 24.346
+      },
+      {
+        "year": 2020,
+        "mean_radiance": 0.641322,
+        "gdp_per_capita": 3466.57,
+        "depressive_rate": 3877.66,
+        "anxiety_rate": 4629.33,
+        "luminosity_growth_index": 48.77,
+        "luminosity_gdp_ratio": 0.000185,
+        "energy_kwh_pc": 1092.4527,
+        "urban_pct": 24.6653
+      },
+      {
+        "year": 2021,
+        "mean_radiance": 0.568289,
+        "gdp_per_capita": 3984.0,
+        "depressive_rate": 4021.62,
+        "anxiety_rate": 4744.38,
+        "luminosity_growth_index": 31.83,
+        "luminosity_gdp_ratio": 0.000143,
+        "energy_kwh_pc": 1082.3865,
+        "urban_pct": 25.0156
+      },
+      {
+        "year": 2022,
+        "mean_radiance": 0.709374,
+        "gdp_per_capita": 3894.16,
+        "depressive_rate": 3983.98,
+        "anxiety_rate": 4872.75,
+        "luminosity_growth_index": 64.56,
+        "luminosity_gdp_ratio": 0.000182,
+        "energy_kwh_pc": 1155.1238,
+        "urban_pct": 25.3967
+      },
+      {
+        "year": 2023,
+        "mean_radiance": 0.82159,
+        "gdp_per_capita": 3755.52,
+        "depressive_rate": 4073.62,
+        "anxiety_rate": 5889.58,
+        "luminosity_growth_index": 90.59,
+        "luminosity_gdp_ratio": 0.000219,
+        "energy_kwh_pc": 1199.5065,
+        "urban_pct": 25.8082
       }
     ]
   },

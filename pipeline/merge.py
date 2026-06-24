@@ -23,7 +23,7 @@ viirs_map = {
     'Central African Rep':          'Central African Republic',
     'Cote d\'Ivoire':               "Côte d'Ivoire",
     'Dem Rep of the Congo':         'Democratic Republic of the Congo',
-    'Congo':                        'Congo',
+    'Rep of the Congo':             'Congo',
     'Fed States of Micronesia':     'Micronesia (Federated States of)',
     'Gambia, The':                  'Gambia',
     'Iran':                         'Iran (Islamic Republic of)',
@@ -45,7 +45,7 @@ viirs_map = {
     'Venezuela':                    'Venezuela (Bolivarian Republic of)',
     'Vietnam':                      'Viet Nam',
     'West Bank':                    'Palestine',
-    'Eswatini':                     'Eswatini',
+    'Swaziland':                    'Eswatini',
     'Cook Is':                      'Cook Islands',
     'Marshall Is':                  'Marshall Islands',
     'N. Mariana Is':                'Northern Mariana Islands',
@@ -87,9 +87,15 @@ gdp_map = {
     'Somalia':                      'Somalia',
 }
 
+# Map health names → standard name (only where health differs from IHME default)
+health_map = {
+    'Republic of Korea': 'South Korea',
+}
+
 # Apply mappings
 viirs['country']  = viirs['country'].replace(viirs_map)
 gdp['country']    = gdp['country'].replace(gdp_map)
+health['country'] = health['country'].replace(health_map)
 
 # ── Drop null radiance rows ────────────────────────────────────────────────────
 viirs = viirs.dropna(subset=['mean_radiance'])
