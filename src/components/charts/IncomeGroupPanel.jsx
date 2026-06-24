@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import * as d3 from 'd3';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import IncomeGroupChart from './IncomeGroupChart.jsx';
 import ChartModal from './ChartModal.jsx';
 

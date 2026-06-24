@@ -1,5 +1,5 @@
 import { useState, useRef, useEffect } from 'react';
-import { getFlagEmoji } from '../utils/countryFlags.js';
+import { getFlagEmoji } from '../../utils/countryFlags.js';
 
 const ANIM_MS = 180;
 const COLOR_A = '#f59e0b';

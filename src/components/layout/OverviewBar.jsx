@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { getFlagEmoji } from '../utils/countryFlags.js';
+import { getFlagEmoji } from '../../utils/countryFlags.js';
 
 export default function OverviewBar({ countries, onSelect, showRanking, onToggleRanking }) {
   const [query, setQuery] = useState('');

@@ -1,11 +1,11 @@
 import { useState, useEffect } from 'react';
-import RadianceGDPPanel from './RadianceGDPPanel.jsx';
-import LightGDPRatioPanel from './LightGDPRatioPanel.jsx';
-import QuadrantPanel from './QuadrantPanel.jsx';
-import HealthTrendPanel from './HealthTrendPanel.jsx';
-import EnergyPanel from './EnergyPanel.jsx';
-import IncomeGroupPanel from './IncomeGroupPanel.jsx';
-import Stack from './Stack.jsx';
+import RadianceGDPPanel from '../charts/RadianceGDPPanel.jsx';
+import LightGDPRatioPanel from '../charts/LightGDPRatioPanel.jsx';
+import QuadrantPanel from '../charts/QuadrantPanel.jsx';
+import HealthTrendPanel from '../charts/HealthTrendPanel.jsx';
+import EnergyPanel from '../charts/EnergyPanel.jsx';
+import IncomeGroupPanel from '../charts/IncomeGroupPanel.jsx';
+import Stack from '../ui/Stack.jsx';
 
 const TABS = [
   { id: 'wealth',      label: 'Wealth' },

@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import RadianceGDPChart from './RadianceGDPChart.jsx';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
-import { fmt, getSeries } from '../lib/data.js';
-import { YEARS } from '../lib/constants.js';
+import { fmt, getSeries } from '../../lib/data.js';
+import { YEARS } from '../../lib/constants.js';
 
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';

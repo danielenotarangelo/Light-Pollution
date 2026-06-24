@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import RadianceGrowthChart from './RadianceGrowthChart.jsx';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
-import { getSeries } from '../lib/data.js';
-import { YEARS } from '../lib/constants.js';
-import { getFlagEmoji } from '../utils/countryFlags.js';
+import { getSeries } from '../../lib/data.js';
+import { YEARS } from '../../lib/constants.js';
+import { getFlagEmoji } from '../../utils/countryFlags.js';
 
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';

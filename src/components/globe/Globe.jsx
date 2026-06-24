@@ -1,6 +1,6 @@
 import { useRef, useEffect, useCallback } from 'react';
 import * as THREE from 'three';
-import { TEXTURES, GLOBE_RADIUS as R } from '../lib/constants.js';
+import { TEXTURES, GLOBE_RADIUS as R } from '../../lib/constants.js';
 import {
   vec3ToLatLon,
   countryAtLatLon,
@@ -8,9 +8,9 @@ import {
   paintOverlay,
   TEX_W,
   TEX_H,
-} from '../lib/geo.js';
-import { getVal, fmt, activeVarKey } from '../lib/data.js';
-import { VAR_META } from '../lib/constants.js';
+} from '../../lib/geo.js';
+import { getVal, fmt, activeVarKey } from '../../lib/data.js';
+import { VAR_META } from '../../lib/constants.js';
 
 
 function getCountryCentroid(geo, name) {

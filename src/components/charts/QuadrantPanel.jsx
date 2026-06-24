@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import * as d3 from 'd3';
 import QuadrantChart from './QuadrantChart.jsx';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
 
 const COLOR_A = '#f59e0b';

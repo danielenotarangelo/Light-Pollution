@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import LightGDPRatioChart from './LightGDPRatioChart.jsx';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import ChartModal from './ChartModal.jsx';
-import { getSeries } from '../lib/data.js';
-import { YEARS } from '../lib/constants.js';
+import { getSeries } from '../../lib/data.js';
+import { YEARS } from '../../lib/constants.js';
 
 const COLOR_A = '#f59e0b';
 const COLOR_B = '#38bdf8';

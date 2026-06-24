@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import BorderGlow from './BorderGlow.jsx';
+import BorderGlow from '../ui/BorderGlow.jsx';
 import RankingChart, { RANK_METRICS } from './RankingChart.jsx';
 import ChartModal from './ChartModal.jsx';
 

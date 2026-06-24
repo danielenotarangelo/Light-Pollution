@@ -1,4 +1,4 @@
-import StarBorder from './StarBorder.jsx';
+import StarBorder from '../ui/StarBorder.jsx';
 
 export default function Header({ variable, onVariableChange, dark, onToggleTheme, onResultsClick, showResults }) {
   const toggles = [

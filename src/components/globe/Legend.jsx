@@ -1,5 +1,5 @@
-import { VAR_META } from '../lib/constants.js';
-import { activeVarKey, fmt } from '../lib/data.js';
+import { VAR_META } from '../../lib/constants.js';
+import { activeVarKey, fmt } from '../../lib/data.js';
 
 export default function Legend({ domains, variable, healthMetric, hidden = false }) {
   const k = activeVarKey(variable, healthMetric);

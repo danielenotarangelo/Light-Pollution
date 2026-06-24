@@ -1,6 +1,6 @@
 import { useEffect, useRef } from 'react';
-import { YEARS, YEAR_CAPTIONS } from '../lib/constants.js';
-import ElasticSlider from './ElasticSlider.jsx';
+import { YEARS, YEAR_CAPTIONS } from '../../lib/constants.js';
+import ElasticSlider from '../ui/ElasticSlider.jsx';
 
 export default function Timeline({ year, onYearChange, playing, onTogglePlay }) {
   const timerRef = useRef(null);
