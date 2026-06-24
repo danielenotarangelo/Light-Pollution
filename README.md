@@ -20,6 +20,29 @@ The interface is built around a **realistic 3D globe**. Clicking a country opens
 
 ## Running it locally
 
+### With Docker (recommended)
+
+You only need [Docker Desktop](https://www.docker.com/products/docker-desktop/) installed (no Node.js or npm required).
+
+```bash
+# Clone the repository
+git clone <repo-url>
+cd Light-Pollution
+
+# Build the image and start the server
+docker compose up --build
+```
+
+Open <http://localhost:8080> in your browser. To stop it, press `Ctrl+C`.
+
+Subsequent runs (after the first build) can skip `--build` and start instantly:
+
+```bash
+docker compose up
+```
+
+### Without Docker
+
 You need [Node.js](https://nodejs.org/) v18 or later.
 
 ```bash
@@ -147,9 +170,9 @@ pip install -r requirements.txt
 # Place the raw CSVs in public/data/raw/
 # (acquisition notes are at the top of each pipeline script)
 
-python merge.py                   # clean and merge all three sources
-python enrich_dataset.py          # compute derived variables
-python build_frontend_data.py     # produce data_bundle.json, countries.geojson, and .bin point clouds
+python scripts/merge.py                   # clean and merge all three sources
+python scripts/enrich_dataset.py          # compute derived variables
+python scripts/build_frontend_data.py     # produce data_bundle.json, countries.geojson, and .bin point clouds
 ```
 
 The binary `.bin` files are pre-triangulated point clouds used to render the per-year radiance maps on the globe surface; they are produced by `build_frontend_data.py`.
