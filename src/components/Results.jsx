@@ -155,7 +155,7 @@ function ScatterPlot({ points }) {
 const SLIDES = [
   {
     title: 'What the Satellites Found',
-    body: 'Ten years of VIIRS satellite data, 189 countries, and three independently collected datasets: nighttime radiance, GDP per capita, and mental health disorder prevalence. The patterns that emerge connect artificial light to economic development, energy use, and public health in ways that are both striking and worth interpreting carefully.',
+    body: 'Ten years of VIIRS satellite data, 192 countries, and three independently collected datasets: nighttime radiance, GDP per capita, and mental health disorder prevalence. The patterns that emerge connect artificial light to economic development, energy use, and public health in ways that are both striking and worth interpreting carefully.',
     big: true,
   },
   {
@@ -218,7 +218,7 @@ const SLIDES = [
     stat: '17',
     statNote: 'countries that reduced nighttime radiance 2013–2023',
     title: 'Seventeen Countries Got Darker',
-    body: 'Switzerland (−4.2%), Portugal (−6.7%), and Luxembourg (−6.8%) lead a group of 17 countries that actually reduced their nighttime radiance over the decade, primarily through LED street-light retrofits and dark-sky legislation. Crucially, their GDP and energy output continued to grow throughout this period, demonstrating that decoupling economic development from light pollution is technically and economically feasible. Their Trajectory charts show a rare pattern: radiance moving left while the health signal stays stable.',
+    body: 'Netherlands (−36.8%), Portugal (−6.7%), and Luxembourg (−6.8%) lead a group of 17 countries that actually reduced their nighttime radiance over the decade, primarily through LED street-light retrofits and dark-sky legislation. Crucially, their GDP and energy output continued to grow throughout this period, demonstrating that decoupling economic development from light pollution is technically and economically feasible. Their Trajectory charts show a rare pattern: radiance moving left while the health signal stays stable.',
     icon: 'dim',
   },
   {
