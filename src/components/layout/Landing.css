@@ -66,9 +66,10 @@
 }
 
 .landing-title.big {
-  font-size: clamp(72px, 12vw, 140px);
+  font-size: clamp(60px, 10vw, 112px);
   letter-spacing: -0.03em;
-  line-height: 0.95;
+  line-height: 1.0;
+  white-space: pre-wrap;
 }
 
 .landing-desc {
@@ -188,7 +189,7 @@
 /* Mobile (≤640px) */
 @media (max-width: 640px) {
   .landing-title     { font-size: clamp(32px, 9vw, 52px); }
-  .landing-title.big { font-size: clamp(48px, 14vw, 76px); }
+  .landing-title.big { font-size: clamp(40px, 12vw, 64px); }
   .landing-desc      { font-size: clamp(14px, 3.8vw, 18px); }
   .landing-eyebrow   { font-size: 11px; letter-spacing: 0.08em; }
   .landing-slide     { padding: 0 22px 0 44px; gap: 14px; max-width: 100%; }

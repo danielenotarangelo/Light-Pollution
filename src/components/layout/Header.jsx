@@ -10,7 +10,7 @@ export default function Header({ variable, onVariableChange, dark, onToggleTheme
   return (
     <header>
       <div className="brand">
-        <h1>Nights of Light</h1>
+        <h1>{'Once upon a time...\n the Night'}</h1>
         {showResults && (
           <StarBorder
             as="div"

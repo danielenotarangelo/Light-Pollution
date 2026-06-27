@@ -4,7 +4,7 @@ import './Landing.css';
 
 const SLIDES = [
   {
-    title: 'Nights of Light',
+    title: 'Once upon a time...\n the Night',
     body: 'Explore the relationship between artificial light pollution, economic development, and mental health across a decade of global data.',
     big: true,
   },
